@@ -8,9 +8,9 @@ The first implementation sends black/white symbols, frames them with a synchroni
 
 ## Current status
 
-Implemented: Python package layout, frame serialisation, CRC validation, high-contrast patterns, clocked webcam receiver, ROI sampling, repetition coding, Hamming (7,4), and hardware-independent tests.
+Implemented: Python package layout, frame serialisation, CRC validation, high-contrast patterns, preamble-based webcam synchronisation, ROI sampling, repetition coding, Hamming (7,4), and hardware-independent tests.
 
-Not yet implemented: calibration UI, robust camera-clock synchronisation, experiment recording/analysis, third coding method, spatial grid extension, and physical validation. No physical results are claimed yet.
+Not yet implemented: optical calibration UI, experiment recording/analysis, coding integration, third coding method, spatial grid extension, and physical validation. No physical results are claimed yet.
 
 ## Installation
 
@@ -45,7 +45,7 @@ The receiver currently selects an ROI from its first camera frame. Keep the mirr
 
 ## Protocol
 
-Frames contain a two-byte marker, version, sequence number, two-byte payload length, UTF-8 payload bytes, and CRC-16. Bits are transmitted most-significant bit first. A camera frame is not treated as a new optical symbol; the receiver samples at the configured symbol interval. This is intentionally simple and is the first baseline for investigating dropped, repeated, and mid-transition camera samples.
+Frames begin with four `0xAA` bytes, providing an alternating preamble for timing acquisition. They then contain a two-byte marker, version, sequence number, two-byte payload length, UTF-8 payload bytes, and CRC-16. Bits are transmitted most-significant bit first. The receiver stores timestamped camera classifications, searches for the preamble, and samples estimated symbol centres. A camera frame is not treated as a new optical symbol; missing observations are recorded as unavailable rather than silently converted into bits.
 
 ## Physical setup
 

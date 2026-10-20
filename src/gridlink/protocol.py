@@ -7,6 +7,7 @@ from dataclasses import dataclass
 MAGIC = bytes((0xD3, 0x91))
 VERSION = 1
 HEADER_LENGTH = 6  # magic, version, sequence, payload length
+PREAMBLE = bytes((0xAA, 0xAA, 0xAA, 0xAA))
 
 
 @dataclass(frozen=True)
@@ -49,7 +50,7 @@ def build_frame(frame: Frame) -> list[int]:
         + len(frame.payload).to_bytes(2, "big")
         + frame.payload
     )
-    return bytes_to_bits(body + crc16(body).to_bytes(2, "big"))
+    return bytes_to_bits(PREAMBLE + body + crc16(body).to_bytes(2, "big"))
 
 
 def parse_frame(bits: list[int]) -> Frame:
