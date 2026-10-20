@@ -10,7 +10,7 @@ The first implementation sends black/white symbols, frames them with a synchroni
 
 Implemented: Python package layout, frame serialisation, CRC validation, high-contrast patterns, preamble-based webcam synchronisation, ROI sampling, repetition coding, Hamming (7,4), and hardware-independent tests.
 
-Not yet implemented: coding integration, third coding method, analysis plots, spatial grid extension, and physical validation. Calibration and CSV/JSON experiment recording are implemented; no physical results are claimed yet.
+Not yet implemented: third coding method, analysis plots, spatial grid extension, and physical validation. Uncoded, repetition, and Hamming coding are now integrated into the frame pipeline. Calibration and CSV/JSON experiment recording are implemented; no physical results are claimed yet.
 
 ## Installation
 
@@ -41,6 +41,18 @@ On Laptop A, display a short message:
 gridlink transmit "GridLink test" --duration 0.25
 ```
 
+Select an integrated coding mode with:
+
+```powershell
+gridlink transmit "GridLink test" --coding none --duration 0.25
+gridlink transmit "GridLink test" --coding repetition --repetitions 3 --duration 0.25
+gridlink transmit "GridLink test" --coding repetition --repetitions 5 --duration 0.25
+gridlink transmit "GridLink test" --coding repetition --repetitions 7 --duration 0.25
+gridlink transmit "GridLink test" --coding hamming --duration 0.25
+```
+
+The coding mode and repetition factor are included in the uncoded frame header, so the receiver can decode the selected mode automatically. The transmitted payload plus its CRC is FEC-encoded. Hamming padding is removed using the protected-bit length stored in the header, and the original payload length is preserved.
+
 ## Calibration
 
 On Laptop B, select the reflected optical region and run:
@@ -66,7 +78,7 @@ The receiver currently selects an ROI from its first camera frame. Keep the mirr
 
 ## Protocol
 
-Frames begin with four `0xAA` bytes, providing an alternating preamble for timing acquisition. They then contain a two-byte marker, version, sequence number, two-byte payload length, UTF-8 payload bytes, and CRC-16. Bits are transmitted most-significant bit first. The receiver stores timestamped camera classifications, searches for the preamble, and samples estimated symbol centres. A camera frame is not treated as a new optical symbol; missing observations are recorded as unavailable rather than silently converted into bits.
+Frames begin with four `0xAA` bytes, providing an alternating preamble for timing acquisition. The header contains a two-byte marker, version, coding identifier, repetition factor, sequence number, original payload length, protected-bit length, and encoded-bit length, followed by a header CRC. The protected data is the payload followed by a CRC-16 over the payload, then encoded using the selected FEC. Bits are transmitted most-significant bit first. The receiver stores timestamped camera classifications, searches for the preamble, samples estimated symbol centres, reads the coding metadata, decodes the protected data, and finally validates the payload CRC. A camera frame is not treated as a new optical symbol; missing observations are recorded as unavailable rather than silently converted into bits.
 
 ## Physical setup
 

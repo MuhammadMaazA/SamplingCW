@@ -15,6 +15,8 @@ def main() -> None:
     send = subparsers.add_parser("transmit")
     send.add_argument("message")
     send.add_argument("--duration", type=float, default=0.25)
+    send.add_argument("--coding", choices=("none", "repetition", "hamming"), default="none")
+    send.add_argument("--repetitions", type=int, default=1)
     recv = subparsers.add_parser("receive")
     recv.add_argument("--camera", type=int, default=0)
     recv.add_argument("--duration", type=float, default=0.25)
@@ -29,9 +31,18 @@ def main() -> None:
     calibration.add_argument("--min-contrast", type=float, default=20.0)
     args = parser.parse_args()
     if args.command == "transmit":
-        transmit(Frame(args.message.encode("utf-8")), args.duration)
+        transmit(
+            Frame(
+                args.message.encode("utf-8"),
+                coding=args.coding,
+                repetitions=args.repetitions,
+            ),
+            args.duration,
+        )
     elif args.command == "receive":
         frame = receive(args.camera, args.duration, args.threshold, timeout=args.timeout)
+        print(f"coding={frame.coding} repetitions={frame.repetitions}")
+        print(f"corrected_codewords={frame.corrected_codewords}")
         print(frame.payload.decode("utf-8", errors="replace"))
     elif args.command == "reference":
         display_reference(int(args.value == "white"), args.duration)
