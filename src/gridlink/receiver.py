@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import time
 
+from .optical.calibration import CalibrationResult, estimate_threshold
 from .optical.detection import classify_intensity, sample_roi
 from .optical.synchronization import TimedSample, recover_symbols
 from .protocol import PREAMBLE, Frame, bytes_to_bits, parse_frame
@@ -62,6 +63,57 @@ def receive(
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 raise RuntimeError("receiver stopped by user")
         raise TimeoutError("no valid frame received before timeout")
+    finally:
+        camera.release()
+        cv2.destroyAllWindows()
+
+
+def calibrate(
+    camera_index: int = 0,
+    roi: tuple[int, int, int, int] | None = None,
+    samples_per_level: int = 20,
+    minimum_contrast: float = 20.0,
+) -> CalibrationResult:
+    """Measure reflected black and white levels after manual reference display."""
+    if samples_per_level <= 0:
+        raise ValueError("samples per level must be positive")
+    import cv2
+
+    camera = cv2.VideoCapture(camera_index)
+    if not camera.isOpened():
+        raise RuntimeError(f"could not open camera {camera_index}")
+    try:
+        ok, frame = camera.read()
+        if not ok:
+            raise RuntimeError("could not read an initial camera frame")
+        if roi is None:
+            selected = cv2.selectROI("Select optical region, then press Enter", frame, False, False)
+            cv2.destroyWindow("Select optical region, then press Enter")
+            roi = tuple(int(value) for value in selected)
+        measurements: list[list[float]] = []
+        for label in ("black", "white"):
+            print(f"Display the {label} reference, then press Space to measure it.")
+            while True:
+                ok, frame = camera.read()
+                if not ok:
+                    continue
+                text = f"Ready for {label}: press Space"
+                cv2.putText(frame, text, (10, 30), 0, 0.7, (0, 255, 0), 2)
+                cv2.imshow("GridLink calibration", frame)
+                key = cv2.waitKey(1) & 0xFF
+                if key == ord("q"):
+                    raise RuntimeError("calibration stopped by user")
+                if key == 32:
+                    break
+            level_samples: list[float] = []
+            while len(level_samples) < samples_per_level:
+                ok, frame = camera.read()
+                if not ok:
+                    continue
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                level_samples.append(sample_roi(gray, roi))
+            measurements.append(level_samples)
+        return estimate_threshold(*measurements, minimum_contrast=minimum_contrast)
     finally:
         camera.release()
         cv2.destroyAllWindows()

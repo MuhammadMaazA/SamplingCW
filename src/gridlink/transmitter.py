@@ -26,3 +26,21 @@ def transmit(frame: Frame, symbol_duration: float = 0.25, window: str = "GridLin
     finally:
         cv2.destroyWindow(window)
 
+
+def display_reference(bit: int, duration: float = 5.0, window: str = "GridLink reference") -> None:
+    """Display one known level while the receiver measures its reflected intensity."""
+    if bit not in (0, 1) or duration <= 0:
+        raise ValueError("reference bit must be 0 or 1 and duration must be positive")
+    import cv2
+
+    cv2.namedWindow(window, cv2.WINDOW_NORMAL)
+    cv2.setWindowProperty(window, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+    try:
+        started = time.monotonic()
+        while time.monotonic() - started < duration:
+            cv2.imshow(window, symbol_image(bit))
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                return
+    finally:
+        cv2.destroyWindow(window)
+

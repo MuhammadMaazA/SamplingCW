@@ -10,7 +10,7 @@ The first implementation sends black/white symbols, frames them with a synchroni
 
 Implemented: Python package layout, frame serialisation, CRC validation, high-contrast patterns, preamble-based webcam synchronisation, ROI sampling, repetition coding, Hamming (7,4), and hardware-independent tests.
 
-Not yet implemented: optical calibration UI, experiment recording/analysis, coding integration, third coding method, spatial grid extension, and physical validation. No physical results are claimed yet.
+Not yet implemented: experiment recording/analysis, coding integration, third coding method, spatial grid extension, and physical validation. Calibration is implemented as a manual reference workflow; no physical results are claimed yet.
 
 ## Installation
 
@@ -40,6 +40,23 @@ On Laptop A, display a short message:
 ```powershell
 gridlink transmit "GridLink test" --duration 0.25
 ```
+
+## Calibration
+
+On Laptop B, select the reflected optical region and run:
+
+```powershell
+gridlink calibrate --camera 0 --samples 20 --min-contrast 20
+```
+
+On Laptop A, run each reference command when prompted by the receiver:
+
+```powershell
+gridlink reference black --duration 5
+gridlink reference white --duration 5
+```
+
+The calibration command reports measured black and white levels, their midpoint threshold, contrast separation, and whether the separation passed the requested minimum. The reference commands must be aimed through the same mirror geometry used for communication.
 
 The receiver currently selects an ROI from its first camera frame. Keep the mirror aligned, use a stable lighting condition, and start the receiver before the transmitter. Press `q` to stop either window. The current receiver is a conservative debugging baseline; its clocked sampling must be validated and improved experimentally before it is treated as the final protocol.
 
