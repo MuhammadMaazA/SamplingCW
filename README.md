@@ -10,7 +10,7 @@ The first implementation sends black/white symbols, frames them with a synchroni
 
 Implemented: Python package layout, frame serialisation, CRC validation, high-contrast patterns, preamble-based webcam synchronisation, ROI sampling, repetition coding, Hamming (7,4), and hardware-independent tests.
 
-Not yet implemented: third coding method, analysis plots, spatial grid extension, and physical validation. Uncoded, repetition, and Hamming coding are now integrated into the frame pipeline. Calibration and CSV/JSON experiment recording are implemented; no physical results are claimed yet.
+Not yet implemented: third coding method, analysis plots, spatial grid extension, and physical validation. Uncoded, repetition, and Hamming coding are integrated into the frame pipeline. Binary symmetric and burst-noise simulations, calibration, and CSV/JSON experiment recording are implemented; no physical results are claimed yet.
 
 ## Installation
 
@@ -87,4 +87,16 @@ Place the screen so its black/white display is visible in the mirror. Place the 
 ## Coursework plan
 
 The measured comparison should include uncoded transmission, repetition factors 3/5/7, Hamming (7,4), and a justified third error-correcting method. Results must describe both error and useful transmission rate. Noise should be visualised as aligned bit errors or erasures where possible, distinguishing burst/timing failures from independent bit flips. At least one extension should be chosen from observed weaknesses, such as interleaving, retransmission, adaptive coding, or signal filtering.
+
+## Software noise experiments
+
+The lab-style binary symmetric channel experiment can be run without hardware:
+
+```powershell
+gridlink simulate "GridLink test" --coding none --flip-probability 0.1 --trials 100
+gridlink simulate "GridLink test" --coding repetition --repetitions 3 --flip-probability 0.1 --trials 100
+gridlink simulate "GridLink test" --coding hamming --flip-probability 0.1 --trials 100
+```
+
+The result reports mean decoded BER, standard deviation, and coding rate. The Python API also supports a contiguous burst-noise interval. See `docs/experimental-plan.md` for the proposed parameter sweeps and physical measurements.
 
