@@ -18,6 +18,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from ..coding.extended_hamming import UncorrectableError
 from ..coding.pipeline import CodingConfig, decode
 from ..optical.detection import classify_intensity
 from ..optical.synchronization import TimedSample, find_first_pattern, sample_symbols
@@ -91,8 +92,12 @@ def _record(
         if len(received) < len(transmitted):
             failure = "truncated"
         else:
-            decoded, _ = decode(received[HEADER_BITS:], len(protected), config)
-            decoded_errors = _mismatches(protected, decoded)
+            try:
+                decoded, _ = decode(received[HEADER_BITS:], len(protected), config)
+            except UncorrectableError:
+                pass
+            else:
+                decoded_errors = _mismatches(protected, decoded)
             try:
                 frame = parse_frame(received)
             except ValueError as error:

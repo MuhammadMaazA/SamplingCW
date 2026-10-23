@@ -36,6 +36,7 @@ def receive(
         samples: list[TimedSample] = []
         started = time.monotonic()
         next_decode_attempt = started
+        last_error = "no synchronisation marker found"
         preamble_bits = bytes_to_bits(SYNC_WORD)
         while time.monotonic() - started < timeout:
             ok, frame = camera.read()
@@ -60,11 +61,11 @@ def receive(
                 if recovered is not None:
                     try:
                         return parse_frame(recovered)
-                    except ValueError:
-                        pass
+                    except ValueError as error:
+                        last_error = str(error)
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 raise RuntimeError("receiver stopped by user")
-        raise TimeoutError("no valid frame received before timeout")
+        raise TimeoutError(f"no valid frame received before timeout; last result: {last_error}")
     finally:
         camera.release()
         cv2.destroyAllWindows()

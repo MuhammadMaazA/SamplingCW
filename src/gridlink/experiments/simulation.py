@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from math import comb
 from statistics import mean, pstdev
 
+from ..coding.extended_hamming import UncorrectableError
 from ..coding.pipeline import CodingConfig, decode, encode, encoded_length
 from .metrics import bit_error_rate, coding_rate
 from .noise import binary_symmetric_channel, burst_noise
@@ -19,9 +20,10 @@ class TrialResult:
     input_bits: int
     encoded_bits: int
     coded_bit_error_rate: float
-    decoded_bit_error_rate: float
+    decoded_bit_error_rate: float | None
     corrected_codewords: int
     seed: int
+    uncorrectable: bool = False
 
 
 @dataclass(frozen=True)
@@ -30,9 +32,10 @@ class TrialSummary:
     repetitions: int
     flip_probability: float
     trials: int
-    mean_decoded_ber: float
-    standard_deviation: float
+    mean_decoded_ber: float | None
+    standard_deviation: float | None
     coding_rate: float
+    uncorrectable_trials: int = 0
 
 
 def repetition_error_probability(flip_probability: float, factor: int) -> float:
@@ -64,7 +67,12 @@ def run_trial(
     else:
         start, length = burst
         received = burst_noise(encoded, start, length, flip_probability, seed)
-    decoded, corrected = decode(received, len(bits), config)
+    uncorrectable = False
+    try:
+        decoded, corrected = decode(received, len(bits), config)
+    except UncorrectableError:
+        decoded, corrected = None, 0
+        uncorrectable = True
     return TrialResult(
         coding=config.scheme,
         repetitions=config.repetitions,
@@ -72,9 +80,10 @@ def run_trial(
         input_bits=len(bits),
         encoded_bits=len(encoded),
         coded_bit_error_rate=bit_error_rate(encoded, received),
-        decoded_bit_error_rate=bit_error_rate(bits, decoded),
+        decoded_bit_error_rate=bit_error_rate(bits, decoded) if decoded is not None else None,
         corrected_codewords=corrected,
         seed=seed,
+        uncorrectable=uncorrectable,
     )
 
 
@@ -109,14 +118,18 @@ def summarise_trials(results: list[TrialResult]) -> TrialSummary:
         for result in results
     ):
         raise ValueError("all results must use the same experiment configuration")
-    ber_values = [result.decoded_bit_error_rate for result in results]
+    ber_values = [
+        result.decoded_bit_error_rate for result in results
+        if result.decoded_bit_error_rate is not None
+    ]
     return TrialSummary(
         coding=first.coding,
         repetitions=first.repetitions,
         flip_probability=first.flip_probability,
         trials=len(results),
-        mean_decoded_ber=mean(ber_values),
-        standard_deviation=pstdev(ber_values),
+        mean_decoded_ber=mean(ber_values) if ber_values else None,
+        standard_deviation=pstdev(ber_values) if ber_values else None,
         coding_rate=coding_rate(first.input_bits, first.encoded_bits),
+        uncorrectable_trials=sum(result.uncorrectable for result in results),
     )
 

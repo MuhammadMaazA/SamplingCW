@@ -8,9 +8,9 @@ The screen sends black/white symbols. The receiver finds frame boundaries, decod
 
 ## Current status
 
-The software supports uncoded transmission, repetition coding and Hamming (7,4), with calibration, synchronisation and CRC checks. It also includes noise simulations, experiment plans, raw camera capture, offline analysis and automated tests.
+The software supports uncoded transmission, repetition coding, Hamming (7,4), extended Hamming (8,4), and Hamming with interleaving. It includes calibration, synchronisation, CRC checks, noise simulations, experiment plans, raw camera capture and offline analysis.
 
-Physical mirror tests are still needed. The third coding method, measurement plots, extension, report and presentation are also still to do.
+Direct screen-to-camera reception of `hi` has been reported by the group. The new modes have software tests but still need physical testing. Repeated measurements, mirror tests if retaining that setup, plots, the report and presentation are still to do.
 
 ## Installation
 
@@ -132,9 +132,56 @@ Replace the distance and lighting with the actual conditions. The command prints
 gridlink transmit "hi" --coding none --duration 0.25
 gridlink transmit "hi" --coding repetition --repetitions 3 --duration 0.25
 gridlink transmit "hi" --coding hamming --duration 0.25
+gridlink transmit "hi" --coding extended-hamming --duration 0.25
+gridlink transmit "hi" --coding hamming-interleaved --duration 0.25
 ```
 
 The coding mode and repetition factor are included in the frame header, so the receiver can decode the selected mode automatically. The transmitted payload plus its CRC is FEC-encoded. Hamming padding is removed using the protected-bit length derived from the payload length in the header.
+
+## Faster transmission
+
+`--duration` sets seconds per transmitted bit. Alternatively, use `--bit-rate` for transmitted bits per second. Use one option, with the same value on both laptops. The default remains 0.25 seconds per bit (4 bits/s).
+
+Start the receiver on B, replacing `127` with the calibrated threshold:
+
+```bash
+gridlink receive --bit-rate 10 --threshold 127 --timeout 120
+```
+
+Then on A:
+
+```bash
+gridlink transmit "hi" --coding extended-hamming --bit-rate 10
+```
+
+This takes about 30.4 seconds. Try 10 bits/s first, then 15 or 20 if reception is reliable. Faster settings depend on camera frame rate, exposure and screen refresh. Bit rate counts transmitted bits, including redundancy and framing, rather than useful message bits.
+
+`plan` also accepts `--bit-rate`. `transmit-plan` and offline analysis use the timing saved in that plan:
+
+```bash
+gridlink plan experiments/plans/fast.json --configs none,repetition:3,hamming,extended-hamming,hamming-interleaved --repeats 3 --payload-bytes 4 --bit-rate 10 --gap 2
+```
+
+Update both laptops before using the new coding modes. The frame layout and old coding IDs remain version 2; older installations reject the new IDs.
+
+## Third method and extension
+
+Extended Hamming (8,4), selected with `--coding extended-hamming`, adds overall parity to Hamming (7,4). It corrects any single-bit error and detects any double-bit error within each eight-bit codeword. A detected double error rejects the frame with an `uncorrectable codeword` message. Three or more errors can be miscorrected or missed; the payload CRC remains a separate integrity check. Its code rate is 4/8, compared with 4/7 for ordinary Hamming. This provides a third comparison alongside repetition and ordinary Hamming, with the distinction and tradeoff explained in the report.
+
+The extension is `--coding hamming-interleaved`. It encodes with Hamming (7,4), then sends columns from groups of up to eight codewords. The receiver reverses this order before decoding. No bits are added; a final shorter group uses its actual number of words, derived from the protected length. Only encoded data is interleaved; sync and header bits stay in their original positions.
+
+A short burst can then affect one bit in each of several codewords rather than several bits in one word. This helps when the burst lies within a group; group boundaries, smaller final groups, longer bursts and missing camera observations can still cause failures.
+
+Compare an eight-bit burst with and without interleaving:
+
+```bash
+gridlink simulate "Grid" --coding hamming --burst-start 0 --burst-length 8 --flip-probability 1 --trials 1
+gridlink simulate "Grid" --coding hamming-interleaved --burst-start 0 --burst-length 8 --flip-probability 1 --trials 1
+```
+
+Here every bit in the selected burst is flipped. With lower probabilities, each bit inside that interval flips independently. Outside the burst, bits remain unchanged. Without `--burst-length`, noise is applied across the whole encoded stream.
+
+Simulation summaries count `uncorrectable_trials` separately. Their decoded BER is excluded because no message was recovered; `None` means no decoded BER is available. Always report rejection counts alongside BER. Physical experiment rows retain the failure reason too.
 
 ## Troubleshooting
 

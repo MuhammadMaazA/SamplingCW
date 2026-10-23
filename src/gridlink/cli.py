@@ -3,13 +3,29 @@
 from __future__ import annotations
 
 import argparse
+from math import isfinite
 
-from .coding.pipeline import CodingConfig
+from .coding.pipeline import CODING_IDS, CodingConfig
 from .experiments.simulation import run_trials, summarise_trials
 from .protocol import Frame
 
-DEFAULT_CONFIGS = "none,repetition:3,repetition:5,repetition:7,hamming"
+DEFAULT_CONFIGS = "none,repetition:3,repetition:5,repetition:7,hamming,extended-hamming"
 CAPTURE_MARGIN_SECONDS = 30.0
+
+
+def _positive_float(text: str) -> float:
+    value = float(text)
+    if not isfinite(value) or value <= 0:
+        raise argparse.ArgumentTypeError("value must be finite and positive")
+    return value
+
+
+def _add_speed_options(parser) -> None:
+    speed = parser.add_mutually_exclusive_group()
+    speed.add_argument(
+        "--duration", type=_positive_float, help="seconds per encoded bit (default 0.25)"
+    )
+    speed.add_argument("--bit-rate", type=_positive_float, help="encoded bits per second")
 
 
 def _add_experiment_commands(subparsers) -> None:
@@ -19,7 +35,7 @@ def _add_experiment_commands(subparsers) -> None:
     plan.add_argument("--configs", default=DEFAULT_CONFIGS)
     plan.add_argument("--repeats", type=int, default=5)
     plan.add_argument("--payload-bytes", type=int, default=4)
-    plan.add_argument("--duration", type=float, default=0.25)
+    _add_speed_options(plan)
     plan.add_argument("--gap", type=float, default=2.0)
     plan.add_argument("--seed", type=int, default=0)
     play = subparsers.add_parser("transmit-plan", help="display every trial in a plan")
@@ -108,12 +124,12 @@ def main() -> None:
     subparsers = parser.add_subparsers(dest="command", required=True)
     send = subparsers.add_parser("transmit")
     send.add_argument("message")
-    send.add_argument("--duration", type=float, default=0.25)
-    send.add_argument("--coding", choices=("none", "repetition", "hamming"), default="none")
+    _add_speed_options(send)
+    send.add_argument("--coding", choices=tuple(CODING_IDS), default="none")
     send.add_argument("--repetitions", type=int, default=1)
     recv = subparsers.add_parser("receive")
     recv.add_argument("--camera", type=int, default=0)
-    recv.add_argument("--duration", type=float, default=0.25)
+    _add_speed_options(recv)
     recv.add_argument("--threshold", type=float, default=127.0)
     recv.add_argument("--timeout", type=float, default=30.0)
     reference = subparsers.add_parser("reference")
@@ -125,13 +141,19 @@ def main() -> None:
     calibration.add_argument("--min-contrast", type=float, default=20.0)
     simulation = subparsers.add_parser("simulate")
     simulation.add_argument("message")
-    simulation.add_argument("--coding", choices=("none", "repetition", "hamming"), default="none")
+    simulation.add_argument("--coding", choices=tuple(CODING_IDS), default="none")
     simulation.add_argument("--repetitions", type=int, default=1)
     simulation.add_argument("--flip-probability", type=float, default=0.1)
     simulation.add_argument("--trials", type=int, default=100)
     simulation.add_argument("--seed", type=int, default=0)
+    simulation.add_argument("--burst-start", type=int, default=0)
+    simulation.add_argument("--burst-length", type=int)
     _add_experiment_commands(subparsers)
     args = parser.parse_args()
+    if args.command in ("transmit", "receive", "plan"):
+        args.duration = 1 / args.bit_rate if args.bit_rate else (
+            args.duration if args.duration is not None else 0.25
+        )
     if args.command in ("plan", "transmit-plan", "capture", "analyse"):
         _run_experiment_command(args)
     elif args.command == "transmit":
@@ -177,11 +199,16 @@ def main() -> None:
         ]
         config = CodingConfig(args.coding, args.repetitions)
         summary = summarise_trials(
-            run_trials(bits, config, args.flip_probability, args.trials, args.seed)
+            run_trials(
+                bits, config, args.flip_probability, args.trials, args.seed,
+                burst=(args.burst_start, args.burst_length)
+                if args.burst_length is not None else None,
+            )
         )
         print(f"coding={summary.coding} repetitions={summary.repetitions}")
         print(f"flip_probability={summary.flip_probability}")
         print(f"trials={summary.trials}")
-        print(f"mean_decoded_ber={summary.mean_decoded_ber:.6f}")
-        print(f"standard_deviation={summary.standard_deviation:.6f}")
+        print(f"uncorrectable_trials={summary.uncorrectable_trials}")
+        print(f"mean_decoded_ber={summary.mean_decoded_ber}")
+        print(f"standard_deviation={summary.standard_deviation}")
         print(f"coding_rate={summary.coding_rate:.6f}")
