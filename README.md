@@ -1,83 +1,114 @@
 # GridLink
 
-GridLink is a low-rate optical communication system for COMP0228. The intended physical path is:
+GridLink sends data from one laptop's screen, through a mirror, to another laptop's webcam. It is our COMP0228 coursework project.
 
 **Laptop A screen -> physical mirror -> Laptop B webcam**
 
-The first implementation sends black/white symbols, frames them with a synchronisation marker, and checks received frames with CRC-16. Repetition and Hamming (7,4) are available as independent coding modules for the experimental work.
+The screen sends black/white symbols. The receiver finds frame boundaries, decodes the data and checks it with CRC-16.
 
 ## Current status
 
-Implemented: Python package layout, frame serialisation, CRC validation, high-contrast patterns, preamble-based webcam synchronisation, ROI sampling, repetition coding, Hamming (7,4), and hardware-independent tests.
+The software supports uncoded transmission, repetition coding and Hamming (7,4), with calibration, synchronisation and CRC checks. It also includes noise simulations, experiment plans, raw camera capture, offline analysis and automated tests.
 
-Not yet implemented: third coding method, analysis plots, spatial grid extension, and physical validation. Uncoded, repetition, and Hamming coding are integrated into the frame pipeline. Binary symmetric and burst-noise simulations, calibration, CSV/JSON experiment recording, and planned physical sessions with raw capture and offline analysis are implemented; no physical results are claimed yet.
+Physical mirror tests are still needed. The third coding method, measurement plots, extension, report and presentation are also still to do.
 
 ## Installation
 
-Both laptops must use protocol version 2 (included on `main` after the experiment pipeline merge). Version 1 frames are incompatible; update both laptops together.
+Both laptops need protocol version 2. The cleaned version is currently on local `main`; until it is pushed, use the published `feat/experiment-pipeline` branch on both laptops. After it is pushed, use `main` on both.
+
+If you already have the repository, open that folder. Otherwise:
 
 ```bash
 git clone https://github.com/MuhammadMaazA/gridlink.git
 cd gridlink
-git checkout main
+```
+
+For an existing clone, check for local changes before updating:
+
+```bash
+git status
+git fetch origin
+git checkout feat/experiment-pipeline
+git pull --ff-only
+```
+
+Create the environment once. On Windows PowerShell:
+
+```powershell
+py -3 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e ".[dev]"
+```
+
+On macOS or Linux:
+
+```bash
 python3 -m venv .venv
-source .venv/bin/activate          # Windows: .\.venv\Scripts\Activate.ps1
+source .venv/bin/activate
 python -m pip install -e ".[dev]"
 ```
 
 Run checks with:
 
 ```bash
-pytest
-ruff check .
+python -m pytest
+python -m ruff check src tests
 ```
 
-## Hardware smoke test (do this first)
+## First mirror test
 
 Physical path: **Laptop A screen → mirror → Laptop B webcam**. Laptop B must see the *reflected* screen, not the screen directly. Use a large reflected patch, high screen brightness, low ambient light, and grant camera permission to the terminal.
 
-### 0. Roles
+### Roles
+
 - **Laptop A = transmitter** (fullscreen black/white flashes)
 - **Laptop B = receiver** (webcam + ROI selection)
 
 Start the receiver/capture side first, then the transmitter.
 
-### 1. Calibrate (~2 minutes)
+### 1. Calibrate
+
 On Laptop B:
 
 ```bash
 gridlink calibrate --camera 0
 ```
 
-Draw a tight box on the reflected flash region, then press Enter / Space as prompted. When it asks for black/white, on Laptop A run:
+Select a tight region inside the reflected screen patch and press Enter. When B asks for black, run on A:
 
 ```bash
 gridlink reference black --duration 5
+```
+
+While black is visible, focus B's calibration window and press Space to measure it. Wait until B asks for white, then run on A:
+
+```bash
 gridlink reference white --duration 5
 ```
 
-You want `valid=True` and a large `contrast`. Note the printed `threshold`.
+Press Space on B while white is visible. Check that `valid=True` and note the `threshold`. If contrast is too low, adjust the mirror, brightness or room lighting and repeat.
 
-### 2. One short message (~70 seconds)
+### 2. Send a short message
+
 On Laptop B (start first; timeout must exceed the message length):
 
 ```bash
-gridlink receive --duration 0.25 --threshold <from-calibrate> --timeout 120
+gridlink receive --duration 0.25 --threshold 127 --timeout 120
 ```
 
-On Laptop A:
+Replace `127` with the threshold from calibration. Once B has selected its region and is receiving, run on A:
 
 ```bash
 gridlink transmit "hi" --duration 0.25
 ```
 
-If the payload prints on B, the link works. Then try `--duration 0.1` on both sides (faster, harder). Press `q` to stop either window.
+This takes about 68 seconds. B should print `hi`. After that works, try `--duration 0.1` on both laptops. Press `q` in the active window to stop.
 
-### 3. Tiny planned session (~3 minutes of airtime)
-Share `experiments/plans/smoke.json` (already in the repo on this branch). On Laptop B:
+### 3. Run the smoke plan
+
+Use the same `experiments/plans/smoke.json` on both laptops. It contains two trials and takes about 139 seconds to transmit. Start on B:
 
 ```bash
-mkdir -p experiments/results
 gridlink capture experiments/results/smoke-capture.csv --plan experiments/plans/smoke.json
 ```
 
@@ -87,13 +118,13 @@ On Laptop A, once B is capturing:
 gridlink transmit-plan experiments/plans/smoke.json
 ```
 
-Then on either laptop:
+After capture finishes, analyse on B, or copy the capture file to A first:
 
 ```bash
 gridlink analyse experiments/plans/smoke.json experiments/results/smoke-capture.csv experiments/results/smoke.csv --distance 1.0 --lighting "lab"
 ```
 
-You should see a per-coding summary. Sync failures or CRC failures still produce useful rows — that is expected on a first run.
+Replace the distance and lighting with the actual conditions. The command prints a summary and saves one row per trial, including failures. Output directories are created automatically. Use a new capture filename for each session to avoid overwriting measurements.
 
 ## Manual single-message options
 
@@ -105,28 +136,18 @@ gridlink transmit "hi" --coding hamming --duration 0.25
 
 The coding mode and repetition factor are included in the frame header, so the receiver can decode the selected mode automatically. The transmitted payload plus its CRC is FEC-encoded. Hamming padding is removed using the protected-bit length derived from the payload length in the header.
 
-## Calibration
+## Troubleshooting
 
-On Laptop B, select the reflected optical region and run:
-
-```powershell
-gridlink calibrate --camera 0 --samples 20 --min-contrast 20
-```
-
-On Laptop A, run each reference command when prompted by the receiver:
-
-```powershell
-gridlink reference black --duration 5
-gridlink reference white --duration 5
-```
-
-The calibration command reports measured black and white levels, their midpoint threshold, contrast separation, and whether the separation passed the requested minimum. The reference commands must be aimed through the same mirror geometry used for communication.
+- Low contrast: check the selected region, increase screen brightness, reduce room lighting or adjust the mirror.
+- Timeout: start B before A, check both use the same symbol duration, and allow enough time for the whole frame.
+- Camera unavailable: try `--camera 1` and check camera permissions for the terminal or Python app.
+- Protocol mismatch: update both laptops to protocol version 2. Check their code versions rather than relying on the branch name.
 
 ## Experiment data
 
 `gridlink.experiments.recording.ExperimentRecord` stores run metadata, physical conditions, aligned bit streams, frame validity, synchronisation failures, and elapsed time. The metrics module keeps BER, frame error rate, coding rate, useful throughput, and error-run calculations independent of camera hardware. Generated results should be written under `experiments/results/`, which is ignored by Git.
 
-The receiver currently selects an ROI from its first camera frame. Keep the mirror aligned, use a stable lighting condition, and start the receiver before the transmitter. Press `q` to stop either window. The current receiver is a conservative debugging baseline; its clocked sampling must be validated and improved experimentally before it is treated as the final protocol.
+The receiver selects a region from its first camera frame. Keep the mirror still and the lighting stable. Camera timing and physical reliability still need testing.
 
 ## Protocol
 
