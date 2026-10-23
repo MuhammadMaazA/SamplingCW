@@ -58,6 +58,9 @@ def _add_experiment_commands(subparsers) -> None:
     analyse.add_argument("--notes", default="")
     analyse.add_argument("--glare", action="store_true")
     analyse.add_argument("--obstruction", action="store_true")
+    report = subparsers.add_parser("report", help="make tables and plots from analysed trial CSVs")
+    report.add_argument("results", nargs="+")
+    report.add_argument("--output", required=True, help="new output directory")
 
 
 def _run_experiment_command(args) -> None:
@@ -154,7 +157,11 @@ def main() -> None:
         args.duration = 1 / args.bit_rate if args.bit_rate else (
             args.duration if args.duration is not None else 0.25
         )
-    if args.command in ("plan", "transmit-plan", "capture", "analyse"):
+    if args.command == "report":
+        from .experiments.report import write_report
+
+        print(f"report={write_report(args.results, args.output)}")
+    elif args.command in ("plan", "transmit-plan", "capture", "analyse"):
         _run_experiment_command(args)
     elif args.command == "transmit":
         from .transmitter import transmit

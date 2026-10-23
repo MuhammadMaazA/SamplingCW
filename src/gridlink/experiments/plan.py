@@ -91,11 +91,13 @@ def make_plan(
     if not isfinite(gap) or gap < 4 * symbol_duration:
         raise ValueError("gap must be at least four symbols to separate frames")
     generator = random.Random(seed)
-    order = [config for config in configs for _ in range(repeats)]
+    # Each repetition compares every code on the same payload, in shuffled order.
+    payloads = [generator.randbytes(payload_bytes) for _ in range(repeats)]
+    order = [(config, payload) for config in configs for payload in payloads]
     generator.shuffle(order)
     trials = tuple(
-        Trial(index, config.scheme, config.repetitions, generator.randbytes(payload_bytes))
-        for index, config in enumerate(order)
+        Trial(index, config.scheme, config.repetitions, payload)
+        for index, (config, payload) in enumerate(order)
     )
     return ExperimentPlan(name, symbol_duration, gap, seed, trials)
 

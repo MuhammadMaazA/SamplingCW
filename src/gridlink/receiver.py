@@ -90,21 +90,23 @@ def capture(
     """
     if duration <= 0:
         raise ValueError("capture duration must be positive")
+    destination = Path(output)
+    if destination.exists():
+        raise FileExistsError(f"capture already exists; choose a new filename: {destination}")
     import cv2
 
     camera = cv2.VideoCapture(camera_index)
     if not camera.isOpened():
         raise RuntimeError(f"could not open camera {camera_index}")
-    destination = Path(output)
-    destination.parent.mkdir(parents=True, exist_ok=True)
     count = 0
     try:
+        destination.parent.mkdir(parents=True, exist_ok=True)
         ok, frame = camera.read()
         if not ok:
             raise RuntimeError("could not read an initial camera frame")
         if roi is None:
             roi = _select_roi(cv2, frame)
-        with destination.open("w", newline="", encoding="utf-8") as stream:
+        with destination.open("x", newline="", encoding="utf-8", buffering=1) as stream:
             write_capture_header(stream, datetime.now(timezone.utc), camera_index, roi)
             started = time.monotonic()
             while time.monotonic() - started < duration:

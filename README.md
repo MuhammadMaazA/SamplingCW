@@ -1,6 +1,6 @@
 # GridLink
 
-GridLink sends data from one laptop's screen, through a mirror, to another laptop's webcam. It is our COMP0228 coursework project.
+GridLink sends data from one laptop's screen to a camera, either directly or through a mirror. It is our COMP0228 coursework project.
 
 **Laptop A screen -> physical mirror -> Laptop B webcam**
 
@@ -10,7 +10,7 @@ The screen sends black/white symbols. The receiver finds frame boundaries, decod
 
 The software supports uncoded transmission, repetition coding, Hamming (7,4), extended Hamming (8,4), and Hamming with interleaving. It includes calibration, synchronisation, CRC checks, noise simulations, experiment plans, raw camera capture and offline analysis.
 
-Direct screen-to-camera reception of `hi` has been reported by the group. The new modes have software tests but still need physical testing. Repeated measurements, mirror tests if retaining that setup, plots, the report and presentation are still to do.
+Direct screen-to-camera reception of `hi` has been reported by the group. The new modes and reporting tools have software tests but still need physical measurements. Experiments, evaluation, the report and presentation are still to do. Whether extended Hamming qualifies as the additional coding approach needs confirmation from the lecturer.
 
 ## Installation
 
@@ -164,9 +164,9 @@ gridlink plan experiments/plans/fast.json --configs none,repetition:3,hamming,ex
 
 Update both laptops before using the new coding modes. The frame layout and old coding IDs remain version 2; older installations reject the new IDs.
 
-## Third method and extension
+## Extended Hamming and interleaving
 
-Extended Hamming (8,4), selected with `--coding extended-hamming`, adds overall parity to Hamming (7,4). It corrects any single-bit error and detects any double-bit error within each eight-bit codeword. A detected double error rejects the frame with an `uncorrectable codeword` message. Three or more errors can be miscorrected or missed; the payload CRC remains a separate integrity check. Its code rate is 4/8, compared with 4/7 for ordinary Hamming. This provides a third comparison alongside repetition and ordinary Hamming, with the distinction and tradeoff explained in the report.
+Extended Hamming (8,4), selected with `--coding extended-hamming`, adds overall parity to Hamming (7,4). It corrects any single-bit error and detects any double-bit error within each eight-bit codeword. A detected double error rejects the frame with an `uncorrectable codeword` message. Three or more errors can be miscorrected or missed; the payload CRC remains a separate integrity check. Its code rate is 4/8, compared with 4/7 for ordinary Hamming. Lab 2 already covers this variation. Keep it as an extra comparison; do not claim it fulfils the independent additional-method requirement until the lecturer confirms that it qualifies.
 
 The extension is `--coding hamming-interleaved`. It encodes with Hamming (7,4), then sends columns from groups of up to eight codewords. The receiver reverses this order before decoding. No bits are added; a final shorter group uses its actual number of words, derived from the protected length. Only encoded data is interleaved; sync and header bits stay in their original positions.
 
@@ -220,6 +220,68 @@ gridlink analyse experiments/plans/s1.json experiments/results/s1-capture.csv ex
 ```
 
 `plan` shuffles the trial order with the seed, so slow lighting or alignment drift is spread across coding modes. `transmit-plan` schedules every symbol and trial on one absolute clock. `capture` stores every camera sample, so a session can be re-analysed with another threshold or filter without repeating it. `analyse` writes one row per planned trial, including synchronisation failures, truncated frames, and CRC failures, and prints a per-coding summary.
+
+New plans use the same set of payloads for every coding configuration. Old saved plans still work and keep their original payloads. Capture refuses to overwrite an existing file and saves each sample as a line so an interrupted recording keeps the completed lines.
+
+## Run the coursework experiments
+
+Keep the initial direct screen-to-camera setup. Record the camera used, whether a mirror is present, distance, lighting, screen brightness and calibration threshold. Use a new name for each capture, retain the plan and raw capture, and back up `experiments/results/` separately because Git ignores it.
+
+Install plotting support on the laptop doing the analysis:
+
+```bash
+python -m pip install -e ".[analysis]"
+```
+
+Create one comparison plan on A and copy the exact file to B:
+
+```bash
+gridlink plan experiments/plans/comparison.json --name comparison --configs none,repetition:3,repetition:5,repetition:7,hamming,extended-hamming,hamming-interleaved --repeats 5 --payload-bytes 4 --bit-rate 10 --gap 2 --seed 1
+```
+
+There are 35 trials. The command prints the expected airtime. Five repeats per mode are a starting point; use more independent sessions if uncertainty remains large. Run one quiet session first, then repeat the same plan with one changed physical condition: more room light, a longer distance, or short partial obstructions. Keep the physical disturbance as consistent as possible across coding modes. Record what you did rather than assigning an artificial bit-flip probability to the real channel.
+
+On B, start capture and select the screen region:
+
+```bash
+gridlink capture experiments/results/quiet1-capture.csv --plan experiments/plans/comparison.json
+```
+
+Once B is recording, on A:
+
+```bash
+gridlink transmit-plan experiments/plans/comparison.json
+```
+
+After capture finishes, on B (replace the example distance and threshold with measurements):
+
+```bash
+gridlink analyse experiments/plans/comparison.json experiments/results/quiet1-capture.csv experiments/results/quiet1.csv --threshold 127 --distance 1.0 --lighting "quiet room" --notes "Direct screen to iPad front camera; no mirror"
+```
+
+Use `noise1-capture.csv` and `noise1.csv` for the next physical condition. Fill in the real lighting and notes and use `--obstruction` or `--glare` where applicable. For a speed comparison, create a new plan with the same seed, payload size, configurations and repeats, but `--bit-rate 15`; use the matching plan on both laptops. Change only speed for that comparison.
+
+Generate tables and plots from analysed CSVs, rather than raw captures:
+
+```bash
+gridlink report experiments/results/quiet1.csv experiments/results/noise1.csv --output experiments/results/report1
+```
+
+The output directory must be new. It contains:
+
+- `summary.csv`: trial counts, successes, failure categories, observed and decoded BER, frame error rate, nominal useful throughput, and 95% Wilson intervals for the success proportion.
+- `comparison-*.png`: comparisons of BER, frame success and throughput, labelled with group IDs from the table.
+- `noise-G*.png`: locations of observed errors and unobserved tails, plus consecutive error-run histograms for each group.
+- `error-positions.csv`: full error positions and unobserved tail counts for every trial, with its source file.
+- `method-notes.txt`: metric definitions and limits needed when interpreting the results.
+
+Groups keep different speeds, payload sizes and recorded physical conditions separate. Matching groups from distinct sessions are pooled. Do not include two analyses of the same recording: the command rejects duplicate trial identities. BER excludes unavailable bits, and decoded BER also excludes rejected codewords; interpret both with the missing-trial and failure counts. Useful throughput uses nominal frame airtime, not measured session time. Wilson intervals assume independent trials; lighting drift and repeated obstructions can violate that assumption. These are descriptive comparisons, not automatic significance tests.
+
+The error maps show at most the first 20 trials and 2000 bits per group; the original CSVs and error-position exports retain the full data. A dark tail means sampling stopped, not that every later bit was measured and lost. Check the raw capture if a plot suggests a timing or alignment problem.
+
+For the interleaving evaluation, compare `hamming` and `hamming-interleaved` under the same physical condition and speed. Look at successes, BER, throughput and runs of consecutive errors. Explain whether the actual noise looks like independent flips, bursts, or timing loss. A software burst simulation alone cannot demonstrate an improvement on the physical channel.
+
+Before submission, the group still needs to confirm the additional coding method with the lecturer, collect and evaluate the physical measurements, and write the 4-6 page report, presentation and individual contribution forms. The software does not generate experimental conclusions or complete those assessed deliverables.
 
 Each row records the transmitted and received frame bits for error-position analysis, plus two decoding views: `frame_valid` is the realistic receiver outcome (both CRCs pass), while `decoded_bit_errors` decodes the coded section using the known header from the plan. The second view measures how well a code corrects the channel independently of header failures.
 

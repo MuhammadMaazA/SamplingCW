@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import csv
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, fields
+from math import isfinite
 from pathlib import Path
 
 
@@ -72,4 +73,58 @@ def write_json(records: list[ExperimentRecord], path: str | Path) -> None:
         json.dumps([record_as_dict(record) for record in records], indent=2),
         encoding="utf-8",
     )
+
+
+def read_csv(path: str | Path) -> list[ExperimentRecord]:
+    """Read the per-trial CSV produced by analyse, preserving unavailable values."""
+    integers = {
+        "repetition_factor", "payload_bits", "encoded_bits", "random_seed",
+        "synchronisation_failures", "trial_index", "information_bits",
+        "channel_bit_errors", "decoded_bit_errors", "corrected_codewords",
+    }
+    floats = {"symbol_duration", "threshold", "distance_m", "elapsed_seconds", "frame_start"}
+    booleans = {"glare", "obstruction", "frame_valid"}
+    optional_text = {"decoded_payload", "failure_reason"}
+    records = []
+    with Path(path).open(newline="", encoding="utf-8") as stream:
+        reader = csv.DictReader(stream)
+        missing = {field.name for field in fields(ExperimentRecord)} - set(reader.fieldnames or [])
+        if missing:
+            raise ValueError(f"not an analysed trial CSV; missing columns: {sorted(missing)}")
+        for row in reader:
+            values: dict[str, object] = {}
+            for field in fields(ExperimentRecord):
+                name, value = field.name, row[field.name]
+                if value is None:
+                    raise ValueError("incomplete CSV row")
+                if name in integers:
+                    values[name] = int(value) if value else None
+                elif name in floats:
+                    values[name] = float(value) if value else None
+                    if values[name] is not None and not isfinite(values[name]):
+                        raise ValueError(f"non-finite {name}")
+                elif name in booleans:
+                    if value not in ("True", "False"):
+                        raise ValueError(f"invalid boolean in {name}")
+                    values[name] = value == "True"
+                elif name in ("transmitted_bits", "received_bits"):
+                    if any(bit not in "01" for bit in value):
+                        raise ValueError(f"non-binary {name}")
+                    values[name] = [int(bit) for bit in value]
+                else:
+                    values[name] = value or None if name in optional_text else value
+            if not row["received_bits"] and values["synchronisation_failures"]:
+                values["received_bits"] = None
+            for name in ("payload_bits", "encoded_bits", "synchronisation_failures",
+                         "symbol_duration", "elapsed_seconds"):
+                if values[name] is None or values[name] < 0:
+                    raise ValueError(f"missing or negative {name}")
+            if values["symbol_duration"] == 0 or values["elapsed_seconds"] == 0:
+                raise ValueError("trial duration must be positive")
+            if len(values["received_bits"] or []) > len(values["transmitted_bits"]):
+                raise ValueError("received stream is longer than the transmitted frame")
+            records.append(ExperimentRecord(**values))
+    if not records:
+        raise ValueError("trial CSV contains no records")
+    return records
 
