@@ -35,6 +35,13 @@ class ExperimentRecord:
     frame_valid: bool
     synchronisation_failures: int
     elapsed_seconds: float
+    trial_index: int | None = None
+    frame_start: float | None = None
+    information_bits: int | None = None
+    channel_bit_errors: int | None = None
+    decoded_bit_errors: int | None = None
+    corrected_codewords: int | None = None
+    failure_reason: str | None = None
 
 
 def record_as_dict(record: ExperimentRecord) -> dict[str, object]:

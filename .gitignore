@@ -10,6 +10,8 @@ dist/
 experiments/results/
 *.csv
 *.json
+!experiments/plans/
+!experiments/plans/*.json
 *.mp4
 *.avi
 .DS_Store

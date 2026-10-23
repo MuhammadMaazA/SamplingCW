@@ -14,10 +14,17 @@ from .coding.pipeline import (
 )
 
 MAGIC = bytes((0xD3, 0x91))
-VERSION = 1
+VERSION = 2
 PREAMBLE = bytes((0xAA, 0xAA, 0xAA, 0xAA))
-HEADER_LENGTH = 16
+SYNC_WORD = PREAMBLE + MAGIC
+HEADER_LENGTH = 6
 HEADER_CRC_LENGTH = 2
+# One fixed code for every frame, so header losses do not depend on the payload code.
+HEADER_CODING = CodingConfig("repetition", 3)
+SYNC_BITS = len(SYNC_WORD) * 8
+HEADER_CODED_BITS = encoded_length((HEADER_LENGTH + HEADER_CRC_LENGTH) * 8, HEADER_CODING)
+FRAME_OVERHEAD_BITS = SYNC_BITS + HEADER_CODED_BITS
+MAX_SYNC_MISMATCHES = 9
 
 
 @dataclass(frozen=True)
@@ -52,12 +59,24 @@ def crc16(data: bytes) -> int:
     return crc
 
 
-def _find_bits(bits: list[int], pattern: list[int]) -> int:
+def find_sync(bits: list[int], maximum_mismatches: int = MAX_SYNC_MISMATCHES) -> int:
+    """Return the earliest best-matching sync word position, or -1 if none is close enough.
+
+    Tolerating a few flipped bits stops one corrupted sync bit from losing a whole frame.
+    The magic bytes after the alternating preamble make whole-symbol shifts score badly.
+    """
+    pattern = bytes_to_bits(SYNC_WORD)
     width = len(pattern)
+    best_start, best_mismatches = -1, maximum_mismatches + 1
     for start in range(len(bits) - width + 1):
-        if bits[start : start + width] == pattern:
-            return start
-    return -1
+        mismatches = sum(
+            left != right for left, right in zip(bits[start : start + width], pattern)
+        )
+        if mismatches < best_mismatches:
+            best_start, best_mismatches = start, mismatches
+            if mismatches == 0:
+                break
+    return best_start
 
 
 def build_frame(frame: Frame) -> list[int]:
@@ -68,52 +87,41 @@ def build_frame(frame: Frame) -> list[int]:
     config = CodingConfig(frame.coding, frame.repetitions)
     config.validate()
     protected = frame.payload + crc16(frame.payload).to_bytes(2, "big")
-    protected_bits = bytes_to_bits(protected)
-    encoded_bits = encode(protected_bits, config)
-    header = (
-        MAGIC
-        + bytes((VERSION, CODING_IDS[config.scheme], config.repetitions, frame.sequence))
-        + len(frame.payload).to_bytes(2, "big")
-        + len(protected_bits).to_bytes(4, "big")
-        + len(encoded_bits).to_bytes(4, "big")
+    encoded_bits = encode(bytes_to_bits(protected), config)
+    header = bytes(
+        (VERSION, CODING_IDS[config.scheme], config.repetitions, frame.sequence)
+    ) + len(frame.payload).to_bytes(2, "big")
+    header_bits = encode(
+        bytes_to_bits(header + crc16(header).to_bytes(2, "big")), HEADER_CODING
     )
-    # The header remains readable before FEC decoding and has its own CRC.
-    return bytes_to_bits(PREAMBLE + header + crc16(header).to_bytes(2, "big")) + encoded_bits
+    return bytes_to_bits(SYNC_WORD) + header_bits + encoded_bits
 
 
 def parse_frame(bits: list[int]) -> Frame:
-    preamble_bits = bytes_to_bits(PREAMBLE)
-    start = _find_bits(bits, preamble_bits)
+    start = find_sync(bits)
     if start < 0:
         raise ValueError("frame synchronisation marker not found")
-    header_start = start + len(preamble_bits)
-    header_end = header_start + HEADER_LENGTH * 8
-    header_crc_end = header_end + HEADER_CRC_LENGTH * 8
-    if len(bits) < header_crc_end:
+    header_start = start + SYNC_BITS
+    header_end = header_start + HEADER_CODED_BITS
+    if len(bits) < header_end:
         raise ValueError("incomplete frame header")
-    header = bits_to_bytes(bits[header_start:header_end])
-    received_header_crc = int.from_bytes(bits_to_bytes(bits[header_end:header_crc_end]), "big")
-    if crc16(header) != received_header_crc:
+    header_bits, _ = decode(
+        bits[header_start:header_end], (HEADER_LENGTH + HEADER_CRC_LENGTH) * 8, HEADER_CODING
+    )
+    block = bits_to_bytes(header_bits)
+    header = block[:HEADER_LENGTH]
+    if crc16(header) != int.from_bytes(block[HEADER_LENGTH:], "big"):
         raise ValueError("header CRC check failed")
-    if header[:2] != MAGIC:
-        raise ValueError("frame marker not found")
-    if header[2] != VERSION:
-        raise ValueError(f"unsupported protocol version: {header[2]}")
-    config = config_from_id(header[3], header[4])
-    sequence = header[5]
-    payload_length = int.from_bytes(header[6:8], "big")
-    protected_length = int.from_bytes(header[8:12], "big")
-    encoded_length_in_header = int.from_bytes(header[12:16], "big")
-    expected_protected_length = (payload_length + 2) * 8
-    if protected_length != expected_protected_length:
-        raise ValueError("protected length does not match payload length")
-    if encoded_length(protected_length, config) != encoded_length_in_header:
-        raise ValueError("encoded length does not match coding configuration")
-    data_start = header_crc_end
-    data_end = data_start + encoded_length_in_header
+    if header[0] != VERSION:
+        raise ValueError(f"unsupported protocol version: {header[0]}")
+    config = config_from_id(header[1], header[2])
+    sequence = header[3]
+    payload_length = int.from_bytes(header[4:6], "big")
+    protected_length = (payload_length + 2) * 8
+    data_end = header_end + encoded_length(protected_length, config)
     if len(bits) < data_end:
         raise ValueError("incomplete transmission")
-    protected_bits, corrected = decode(bits[data_start:data_end], protected_length, config)
+    protected_bits, corrected = decode(bits[header_end:data_end], protected_length, config)
     protected = bits_to_bytes(protected_bits)
     payload = protected[:-2]
     received_crc = int.from_bytes(protected[-2:], "big")

@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "name": "smoke",
+  "symbol_duration": 0.25,
+  "gap": 2.0,
+  "seed": 1,
+  "trials": [
+    {
+      "index": 0,
+      "coding": "hamming",
+      "repetitions": 1,
+      "payload_hex": "91"
+    },
+    {
+      "index": 1,
+      "coding": "none",
+      "repetitions": 1,
+      "payload_hex": "d8"
+    }
+  ]
+}

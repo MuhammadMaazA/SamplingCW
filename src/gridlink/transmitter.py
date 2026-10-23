@@ -4,25 +4,79 @@ from __future__ import annotations
 
 import time
 
+from .experiments.plan import ExperimentPlan, trial_offsets
 from .optical.patterns import symbol_image
 from .protocol import Frame, build_frame
+
+
+class _Stopped(Exception):
+    pass
+
+
+def _open_window(window: str):
+    import cv2
+
+    cv2.namedWindow(window, cv2.WINDOW_NORMAL)
+    cv2.setWindowProperty(window, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+    return cv2
+
+
+def _hold_until(cv2, deadline: float) -> None:
+    while time.monotonic() < deadline:
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            raise _Stopped
+
+
+def _show_bits(cv2, window: str, bits: list[int], symbol_duration: float, start: float) -> None:
+    """Display each bit until an absolute deadline measured from ``start``.
+
+    Deadlines are not measured from when a symbol actually appeared, so display and
+    event-loop latency cannot accumulate into a timing drift across a long frame.
+    """
+    for index, bit in enumerate(bits):
+        cv2.imshow(window, symbol_image(bit))
+        _hold_until(cv2, start + (index + 1) * symbol_duration)
 
 
 def transmit(frame: Frame, symbol_duration: float = 0.25, window: str = "GridLink") -> None:
     if symbol_duration <= 0:
         raise ValueError("symbol duration must be positive")
-    import cv2
-
     bits = build_frame(frame)
-    cv2.namedWindow(window, cv2.WINDOW_NORMAL)
-    cv2.setWindowProperty(window, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+    cv2 = _open_window(window)
     try:
-        for bit in bits:
-            started = time.monotonic()
-            cv2.imshow(window, symbol_image(bit))
-            while time.monotonic() - started < symbol_duration:
-                if cv2.waitKey(1) & 0xFF == ord("q"):
-                    return
+        _show_bits(cv2, window, bits, symbol_duration, time.monotonic())
+    except _Stopped:
+        return
+    finally:
+        cv2.destroyWindow(window)
+
+
+def transmit_plan(
+    plan: ExperimentPlan, lead_in: float = 5.0, window: str = "GridLink experiment"
+) -> bool:
+    """Display every planned trial on one absolute clock, separated by black gaps.
+
+    Returns ``False`` if the operator stopped the session early.
+    """
+    if lead_in < plan.gap:
+        raise ValueError("lead-in must be at least as long as the inter-frame gap")
+    cv2 = _open_window(window)
+    try:
+        cv2.imshow(window, symbol_image(0))
+        session_start = time.monotonic() + lead_in
+        _hold_until(cv2, session_start)
+        for trial, offset in zip(plan.trials, trial_offsets(plan)):
+            start = session_start + offset
+            cv2.imshow(window, symbol_image(0))
+            _hold_until(cv2, start)
+            label = f"{trial.coding} x{trial.repetitions}"
+            print(f"trial {trial.index + 1}/{len(plan.trials)}: {label}")
+            _show_bits(cv2, window, trial.frame_bits(), plan.symbol_duration, start)
+        cv2.imshow(window, symbol_image(0))
+        _hold_until(cv2, time.monotonic() + plan.gap)
+        return True
+    except _Stopped:
+        return False
     finally:
         cv2.destroyWindow(window)
 
@@ -31,16 +85,11 @@ def display_reference(bit: int, duration: float = 5.0, window: str = "GridLink r
     """Display one known level while the receiver measures its reflected intensity."""
     if bit not in (0, 1) or duration <= 0:
         raise ValueError("reference bit must be 0 or 1 and duration must be positive")
-    import cv2
-
-    cv2.namedWindow(window, cv2.WINDOW_NORMAL)
-    cv2.setWindowProperty(window, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+    cv2 = _open_window(window)
     try:
-        started = time.monotonic()
-        while time.monotonic() - started < duration:
-            cv2.imshow(window, symbol_image(bit))
-            if cv2.waitKey(1) & 0xFF == ord("q"):
-                return
+        cv2.imshow(window, symbol_image(bit))
+        _hold_until(cv2, time.monotonic() + duration)
+    except _Stopped:
+        return
     finally:
         cv2.destroyWindow(window)
-
