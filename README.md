@@ -14,7 +14,7 @@ Physical mirror tests are still needed. The third coding method, measurement plo
 
 ## Installation
 
-Both laptops need protocol version 2. The cleaned version is currently on local `main`; until it is pushed, use the published `feat/experiment-pipeline` branch on both laptops. After it is pushed, use `main` on both.
+Both laptops need protocol version 2. Use `main` on both laptops and pull the latest changes before testing.
 
 If you already have the repository, open that folder. Otherwise:
 
@@ -28,7 +28,7 @@ For an existing clone, check for local changes before updating:
 ```bash
 git status
 git fetch origin
-git checkout feat/experiment-pipeline
+git checkout main
 git pull --ff-only
 ```
 
