@@ -61,6 +61,20 @@ def _add_experiment_commands(subparsers) -> None:
     report = subparsers.add_parser("report", help="make tables and plots from analysed trial CSVs")
     report.add_argument("results", nargs="+")
     report.add_argument("--output", required=True, help="new output directory")
+    session = subparsers.add_parser(
+        "record", help="record and analyse a session with automatic saves"
+    )
+    session.add_argument("plan")
+    session.add_argument("--name", default="run")
+    session.add_argument("--camera", type=int, default=0)
+    session.add_argument("--output", default="experiments/results")
+    session.add_argument("--threshold", type=float)
+    session.add_argument("--distance", type=float)
+    session.add_argument("--lighting", default="")
+    session.add_argument("--notes", default="")
+    session.add_argument("--obstruction", action="store_true")
+    session.add_argument("--glare", action="store_true")
+    session.add_argument("--plots", action="store_true")
 
 
 def _run_experiment_command(args) -> None:
@@ -91,7 +105,7 @@ def _run_experiment_command(args) -> None:
         duration = args.duration
         if args.plan:
             duration = plan_duration(load_plan(args.plan)) + CAPTURE_MARGIN_SECONDS
-        print(f"capturing for up to {duration:.0f}s; start transmit-plan now")
+        print(f"Capture length after Space: {duration:.0f}s. Wait for RECORDING before starting A.")
         print(f"samples={capture(args.output, duration, args.camera)}")
     else:
         from .experiments.analysis import SessionConditions, analyse_capture, summarise_records
@@ -158,7 +172,18 @@ def main() -> None:
             args.duration = 1 / args.bit_rate
         elif args.duration is None:
             args.duration = 0.25
-    if args.command == "report":
+    if args.command == "record":
+        from .experiments.analysis import SessionConditions
+        from .experiments.session import record_session
+
+        record_session(
+            args.plan, args.name, args.camera, args.output, args.threshold,
+            SessionConditions(distance_m=args.distance, lighting=args.lighting,
+                              physical_notes=args.notes, obstruction=args.obstruction,
+                              glare=args.glare),
+            args.plots,
+        )
+    elif args.command == "report":
         from .experiments.report import write_report
 
         print(f"report={write_report(args.results, args.output)}")

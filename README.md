@@ -2,6 +2,8 @@
 
 COMP0228 coursework: send binary messages from a laptop screen to a camera using black and white flashes. The camera can face the screen directly or view its reflection in a mirror.
 
+For our current setup, A is the transmitting laptop and B receives through the iPad front camera, without a mirror. The iPad feed must already appear as an OpenCV camera on B through your camera/virtual-camera setup. The program runs on the laptop, not on the iPad. Use the same `--camera` index for calibration and recording.
+
 ## Setup
 
 Use the same code version on both laptops. In an existing checkout:
@@ -95,25 +97,25 @@ Single-message `receive` prints the result but does not save experiment data. Fo
 gridlink plan experiments/plans/comparison.json --name comparison --configs none,repetition:3,repetition:5,repetition:7,hamming,parity2d,hamming-interleaved --repeats 5 --payload-bytes 4 --bit-rate 10 --gap 2 --seed 1
 ```
 
-The plan compares the same payloads across modes in shuffled order. It has 35 trials and prints the expected transmission time. Start on B and select the screen region:
+The plan compares the same payloads across modes in shuffled order. It has 35 trials and prints the expected transmission time. On B, replace `127` with your calibrated threshold and `0` with the iPad camera's index:
 
 ```bash
-gridlink capture experiments/results/quiet1-capture.csv --plan experiments/plans/comparison.json
+gridlink record experiments/plans/comparison.json --name quiet1 --camera 0 --threshold 127 --lighting "indoor" --notes "iPad front camera; direct screen; no mirror" --plots
 ```
 
-Once B is recording, run on A:
+Select a box inside A's screen and press Enter. The next window shows a live preview with a green box: press **R** to select again, **Space** to start recording, or **Q** to cancel. The clock does not run while you are choosing the box. Once B says **RECORDING**, start A within 20 seconds:
 
 ```bash
 gridlink transmit-plan experiments/plans/comparison.json
 ```
 
-After capture finishes, analyse on B. Replace the threshold, distance and notes with what you measured:
+Recording stops automatically after the planned airtime plus 30 seconds to allow time to start A. Press **Q** in the recording window to stop early and keep the samples. An early stop can leave incomplete or missing trials, which remain in the results.
 
-```bash
-gridlink analyse experiments/plans/comparison.json experiments/results/quiet1-capture.csv experiments/results/quiet1.csv --threshold 127 --distance 1.0 --lighting "indoor" --notes "Direct screen to camera; no mirror"
-```
+Each run gets a new folder under `experiments/results/`, such as `quiet1-20261026-153000-123456Z/`. The full path is printed. It saves `plan.json`, `capture.csv`, a cropped image of the selected screen region (`capture.png`), capture and session logs, `session.json` with settings/status, `results.csv` and `summary.csv`. `--plots` also saves the charts in `plots/`; omit it if plotting support is not installed. If capture or analysis fails, the error is logged and already saved raw data is retained. Nothing is overwritten.
 
-Repeat with one changed physical condition, such as lighting, distance or partial obstruction. Use new filenames and accurate notes; `--obstruction` and `--glare` record those conditions. For a speed comparison, generate another plan with the same seed and settings but a different bit rate, and share that exact plan with B.
+For manual capture and analysis, the original `capture OUTPUT --plan PLAN` and `analyse PLAN CAPTURE OUTPUT` commands remain available. Manual capture also waits for Space and saves a region image and capture log next to the CSV.
+
+Repeat with one changed physical condition, such as lighting, distance or partial obstruction. Use `--name noise1` and accurate notes; `--distance`, `--obstruction` and `--glare` record those conditions. For a speed comparison, generate another plan with the same seed and settings but a different bit rate, and share that exact plan with B.
 
 Keep both the raw capture and analysed CSV. Capture refuses to overwrite recordings. Back up `experiments/results/` separately because Git ignores it. Plans under `experiments/plans/` can be committed.
 
@@ -122,10 +124,10 @@ Keep both the raw capture and analysed CSV. Capture refuses to overwrite recordi
 Use analysed CSVs, not raw captures:
 
 ```bash
-gridlink report experiments/results/quiet1.csv experiments/results/noise1.csv --output experiments/results/report1
+gridlink report experiments/results/quiet1-TIMESTAMP/results.csv experiments/results/noise1-TIMESTAMP/results.csv --output experiments/results/report1
 ```
 
-The output directory must be new. It contains a summary CSV, comparison charts, error-location maps, error-run histograms, full error positions and notes on the metrics. Different recorded conditions and speeds stay in separate groups. Duplicate recordings are rejected to avoid counting the same run twice.
+Replace the example folder names with the actual paths printed by `record`. The output directory must be new. It contains a summary CSV, comparison charts, error-location maps, error-run histograms, full error positions and notes on the metrics. Different recorded conditions and speeds stay in separate groups. Duplicate recordings are rejected to avoid counting the same run twice.
 
 BER uses observed bits. Decoded BER uses complete, decodable trials, including their payload CRC bits; unavailable data and rejected codewords are excluded. Always report failure counts alongside BER. Throughput is delivered payload bits divided by nominal frame airtime, excluding gaps and setup. Counts and rates describe the collected sample; they do not establish statistical significance.
 

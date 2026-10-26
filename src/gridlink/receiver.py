@@ -72,9 +72,40 @@ def receive(
 
 
 def _select_roi(cv2, frame) -> tuple[int, int, int, int]:
-    selected = cv2.selectROI("Select optical region, then press Enter", frame, False, False)
-    cv2.destroyWindow("Select optical region, then press Enter")
-    return tuple(int(value) for value in selected)
+    window = "Drag a box inside the screen, then press Enter"
+    cv2.namedWindow(window, cv2.WINDOW_NORMAL)
+    cv2.resizeWindow(window, 960, 540)
+    selected = cv2.selectROI(window, frame, True, False)
+    cv2.destroyWindow(window)
+    roi = tuple(int(value) for value in selected)
+    if roi[2] <= 0 or roi[3] <= 0:
+        raise RuntimeError("screen selection cancelled")
+    return roi
+
+
+def _confirm_capture_region(cv2, camera, roi):
+    """Show the live region before starting the recording clock."""
+    window = "GridLink ready: Space=start, R=select again, Q=cancel"
+    cv2.namedWindow(window, cv2.WINDOW_NORMAL)
+    cv2.resizeWindow(window, 960, 540)
+    while True:
+        ok, frame = camera.read()
+        if not ok:
+            raise RuntimeError("camera stopped during preview")
+        preview = frame.copy()
+        x, y, width, height = roi
+        cv2.rectangle(preview, (x, y), (x + width, y + height), (0, 255, 0), 2)
+        cv2.putText(preview, "SPACE: record   R: select again   Q: cancel",
+                    (10, 30), 0, 0.7, (0, 255, 0), 2)
+        cv2.imshow(window, preview)
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord("q"):
+            raise RuntimeError("recording cancelled before start")
+        if key == ord("r"):
+            roi = _select_roi(cv2, frame)
+        if key == 32:
+            cv2.destroyWindow(window)
+            return roi, frame
 
 
 def capture(
@@ -85,14 +116,15 @@ def capture(
 ) -> int:
     """Record raw timestamped ROI intensities for offline decoding.
 
-    Every camera frame is written immediately, so an interrupted session keeps the
-    data captured so far. Returns the number of recorded samples.
+    Select and preview the region, then press Space to start the recording clock.
+    Samples and a small event log are saved immediately. Returns the sample count.
     """
     if duration <= 0:
         raise ValueError("capture duration must be positive")
     destination = Path(output)
-    if destination.exists():
-        raise FileExistsError(f"capture already exists; choose a new filename: {destination}")
+    for path in (destination, destination.with_suffix(".log"), destination.with_suffix(".png")):
+        if path.exists():
+            raise FileExistsError(f"recording file already exists; choose a new name: {path}")
     import cv2
 
     camera = cv2.VideoCapture(camera_index)
@@ -106,9 +138,26 @@ def capture(
             raise RuntimeError("could not read an initial camera frame")
         if roi is None:
             roi = _select_roi(cv2, frame)
-        with destination.open("x", newline="", encoding="utf-8", buffering=1) as stream:
-            write_capture_header(stream, datetime.now(timezone.utc), camera_index, roi)
+        print("READY: check the green box. Space records; R selects again; Q cancels.")
+        roi, frame = _confirm_capture_region(cv2, camera, roi)
+        x, y, width, height = roi
+        image_path = destination.with_suffix(".png")
+        log_path = destination.with_suffix(".log")
+        with log_path.open("x", encoding="utf-8", buffering=1) as log, destination.open(
+            "x", newline="", encoding="utf-8", buffering=1
+        ) as stream:
+            started_utc = datetime.now(timezone.utc)
+            write_capture_header(stream, started_utc, camera_index, roi)
+            stream.write(f"# frame_size={frame.shape[1]},{frame.shape[0]}\n")
+            if not cv2.imwrite(str(image_path), frame[y:y + height, x:x + width]):
+                raise RuntimeError("could not save the selected screen region")
+            log.write(f"{started_utc.isoformat()} RECORDING camera={camera_index} roi={roi}\n")
+            print(f"RECORDING: start the transmitter now. Saving to {destination}")
             started = time.monotonic()
+            stopped_by_user = False
+            window = "GridLink recording: Q stops and saves"
+            cv2.namedWindow(window, cv2.WINDOW_NORMAL)
+            cv2.resizeWindow(window, 960, 540)
             while time.monotonic() - started < duration:
                 ok, frame = camera.read()
                 if not ok:
@@ -119,11 +168,20 @@ def capture(
                 write_capture_row(stream, timestamp, intensity)
                 count += 1
                 remaining = duration - (timestamp - started)
-                text = f"intensity={intensity:.1f} remaining={remaining:.0f}s samples={count}"
+                cv2.rectangle(frame, (x, y), (x + width, y + height), (0, 255, 0), 2)
+                text = f"RECORDING {remaining:.0f}s left | samples={count} | Q=stop and save"
                 cv2.putText(frame, text, (10, 30), 0, 0.7, (0, 255, 0), 2)
-                cv2.imshow("GridLink capture (q to stop)", frame)
+                cv2.imshow(window, frame)
                 if cv2.waitKey(1) & 0xFF == ord("q"):
+                    stopped_by_user = True
                     break
+            elapsed = time.monotonic() - started
+            reason = "stopped by user" if stopped_by_user else "duration reached"
+            ended_utc = datetime.now(timezone.utc).isoformat()
+            stream.write(f"# stop_reason={reason}\n# elapsed_seconds={elapsed:.6f}\n")
+            stream.write(f"# samples={count}\n# stopped_utc={ended_utc}\n")
+            log.write(f"{ended_utc} SAVED samples={count} elapsed={elapsed:.3f}s {reason}\n")
+            print(f"SAVED: {count} samples, {elapsed:.1f}s ({reason}).")
         return count
     finally:
         camera.release()
