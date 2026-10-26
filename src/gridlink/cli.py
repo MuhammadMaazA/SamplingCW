@@ -6,8 +6,8 @@ import argparse
 from math import isfinite
 
 from .coding.pipeline import CODING_IDS, CodingConfig
-from .experiments.simulation import run_trials, summarise_trials
-from .protocol import Frame
+from .experiments.simulation import repetition_error_probability, run_trials, summarise_trials
+from .protocol import Frame, bytes_to_bits
 
 DEFAULT_CONFIGS = "none,repetition:3,repetition:5,repetition:7,hamming,parity2d"
 CAPTURE_MARGIN_SECONDS = 30.0
@@ -154,9 +154,10 @@ def main() -> None:
     _add_experiment_commands(subparsers)
     args = parser.parse_args()
     if args.command in ("transmit", "receive", "plan"):
-        args.duration = 1 / args.bit_rate if args.bit_rate else (
-            args.duration if args.duration is not None else 0.25
-        )
+        if args.bit_rate is not None:
+            args.duration = 1 / args.bit_rate
+        elif args.duration is None:
+            args.duration = 0.25
     if args.command == "report":
         from .experiments.report import write_report
 
@@ -199,17 +200,15 @@ def main() -> None:
         print(f"contrast={result.contrast:.1f}")
         print(f"valid={result.valid}")
     else:
-        bits = [
-            (byte >> shift) & 1
-            for byte in args.message.encode("utf-8")
-            for shift in range(7, -1, -1)
-        ]
+        bits = bytes_to_bits(args.message.encode("utf-8"))
         config = CodingConfig(args.coding, args.repetitions)
+        burst = None
+        if args.burst_length is not None:
+            burst = (args.burst_start, args.burst_length)
         summary = summarise_trials(
             run_trials(
                 bits, config, args.flip_probability, args.trials, args.seed,
-                burst=(args.burst_start, args.burst_length)
-                if args.burst_length is not None else None,
+                burst=burst,
             )
         )
         print(f"coding={summary.coding} repetitions={summary.repetitions}")
@@ -219,3 +218,6 @@ def main() -> None:
         print(f"mean_decoded_ber={summary.mean_decoded_ber}")
         print(f"standard_deviation={summary.standard_deviation}")
         print(f"coding_rate={summary.coding_rate:.6f}")
+        if config.scheme == "repetition" and burst is None:
+            predicted = repetition_error_probability(args.flip_probability, config.repetitions)
+            print(f"theoretical_decoded_ber={predicted:.6f}")

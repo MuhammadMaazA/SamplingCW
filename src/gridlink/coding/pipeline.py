@@ -5,12 +5,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from math import ceil
 
-from . import extended_hamming, hamming, parity2d, repetition
+from . import hamming, parity2d, repetition
 from .interleaving import deinterleave, interleave
 
 CODING_IDS = {
-    "none": 0, "repetition": 1, "hamming": 2,
-    "extended-hamming": 3, "hamming-interleaved": 4,
+    "none": 0,
+    "repetition": 1,
+    "hamming": 2,
+    # ID 3 belonged to the removed extended-Hamming mode; do not reuse it.
+    "hamming-interleaved": 4,
     "parity2d": 5,
 }
 CODING_NAMES = {value: key for key, value in CODING_IDS.items()}
@@ -51,7 +54,7 @@ def encoded_length(information_bits: int, config: CodingConfig) -> int:
         return information_bits * config.repetitions
     if config.scheme == "parity2d":
         return ceil(information_bits / 16) * 25
-    return ceil(information_bits / 4) * (8 if config.scheme == "extended-hamming" else 7)
+    return ceil(information_bits / 4) * 7
 
 
 def encode(bits: list[int], config: CodingConfig) -> list[int]:
@@ -65,8 +68,6 @@ def encode(bits: list[int], config: CodingConfig) -> list[int]:
     if config.scheme == "parity2d":
         return parity2d.encode(bits + [0] * ((-len(bits)) % 16))
     padded = bits + [0] * ((-len(bits)) % 4)
-    if config.scheme == "extended-hamming":
-        return extended_hamming.encode(padded)
     coded = hamming.encode(padded)
     return interleave(coded) if config.scheme == "hamming-interleaved" else coded
 
@@ -87,7 +88,6 @@ def decode(
         return decoded[:information_length], corrected
     if config.scheme == "hamming-interleaved":
         encoded_bits = deinterleave(encoded_bits)
-    decoder = extended_hamming if config.scheme == "extended-hamming" else hamming
-    decoded, corrected = decoder.decode(encoded_bits)
+    decoded, corrected = hamming.decode(encoded_bits)
     return decoded[:information_length], corrected
 

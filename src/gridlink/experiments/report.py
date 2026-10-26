@@ -5,7 +5,6 @@ from __future__ import annotations
 import csv
 from collections import Counter
 from dataclasses import asdict
-from math import sqrt
 from pathlib import Path
 
 import numpy as np
@@ -20,18 +19,6 @@ CONDITIONS = (
 )
 
 
-def success_interval(successes: int, total: int) -> tuple[float, float]:
-    """Wilson 95% interval for a binomial proportion (approximate, independent trials)."""
-    if total <= 0 or not 0 <= successes <= total:
-        raise ValueError("invalid success counts")
-    z = 1.96
-    proportion = successes / total
-    denominator = 1 + z * z / total
-    centre = (proportion + z * z / (2 * total)) / denominator
-    radius = z * sqrt(proportion * (1 - proportion) / total + z * z / (4 * total**2))
-    return max(0.0, centre - radius / denominator), min(1.0, centre + radius / denominator)
-
-
 def group_records(records: list[ExperimentRecord]) -> list[list[ExperimentRecord]]:
     groups: dict[tuple, list[ExperimentRecord]] = {}
     for record in records:
@@ -44,7 +31,6 @@ def group_records(records: list[ExperimentRecord]) -> list[list[ExperimentRecord
 
 def table_row(records: list[ExperimentRecord], group_id: str) -> dict:
     summary = summarise_records(records)[0]
-    low, high = success_interval(summary.valid_frames, summary.trials)
     failures = Counter()
     for record in records:
         reason = record.failure_reason or ""
@@ -67,8 +53,6 @@ def table_row(records: list[ExperimentRecord], group_id: str) -> dict:
         **{name: getattr(records[0], name) for name in CONDITIONS},
         **asdict(summary),
         "frame_error_rate": 1 - summary.valid_frames / summary.trials,
-        "success_low_95": low,
-        "success_high_95": high,
         "observed_channel_bits": sum(len(record.received_bits or []) for record in records),
         "decoded_trials": sum(record.decoded_bit_errors is not None for record in records),
         **{name: failures[name] for name in (
@@ -87,7 +71,12 @@ def _save_table(rows: list[dict], path: Path) -> None:
 
 def _comparison(rows: list[dict], destination: Path, plt) -> None:
     figure, axes = plt.subplots(2, 2, figsize=(12, 9), layout="constrained")
-    labels = [f"{row['group']}\n{row['coding']} x{row['repetitions']}" for row in rows]
+    labels = []
+    for row in rows:
+        coding = row["coding"]
+        if coding == "repetition":
+            coding += f"-{row['repetitions']}"
+        labels.append(f"{row['group']}\n{coding}")
     positions = np.arange(len(rows))
     for axis, key, title in (
         (axes[0, 0], "channel_ber", "Observed channel BER (sync + header + data)"),
@@ -99,17 +88,14 @@ def _comparison(rows: list[dict], destination: Path, plt) -> None:
         for index, value in enumerate(values):
             if np.isnan(value):
                 axis.text(index, 0, "N/A", ha="center", va="bottom")
+            else:
+                axis.text(index, value, f"{value:.3g}", ha="center", va="bottom", fontsize=9)
         axis.set_title(title, fontsize=11)
         axis.set_ylim(bottom=0)
     rates = [row["valid_frames"] / row["trials"] for row in rows]
     axes[1, 0].bar(positions, rates, color="#376a94")
-    lower = [row["success_low_95"] for row in rows]
-    upper = [row["success_high_95"] for row in rows]
-    axes[1, 0].vlines(positions, lower, upper, color="black")
-    for limits in (lower, upper):
-        axes[1, 0].hlines(limits, positions - 0.1, positions + 0.1, color="black")
     axes[1, 0].set_ylim(0, 1.08)
-    axes[1, 0].set_title("Frame success proportion (95% Wilson intervals)", fontsize=11)
+    axes[1, 0].set_title("Frame success proportion (successful / planned trials)", fontsize=11)
     for index, row in enumerate(rows):
         axes[1, 0].text(index, 1.02, f"{row['valid_frames']}/{row['trials']}", ha="center")
     for axis in axes.flat:
@@ -210,8 +196,7 @@ def write_report(paths: list[str | Path], output: str | Path) -> Path:
         "Channel BER uses observed frame bits; decoded BER uses complete decodable trials.\n"
         "Both BERs are conditional on observation/decodability; read them with failure counts.\n"
         "Throughput uses nominal frame airtime, excluding gaps and setup.\n"
-        "Wilson intervals assume independent trials; lighting drift can violate this assumption.\n"
-        "They are descriptive uncertainty estimates, not proof that one code is superior.\n"
+        "Counts and rates are descriptive; they do not establish statistical significance.\n"
         "Unavailable tails indicate sampling stopped; later bits were not evaluated.\n"
         "Noise maps show at most 20 trials and 2000 bits; error-position CSVs retain all errors.\n"
         "Offline alignment and first-trial identification can fail in noisy captures.\n",

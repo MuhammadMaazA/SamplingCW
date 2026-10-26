@@ -1,9 +1,8 @@
-"""CSV and JSON recording for reproducible communication experiments."""
+"""Save and load the per-trial CSV files used by the analysis commands."""
 
 from __future__ import annotations
 
 import csv
-import json
 from dataclasses import asdict, dataclass, fields
 from math import isfinite
 from pathlib import Path
@@ -64,17 +63,6 @@ def write_csv(records: list[ExperimentRecord], path: str | Path) -> None:
         writer.writerows(rows)
 
 
-def write_json(records: list[ExperimentRecord], path: str | Path) -> None:
-    if not records:
-        raise ValueError("at least one record is required")
-    destination = Path(path)
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(
-        json.dumps([record_as_dict(record) for record in records], indent=2),
-        encoding="utf-8",
-    )
-
-
 def read_csv(path: str | Path) -> list[ExperimentRecord]:
     """Read the per-trial CSV produced by analyse, preserving unavailable values."""
     integers = {
@@ -111,8 +99,10 @@ def read_csv(path: str | Path) -> list[ExperimentRecord]:
                     if any(bit not in "01" for bit in value):
                         raise ValueError(f"non-binary {name}")
                     values[name] = [int(bit) for bit in value]
+                elif name in optional_text:
+                    values[name] = value or None
                 else:
-                    values[name] = value or None if name in optional_text else value
+                    values[name] = value
             if not row["received_bits"] and values["synchronisation_failures"]:
                 values["received_bits"] = None
             for name in ("payload_bits", "encoded_bits", "synchronisation_failures",
