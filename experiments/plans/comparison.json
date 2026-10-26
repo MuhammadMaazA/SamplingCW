@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "name": "comparison",
+  "symbol_duration": 0.1,
+  "gap": 2.0,
+  "seed": 1,
+  "trials": [
+    {
+      "index": 0,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "c4bb86c3"
+    },
+    {
+      "index": 1,
+      "coding": "hamming",
+      "repetitions": 1,
+      "payload_hex": "df6af1d8"
+    },
+    {
+      "index": 2,
+      "coding": "none",
+      "repetitions": 1,
+      "payload_hex": "df6af1d8"
+    },
+    {
+      "index": 3,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "f5b16522"
+    },
+    {
+      "index": 4,
+      "coding": "repetition",
+      "repetitions": 7,
+      "payload_hex": "c4bb86c3"
+    },
+    {
+      "index": 5,
+      "coding": "parity2d",
+      "repetitions": 1,
+      "payload_hex": "df6af1d8"
+    },
+    {
+      "index": 6,
+      "coding": "hamming",
+      "repetitions": 1,
+      "payload_hex": "303e61cd"
+    },
+    {
+      "index": 7,
+      "coding": "repetition",
+      "repetitions": 7,
+      "payload_hex": "df6af1d8"
+    },
+    {
+      "index": 8,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "303e61cd"
+    },
+    {
+      "index": 9,
+      "coding": "repetition",
+      "repetitions": 5,
+      "payload_hex": "f5b16522"
+    },
+    {
+      "index": 10,
+      "coding": "repetition",
+      "repetitions": 5,
+      "payload_hex": "4a58b791"
+    },
+    {
+      "index": 11,
+      "coding": "repetition",
+      "repetitions": 7,
+      "payload_hex": "303e61cd"
+    },
+    {
+      "index": 12,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "f5b16522"
+    },
+    {
+      "index": 13,
+      "coding": "none",
+      "repetitions": 1,
+      "payload_hex": "4a58b791"
+    },
+    {
+      "index": 14,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "c4bb86c3"
+    },
+    {
+      "index": 15,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "df6af1d8"
+    },
+    {
+      "index": 16,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "303e61cd"
+    },
+    {
+      "index": 17,
+      "coding": "parity2d",
+      "repetitions": 1,
+      "payload_hex": "c4bb86c3"
+    },
+    {
+      "index": 18,
+      "coding": "hamming",
+      "repetitions": 1,
+      "payload_hex": "4a58b791"
+    },
+    {
+      "index": 19,
+      "coding": "repetition",
+      "repetitions": 5,
+      "payload_hex": "303e61cd"
+    },
+    {
+      "index": 20,
+      "coding": "parity2d",
+      "repetitions": 1,
+      "payload_hex": "4a58b791"
+    },
+    {
+      "index": 21,
+      "coding": "none",
+      "repetitions": 1,
+      "payload_hex": "f5b16522"
+    },
+    {
+      "index": 22,
+      "coding": "parity2d",
+      "repetitions": 1,
+      "payload_hex": "303e61cd"
+    },
+    {
+      "index": 23,
+      "coding": "none",
+      "repetitions": 1,
+      "payload_hex": "303e61cd"
+    },
+    {
+      "index": 24,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "4a58b791"
+    },
+    {
+      "index": 25,
+      "coding": "parity2d",
+      "repetitions": 1,
+      "payload_hex": "f5b16522"
+    },
+    {
+      "index": 26,
+      "coding": "repetition",
+      "repetitions": 5,
+      "payload_hex": "df6af1d8"
+    },
+    {
+      "index": 27,
+      "coding": "hamming",
+      "repetitions": 1,
+      "payload_hex": "f5b16522"
+    },
+    {
+      "index": 28,
+      "coding": "repetition",
+      "repetitions": 7,
+      "payload_hex": "f5b16522"
+    },
+    {
+      "index": 29,
+      "coding": "repetition",
+      "repetitions": 5,
+      "payload_hex": "c4bb86c3"
+    },
+    {
+      "index": 30,
+      "coding": "hamming",
+      "repetitions": 1,
+      "payload_hex": "c4bb86c3"
+    },
+    {
+      "index": 31,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "4a58b791"
+    },
+    {
+      "index": 32,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "df6af1d8"
+    },
+    {
+      "index": 33,
+      "coding": "repetition",
+      "repetitions": 7,
+      "payload_hex": "4a58b791"
+    },
+    {
+      "index": 34,
+      "coding": "none",
+      "repetitions": 1,
+      "payload_hex": "c4bb86c3"
+    }
+  ]
+}

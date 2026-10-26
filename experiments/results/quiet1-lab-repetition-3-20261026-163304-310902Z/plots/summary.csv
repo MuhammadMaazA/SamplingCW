@@ -1,0 +1,2 @@
+group,symbol_duration,payload_bits,distance_m,lighting,mirror_alignment,glare,obstruction,physical_notes,venue,coding,repetitions,trials,synchronised,valid_frames,channel_ber,decoded_ber,useful_throughput_bps,frame_error_rate,observed_channel_bits,decoded_trials,sync_failures,truncated,uncorrectable,header_crc_failures,payload_crc_failures,other_failures
+G01,0.25,32,,indoor dim,,True,False,ipad,lab,repetition,3,3,3,2,0.07291666666666667,0.10416666666666667,0.2222222222222222,0.33333333333333337,1152,3,0,0,0,1,0,0
