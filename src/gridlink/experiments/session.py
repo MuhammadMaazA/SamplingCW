@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,6 +13,12 @@ from .analysis import SessionConditions, analyse_capture, summarise_records
 from .capture import load_capture
 from .plan import load_plan, plan_duration, save_plan
 from .recording import write_csv
+
+
+def session_label(name: str, venue: str) -> str:
+    """Keep folder names usable on both Windows and macOS."""
+    text = f"{name}-{venue}" if venue else name
+    return re.sub(r"[^A-Za-z0-9_-]+", "-", text).strip("-") or "run"
 
 
 def record_session(
@@ -29,22 +36,35 @@ def record_session(
         raise ValueError("use a simple session name without directory separators")
     plan = load_plan(plan_path)
     conditions = conditions or SessionConditions()
+    methods = sorted({
+        f"{trial.coding}:{trial.repetitions}" if trial.coding == "repetition" else trial.coding
+        for trial in plan.trials
+    })
+    method_label = methods[0].replace(":", "-") if len(methods) == 1 else "comparison"
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S-%fZ")
-    folder = Path(output) / f"{name}-{stamp}"
+    folder = Path(output) / f"{session_label(name, conditions.venue)}-{method_label}-{stamp}"
     folder.mkdir(parents=True, exist_ok=False)
     save_plan(plan, folder / "plan.json")
     metadata = {
         "name": name, "camera_index": camera_index, "conditions": asdict(conditions),
         "requested_threshold": threshold, "status": "preparing",
         "planned_seconds": plan_duration(plan), "plan": "plan.json",
+        "created_local": datetime.now().astimezone().isoformat(),
+        "created_utc": datetime.now(timezone.utc).isoformat(),
+        "trials": len(plan.trials), "bit_rate": 1 / plan.symbol_duration,
+        "methods": methods,
     }
+    # Save the chosen settings before camera setup, even if the run is interrupted.
+    (folder / "session.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     with (folder / "session.log").open("x", encoding="utf-8", buffering=1) as log:
         def note(message):
             print(message, flush=True)
             log.write(f"{datetime.now(timezone.utc).isoformat()} {message}\n")
 
         try:
+            note(f"SETUP: {name} | venue: {conditions.venue or 'not recorded'}")
             note(f"Session folder: {folder.resolve()}")
+            note(f"Methods: {', '.join(metadata['methods'])} | {1 / plan.symbol_duration:g} bits/s")
             note("Select the screen region, check the preview, then press Space to record.")
             note("Start A after B says RECORDING; Q stops early and keeps the samples.")
             metadata["status"] = "capturing"

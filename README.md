@@ -91,6 +91,20 @@ The receiver finds the sync pattern, samples symbol centres using camera timesta
 
 ## Saved experiments
 
+For guided setup, run this on B:
+
+```bash
+gridlink setup
+```
+
+It asks for the run name, venue/room, iPad camera index, coding methods, repeats, speed, payload size, threshold and physical conditions. Choose methods by number (for example `2` for repetition-3, or `2,5,6` for repetition-3, Hamming and grid parity). The choice sets the actual transmission plan. Date/time is recorded automatically, with local and UTC timestamps.
+
+Setup saves a plan and prints its full path. Copy that exact file into `experiments/plans/` on A. Setup prints A's `transmit-plan` command too. Press Enter on B once A has the file, select the camera region, then press Space to record. Start the printed command on A only when B says RECORDING. Q in the setup prompt saves the plan and exits without opening a camera.
+
+Session folders include the name, venue, method (or `comparison` for mixed methods) and timestamp, such as `run1-UCL-East-repetition-3-20261026-153000-123456Z/`. The original name, venue and actual methods are saved in `session.json`, and each result row records its coding mode and venue. Reports keep different venues separate. Older CSVs without a venue still load with that field blank.
+
+For scripts or a previously prepared plan, use the commands below. `record` and `analyse` also accept `--venue "UCL East"`.
+
 Single-message `receive` prints the result but does not save experiment data. For comparisons, create a plan on A and copy the exact file to B:
 
 ```bash
@@ -111,7 +125,7 @@ gridlink transmit-plan experiments/plans/comparison.json
 
 Recording stops automatically after the planned airtime plus 30 seconds to allow time to start A. Press **Q** in the recording window to stop early and keep the samples. An early stop can leave incomplete or missing trials, which remain in the results.
 
-Each run gets a new folder under `experiments/results/`, such as `quiet1-20261026-153000-123456Z/`. The full path is printed. It saves `plan.json`, `capture.csv`, a cropped image of the selected screen region (`capture.png`), capture and session logs, `session.json` with settings/status, `results.csv` and `summary.csv`. `--plots` also saves the charts in `plots/`; omit it if plotting support is not installed. If capture or analysis fails, the error is logged and already saved raw data is retained. Nothing is overwritten.
+Each run gets a new folder under `experiments/results/`. The full path is printed. It saves `plan.json`, `capture.csv`, a cropped image of the selected screen region (`capture.png`), capture and session logs, `session.json` with settings/status, `results.csv` and `summary.csv`. `--plots` also saves the charts in `plots/`; omit it if plotting support is not installed. The chosen settings are saved before camera setup. If capture or analysis fails, the error is logged and already saved raw data is retained. Nothing is overwritten.
 
 For manual capture and analysis, the original `capture OUTPUT --plan PLAN` and `analyse PLAN CAPTURE OUTPUT` commands remain available. Manual capture also waits for Space and saves a region image and capture log next to the CSV.
 

@@ -15,7 +15,7 @@ from .recording import ExperimentRecord, read_csv
 
 CONDITIONS = (
     "symbol_duration", "payload_bits", "distance_m", "lighting", "mirror_alignment",
-    "glare", "obstruction", "physical_notes",
+    "glare", "obstruction", "physical_notes", "venue",
 )
 
 

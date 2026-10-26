@@ -56,6 +56,7 @@ def _add_experiment_commands(subparsers) -> None:
     analyse.add_argument("--alignment", default="")
     analyse.add_argument("--lighting", default="")
     analyse.add_argument("--notes", default="")
+    analyse.add_argument("--venue", default="")
     analyse.add_argument("--glare", action="store_true")
     analyse.add_argument("--obstruction", action="store_true")
     report = subparsers.add_parser("report", help="make tables and plots from analysed trial CSVs")
@@ -72,6 +73,7 @@ def _add_experiment_commands(subparsers) -> None:
     session.add_argument("--distance", type=float)
     session.add_argument("--lighting", default="")
     session.add_argument("--notes", default="")
+    session.add_argument("--venue", default="")
     session.add_argument("--obstruction", action="store_true")
     session.add_argument("--glare", action="store_true")
     session.add_argument("--plots", action="store_true")
@@ -119,6 +121,7 @@ def _run_experiment_command(args) -> None:
             lighting=args.lighting,
             glare=args.glare,
             obstruction=args.obstruction,
+            venue=args.venue,
         )
         records = analyse_capture(
             load_plan(args.plan), load_capture(args.capture), args.threshold, conditions
@@ -166,13 +169,19 @@ def main() -> None:
     simulation.add_argument("--burst-start", type=int, default=0)
     simulation.add_argument("--burst-length", type=int)
     _add_experiment_commands(subparsers)
+    setup = subparsers.add_parser("setup", help="ask for session details and prepare a recording")
+    setup.add_argument("--output", default="experiments/results")
     args = parser.parse_args()
     if args.command in ("transmit", "receive", "plan"):
         if args.bit_rate is not None:
             args.duration = 1 / args.bit_rate
         elif args.duration is None:
             args.duration = 0.25
-    if args.command == "record":
+    if args.command == "setup":
+        from .experiments.setup import interactive_setup
+
+        interactive_setup(args.output)
+    elif args.command == "record":
         from .experiments.analysis import SessionConditions
         from .experiments.session import record_session
 
@@ -180,7 +189,7 @@ def main() -> None:
             args.plan, args.name, args.camera, args.output, args.threshold,
             SessionConditions(distance_m=args.distance, lighting=args.lighting,
                               physical_notes=args.notes, obstruction=args.obstruction,
-                              glare=args.glare),
+                              glare=args.glare, venue=args.venue),
             args.plots,
         )
     elif args.command == "report":

@@ -39,6 +39,7 @@ class SessionConditions:
     lighting: str = ""
     glare: bool = False
     obstruction: bool = False
+    venue: str = ""
 
 
 def auto_threshold(intensities: list[float]) -> float:
@@ -141,6 +142,7 @@ def _record(
         decoded_bit_errors=decoded_errors,
         corrected_codewords=corrected,
         failure_reason=failure,
+        venue=conditions.venue,
     )
 
 

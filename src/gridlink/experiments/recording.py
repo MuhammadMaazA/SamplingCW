@@ -42,6 +42,7 @@ class ExperimentRecord:
     decoded_bit_errors: int | None = None
     corrected_codewords: int | None = None
     failure_reason: str | None = None
+    venue: str = ""
 
 
 def record_as_dict(record: ExperimentRecord) -> dict[str, object]:
@@ -76,13 +77,14 @@ def read_csv(path: str | Path) -> list[ExperimentRecord]:
     records = []
     with Path(path).open(newline="", encoding="utf-8") as stream:
         reader = csv.DictReader(stream)
-        missing = {field.name for field in fields(ExperimentRecord)} - set(reader.fieldnames or [])
+        required = {field.name for field in fields(ExperimentRecord)} - {"venue"}
+        missing = required - set(reader.fieldnames or [])
         if missing:
             raise ValueError(f"not an analysed trial CSV; missing columns: {sorted(missing)}")
         for row in reader:
             values: dict[str, object] = {}
             for field in fields(ExperimentRecord):
-                name, value = field.name, row[field.name]
+                name, value = field.name, row.get(field.name, "")
                 if value is None:
                     raise ValueError("incomplete CSV row")
                 if name in integers:
