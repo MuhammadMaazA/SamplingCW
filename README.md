@@ -2,7 +2,7 @@
 
 GridLink sends data from one laptop's screen to a camera, either directly or through a mirror. It is our COMP0228 coursework project.
 
-**Laptop A screen -> physical mirror -> Laptop B webcam**
+**Laptop A screen -> camera**, optionally through a physical mirror.
 
 The screen sends black/white symbols. The receiver finds frame boundaries, decodes the data and checks it with CRC-16.
 
@@ -55,9 +55,9 @@ python -m pytest
 python -m ruff check src tests
 ```
 
-## First mirror test
+## First optical test
 
-Physical path: **Laptop A screen → mirror → Laptop B webcam**. Laptop B must see the *reflected* screen, not the screen directly. Use a large reflected patch, high screen brightness, low ambient light, and grant camera permission to the terminal.
+For the direct test, face A's screen towards B's camera. If testing a mirror path, aim the camera at the screen's reflection. Use a large, clear screen patch, high screen brightness and low ambient light, and grant camera permission to the terminal. Record which path and camera you actually used; a mirror is our optional setup choice, not a coursework requirement.
 
 ### Roles
 
@@ -74,7 +74,7 @@ On Laptop B:
 gridlink calibrate --camera 0
 ```
 
-Select a tight region inside the reflected screen patch and press Enter. When B asks for black, run on A:
+Select a tight region inside the screen patch (or its reflection) and press Enter. When B asks for black, run on A:
 
 ```bash
 gridlink reference black --duration 5
@@ -215,11 +215,19 @@ Frames begin with a 48-bit sync word: four `0xAA` bytes, providing an alternatin
 
 ## Physical setup
 
-Place the screen so its black/white display is visible in the mirror. Place the webcam to view the reflected screen, not the screen directly. Begin with a short distance, low ambient light, moderate screen brightness, and a large reflected image. Then vary alignment, distance, lighting, glare, obstruction, and symbol duration while recording actual elapsed time, payload errors, frame failures, and physical notes.
+For direct transmission, face the screen towards the receiver's camera. For mirror transmission, place the screen so its display is visible in the mirror and point the camera at that reflection. Begin with a short distance and a clear screen patch. Then vary alignment, distance, lighting, glare, obstruction or symbol duration, changing one condition at a time. Record the actual setup and failures. The current throughput metric is based on nominal frame airtime; do not describe it as a measured wall-clock rate.
 
 ## Coursework plan
 
 The measured comparison includes uncoded transmission, repetition factors 3/5/7, Hamming (7,4), and two-dimensional parity. Results must describe both error and useful transmission rate. Visualise the noise to distinguish burst/timing failures from independent bit flips, then evaluate interleaving against ordinary Hamming under the same conditions.
+
+The supplied Coursework 1 brief asks for a noisy physical channel, repetition, Hamming (or a similar code), an independently researched additional approach, experiments on error and transmission rate, noise analysis, and an evaluated extension. The implementation supports these experiments; passing software tests does not complete the experimental requirements.
+
+Lecture 4's Huffman, arithmetic and Lempel-Ziv coding concern data compression. They are not additional error-correcting methods and are not required by the supplied Coursework 1 brief. Thursday Lab 3's Wordle and decision-tree tasks are separate exercises. Keep those separate from GridLink.
+
+For the assessed work, still collect repeated physical measurements with at least one real source of noise, justify the methodology, compare the codes, and explain the observed noise and limitations. Evaluate interleaving on the physical channel rather than relying only on simulated bursts. For a four-person group, the brief expects either more extensions or one studied in substantial depth; software implementation alone does not demonstrate that depth.
+
+The supplied brief also requires a 4-6 page group PDF report, the code, individual contribution forms, and a 20-25 minute group presentation including a short live demonstration, followed by questions. Every member presents some work and must be able to explain it. The listed presentation dates are 16, 17 and 19 November 2026; the submission deadline is 20 November 2026 at 23:00, with individual interviews on 23 November. Check Moodle for the current timetable and marking scheme; this repository contains no downloaded marking rubric.
 
 ## Physical experiment sessions
 
