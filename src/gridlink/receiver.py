@@ -169,11 +169,15 @@ def capture(
                 count += 1
                 remaining = duration - (timestamp - started)
                 cv2.rectangle(frame, (x, y), (x + width, y + height), (0, 255, 0), 2)
-                text = (
-                    f"RECORDING {remaining:.0f}s | intensity={intensity:.1f} | "
-                    f"samples={count} | Q=stop"
-                )
-                cv2.putText(frame, text, (10, 30), 0, 0.7, (0, 255, 0), 2)
+                # Dark bar so the readout stays visible on white flashes.
+                cv2.rectangle(frame, (0, 0), (frame.shape[1], 70), (0, 0, 0), -1)
+                line1 = f"intensity={intensity:.1f}"
+                line2 = f"RECORDING {remaining:.0f}s  samples={count}  Q=stop"
+                cv2.putText(frame, line1, (12, 32), 0, 1.0, (0, 255, 255), 2)
+                cv2.putText(frame, line2, (12, 60), 0, 0.7, (0, 255, 0), 2)
+                if count == 1 or count % 30 == 0:
+                    status = f"intensity={intensity:.1f}  samples={count}  {remaining:.0f}s left"
+                    print(f"\r{status}", end="", flush=True)
                 cv2.imshow(window, frame)
                 if cv2.waitKey(1) & 0xFF == ord("q"):
                     stopped_by_user = True
@@ -184,6 +188,7 @@ def capture(
             stream.write(f"# stop_reason={reason}\n# elapsed_seconds={elapsed:.6f}\n")
             stream.write(f"# samples={count}\n# stopped_utc={ended_utc}\n")
             log.write(f"{ended_utc} SAVED samples={count} elapsed={elapsed:.3f}s {reason}\n")
+            print()
             print(f"SAVED: {count} samples, {elapsed:.1f}s ({reason}).")
         return count
     finally:
