@@ -63,7 +63,7 @@ class ExperimentPlan:
 
 
 def parse_config(text: str) -> CodingConfig:
-    """Parse ``none``, ``hamming``, or ``repetition:N`` into a validated configuration."""
+    """Parse a coding name or ``repetition:N`` into a validated configuration."""
     scheme, _, factor = text.partition(":")
     config = CodingConfig(scheme, int(factor) if factor else 1)
     config.validate()

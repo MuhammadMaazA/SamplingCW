@@ -18,7 +18,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from ..coding.extended_hamming import UncorrectableError
+from ..coding.errors import UncorrectableError
 from ..coding.pipeline import CodingConfig, decode
 from ..optical.detection import classify_intensity
 from ..optical.synchronization import TimedSample, find_first_pattern, sample_symbols

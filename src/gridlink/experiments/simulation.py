@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from math import comb
 from statistics import mean, pstdev
 
-from ..coding.extended_hamming import UncorrectableError
+from ..coding.errors import UncorrectableError
 from ..coding.pipeline import CodingConfig, decode, encode, encoded_length
 from .metrics import bit_error_rate, coding_rate
 from .noise import binary_symmetric_channel, burst_noise

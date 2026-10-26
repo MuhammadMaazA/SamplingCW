@@ -1,10 +1,7 @@
 """Extended Hamming (8,4): single-error correction and double-error detection."""
 
 from . import hamming
-
-
-class UncorrectableError(ValueError):
-    """A codeword has a nonzero syndrome but even overall parity."""
+from .errors import UncorrectableError
 
 
 def encode(bits: list[int]) -> list[int]:

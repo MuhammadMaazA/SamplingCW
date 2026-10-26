@@ -9,7 +9,7 @@ from .coding.pipeline import CODING_IDS, CodingConfig
 from .experiments.simulation import run_trials, summarise_trials
 from .protocol import Frame
 
-DEFAULT_CONFIGS = "none,repetition:3,repetition:5,repetition:7,hamming,extended-hamming"
+DEFAULT_CONFIGS = "none,repetition:3,repetition:5,repetition:7,hamming,parity2d"
 CAPTURE_MARGIN_SECONDS = 30.0
 
 

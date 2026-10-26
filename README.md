@@ -8,9 +8,9 @@ The screen sends black/white symbols. The receiver finds frame boundaries, decod
 
 ## Current status
 
-The software supports uncoded transmission, repetition coding, Hamming (7,4), extended Hamming (8,4), and Hamming with interleaving. It includes calibration, synchronisation, CRC checks, noise simulations, experiment plans, raw camera capture and offline analysis.
+The software supports uncoded transmission, repetition coding, Hamming (7,4), two-dimensional parity, extended Hamming (8,4), and Hamming with interleaving. It includes calibration, synchronisation, CRC checks, noise simulations, experiment plans, raw camera capture and offline analysis.
 
-Direct screen-to-camera reception of `hi` has been reported by the group. The new modes and reporting tools have software tests but still need physical measurements. Experiments, evaluation, the report and presentation are still to do. Whether extended Hamming qualifies as the additional coding approach needs confirmation from the lecturer.
+Direct screen-to-camera reception of `hi` has been reported by the group. The new modes and reporting tools have software tests but still need physical measurements. Two-dimensional parity is our independently researched additional method; interleaving is the extension. Experiments, evaluation, the report and presentation are still to do.
 
 ## Installation
 
@@ -132,6 +132,7 @@ Replace the distance and lighting with the actual conditions. The command prints
 gridlink transmit "hi" --coding none --duration 0.25
 gridlink transmit "hi" --coding repetition --repetitions 3 --duration 0.25
 gridlink transmit "hi" --coding hamming --duration 0.25
+gridlink transmit "hi" --coding parity2d --duration 0.25
 gridlink transmit "hi" --coding extended-hamming --duration 0.25
 gridlink transmit "hi" --coding hamming-interleaved --duration 0.25
 ```
@@ -151,22 +152,34 @@ gridlink receive --bit-rate 10 --threshold 127 --timeout 120
 Then on A:
 
 ```bash
-gridlink transmit "hi" --coding extended-hamming --bit-rate 10
+gridlink transmit "hi" --coding parity2d --bit-rate 10
 ```
 
-This takes about 30.4 seconds. Try 10 bits/s first, then 15 or 20 if reception is reliable. Faster settings depend on camera frame rate, exposure and screen refresh. Bit rate counts transmitted bits, including redundancy and framing, rather than useful message bits.
+This takes about 29 seconds. Try 10 bits/s first, then 15 or 20 if reception is reliable. Faster settings depend on camera frame rate, exposure and screen refresh. Bit rate counts transmitted bits, including redundancy and framing, rather than useful message bits.
 
 `plan` also accepts `--bit-rate`. `transmit-plan` and offline analysis use the timing saved in that plan:
 
 ```bash
-gridlink plan experiments/plans/fast.json --configs none,repetition:3,hamming,extended-hamming,hamming-interleaved --repeats 3 --payload-bytes 4 --bit-rate 10 --gap 2
+gridlink plan experiments/plans/fast.json --configs none,repetition:3,hamming,parity2d,hamming-interleaved --repeats 3 --payload-bytes 4 --bit-rate 10 --gap 2
 ```
 
 Update both laptops before using the new coding modes. The frame layout and old coding IDs remain version 2; older installations reject the new IDs.
 
-## Extended Hamming and interleaving
+## Additional method: two-dimensional parity
 
-Extended Hamming (8,4), selected with `--coding extended-hamming`, adds overall parity to Hamming (7,4). It corrects any single-bit error and detects any double-bit error within each eight-bit codeword. A detected double error rejects the frame with an `uncorrectable codeword` message. Three or more errors can be miscorrected or missed; the payload CRC remains a separate integrity check. Its code rate is 4/8, compared with 4/7 for ordinary Hamming. Lab 2 already covers this variation. Keep it as an extra comparison; do not claim it fulfils the independent additional-method requirement until the lecturer confirms that it qualifies.
+`--coding parity2d` arranges 16 data bits into four rows of four. It adds an even-parity bit to each row, then a bottom row of column checks, including the bottom-right check bit. The resulting 5x5 grid contains 25 bits, sent row by row. On reception, one failed row and one failed column locate a single wrong bit at their intersection. This also corrects a single error in a checking bit. More complex failed-check patterns reject the block as uncorrectable.
+
+For example, if only row 2 and column 3 fail their checks, the receiver flips the bit at row 2, column 3. This is a grid of row/column parity checks, rather than another Hamming variant.
+
+The idea is based on the [Kurose and Ross two-dimensional parity exercise](https://gaia.cs.umass.edu/kurose_ross/interactive/2d_parity.php). Our implementation uses a fixed 4x4 data grid. It corrects every single-bit error and detects/rejects every double-bit error per grid. Three errors can look like a single error and be miscorrected; four errors at rectangle corners can pass every parity check. CRC is still checked after decoding and can reject corrupt recovered payloads; it does not repair them or guarantee detection of every possible corruption.
+
+The protected payload-plus-CRC bits are padded with zeros to a multiple of 16 before encoding. The receiver derives the original protected length from the payload length and trims padding after decoding. The encoded length is `ceil(protected_bits / 16) * 25`. The full-block code rate is 16/25 (0.64), excluding framing and padding. A grid corrects one error per 16 data bits, compared with Hamming's one per four data bits, so lower overhead does not guarantee better recovery.
+
+Its header coding ID is 5. Frame layout and protocol version 2 are unchanged; existing modes retain their IDs. Both laptops need the update to use `parity2d`; older receivers reject its coding ID. New default plans compare uncoded, repetition-3/5/7, Hamming and two-dimensional parity. Saved plans are unchanged. Keep Hamming with and without interleaving in the extension comparison.
+
+## Optional comparison and extension
+
+Extended Hamming (8,4), selected with `--coding extended-hamming`, remains available as an optional comparison. It adds overall parity to Hamming (7,4), corrects a single-bit error and detects a double-bit error in each eight-bit codeword. Three or more errors can be miscorrected or missed. Its code rate is 4/8. It is not needed in the main three-method comparison.
 
 The extension is `--coding hamming-interleaved`. It encodes with Hamming (7,4), then sends columns from groups of up to eight codewords. The receiver reverses this order before decoding. No bits are added; a final shorter group uses its actual number of words, derived from the protected length. Only encoded data is interleaved; sync and header bits stay in their original positions.
 
@@ -206,7 +219,7 @@ Place the screen so its black/white display is visible in the mirror. Place the 
 
 ## Coursework plan
 
-The measured comparison should include uncoded transmission, repetition factors 3/5/7, Hamming (7,4), and a justified third error-correcting method. Results must describe both error and useful transmission rate. Noise should be visualised as aligned bit errors or erasures where possible, distinguishing burst/timing failures from independent bit flips. At least one extension should be chosen from observed weaknesses, such as interleaving, retransmission, adaptive coding, or signal filtering.
+The measured comparison includes uncoded transmission, repetition factors 3/5/7, Hamming (7,4), and two-dimensional parity. Results must describe both error and useful transmission rate. Visualise the noise to distinguish burst/timing failures from independent bit flips, then evaluate interleaving against ordinary Hamming under the same conditions.
 
 ## Physical experiment sessions
 
@@ -236,7 +249,7 @@ python -m pip install -e ".[analysis]"
 Create one comparison plan on A and copy the exact file to B:
 
 ```bash
-gridlink plan experiments/plans/comparison.json --name comparison --configs none,repetition:3,repetition:5,repetition:7,hamming,extended-hamming,hamming-interleaved --repeats 5 --payload-bytes 4 --bit-rate 10 --gap 2 --seed 1
+gridlink plan experiments/plans/comparison.json --name comparison --configs none,repetition:3,repetition:5,repetition:7,hamming,parity2d,hamming-interleaved --repeats 5 --payload-bytes 4 --bit-rate 10 --gap 2 --seed 1
 ```
 
 There are 35 trials. The command prints the expected airtime. Five repeats per mode are a starting point; use more independent sessions if uncertainty remains large. Run one quiet session first, then repeat the same plan with one changed physical condition: more room light, a longer distance, or short partial obstructions. Keep the physical disturbance as consistent as possible across coding modes. Record what you did rather than assigning an artificial bit-flip probability to the real channel.
@@ -281,7 +294,7 @@ The error maps show at most the first 20 trials and 2000 bits per group; the ori
 
 For the interleaving evaluation, compare `hamming` and `hamming-interleaved` under the same physical condition and speed. Look at successes, BER, throughput and runs of consecutive errors. Explain whether the actual noise looks like independent flips, bursts, or timing loss. A software burst simulation alone cannot demonstrate an improvement on the physical channel.
 
-Before submission, the group still needs to confirm the additional coding method with the lecturer, collect and evaluate the physical measurements, and write the 4-6 page report, presentation and individual contribution forms. The software does not generate experimental conclusions or complete those assessed deliverables.
+Before submission, collect and evaluate the physical measurements, explain the independently researched parity method and its source, and write the 4-6 page report, presentation and individual contribution forms. The software does not generate experimental conclusions or complete those assessed deliverables.
 
 Each row records the transmitted and received frame bits for error-position analysis, plus two decoding views: `frame_valid` is the realistic receiver outcome (both CRCs pass), while `decoded_bit_errors` decodes the coded section using the known header from the plan. The second view measures how well a code corrects the channel independently of header failures.
 
