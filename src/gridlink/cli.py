@@ -38,8 +38,22 @@ def _add_experiment_commands(subparsers) -> None:
     _add_speed_options(plan)
     plan.add_argument("--gap", type=float, default=2.0)
     plan.add_argument("--seed", type=int, default=0)
-    play = subparsers.add_parser("transmit-plan", help="display every trial in a plan")
-    play.add_argument("plan")
+    play = subparsers.add_parser(
+        "transmit-plan",
+        help="display every trial in a plan (file on B, or rebuild from seed on A)",
+    )
+    play.add_argument(
+        "plan",
+        nargs="?",
+        help="plan JSON path; omit on A and pass --configs/--seed instead",
+    )
+    play.add_argument("--name", default="session")
+    play.add_argument("--configs", default=DEFAULT_CONFIGS)
+    play.add_argument("--repeats", type=int, default=5)
+    play.add_argument("--payload-bytes", type=int, default=4)
+    _add_speed_options(play)
+    play.add_argument("--gap", type=float, default=2.0)
+    play.add_argument("--seed", type=int, default=0)
     play.add_argument("--lead-in", type=float, default=5.0)
     record = subparsers.add_parser("capture", help="record raw camera intensities")
     record.add_argument("output")
@@ -99,7 +113,29 @@ def _run_experiment_command(args) -> None:
     elif args.command == "transmit-plan":
         from .transmitter import transmit_plan
 
-        completed = transmit_plan(load_plan(args.plan), args.lead_in)
+        if args.plan:
+            plan = load_plan(args.plan)
+        else:
+            if args.bit_rate is not None:
+                duration = 1 / args.bit_rate
+            elif args.duration is not None:
+                duration = args.duration
+            else:
+                duration = 0.25
+            plan = make_plan(
+                args.name,
+                [parse_config(text) for text in args.configs.split(",")],
+                args.repeats,
+                args.payload_bytes,
+                duration,
+                args.gap,
+                args.seed,
+            )
+            print(
+                f"rebuilt plan: {len(plan.trials)} trials, "
+                f"{plan_duration(plan):.1f}s airtime, seed={plan.seed}"
+            )
+        completed = transmit_plan(plan, args.lead_in)
         print("completed" if completed else "stopped early")
     elif args.command == "capture":
         from .receiver import capture

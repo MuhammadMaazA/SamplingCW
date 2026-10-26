@@ -6,7 +6,7 @@ from pathlib import Path
 
 from ..coding.pipeline import CodingConfig
 from .analysis import SessionConditions
-from .plan import make_plan, plan_duration, save_plan
+from .plan import make_plan, plan_duration, save_plan, transmitter_command
 from .session import record_session, session_label
 
 METHODS = ["none", "repetition:3", "repetition:5", "repetition:7",
@@ -82,11 +82,10 @@ def interactive_setup(output="experiments/results"):
     save_plan(plan, path)
     print(f"\nPREPARED: {len(plan.trials)} trials, about {plan_duration(plan) / 60:.1f} minutes.")
     print(f"Name: {name} | Venue: {venue or 'not recorded'} | Speed: {speed:g} bits/s")
-    print(f"Plan to copy to A: {path.resolve()}")
-    print("Save that exact file in experiments/plans/ on A.")
-    print("A's command, to run only AFTER B says RECORDING:")
-    print(f'gridlink transmit-plan "experiments/plans/{filename}"')
-    answer = input("Press Enter when A has the file, or Q to keep the plan and exit: ").strip()
+    print(f"Plan saved on B only: {path.resolve()}")
+    print("A does not need the JSON. When B says RECORDING, A runs:")
+    print(transmitter_command(plan))
+    answer = input("Press Enter to open the camera, or Q to keep the plan and exit: ").strip()
     if answer.lower() == "q":
         print("Plan saved. No camera recording started.")
         return path

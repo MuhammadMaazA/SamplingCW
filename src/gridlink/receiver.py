@@ -169,7 +169,10 @@ def capture(
                 count += 1
                 remaining = duration - (timestamp - started)
                 cv2.rectangle(frame, (x, y), (x + width, y + height), (0, 255, 0), 2)
-                text = f"RECORDING {remaining:.0f}s left | samples={count} | Q=stop and save"
+                text = (
+                    f"RECORDING {remaining:.0f}s | intensity={intensity:.1f} | "
+                    f"samples={count} | Q=stop"
+                )
                 cv2.putText(frame, text, (10, 30), 0, 0.7, (0, 255, 0), 2)
                 cv2.imshow(window, frame)
                 if cv2.waitKey(1) & 0xFF == ord("q"):

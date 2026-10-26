@@ -70,6 +70,49 @@ def parse_config(text: str) -> CodingConfig:
     return config
 
 
+def config_label(config: CodingConfig) -> str:
+    if config.scheme == "repetition":
+        return f"repetition:{config.repetitions}"
+    return config.scheme
+
+
+def plan_method_labels(plan: ExperimentPlan) -> list[str]:
+    """Unique coding labels in first-seen order (for regenerating the plan on A)."""
+    labels: list[str] = []
+    for trial in plan.trials:
+        label = config_label(CodingConfig(trial.coding, trial.repetitions))
+        if label not in labels:
+            labels.append(label)
+    return labels
+
+
+def repeats_per_method(plan: ExperimentPlan) -> int:
+    labels = plan_method_labels(plan)
+    if not labels or len(plan.trials) % len(labels):
+        raise ValueError("plan trial count is not a multiple of its coding methods")
+    return len(plan.trials) // len(labels)
+
+
+def transmitter_command(plan: ExperimentPlan, lead_in: float = 5.0) -> str:
+    """Return an A-side command that rebuilds this plan from seed (no JSON copy)."""
+    bit_rate = 1 / plan.symbol_duration
+    payload_bytes = len(plan.trials[0].payload)
+    configs = ",".join(plan_method_labels(plan))
+    command = (
+        "gridlink transmit-plan "
+        f"--name {plan.name} "
+        f"--configs {configs} "
+        f"--repeats {repeats_per_method(plan)} "
+        f"--payload-bytes {payload_bytes} "
+        f"--bit-rate {bit_rate:g} "
+        f"--gap {plan.gap:g} "
+        f"--seed {plan.seed}"
+    )
+    if lead_in != 5.0:
+        command += f" --lead-in {lead_in:g}"
+    return command
+
+
 def make_plan(
     name: str,
     configs: list[CodingConfig],

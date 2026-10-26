@@ -99,7 +99,7 @@ gridlink setup
 
 It asks for the run name, venue/room, iPad camera index, coding methods, repeats, speed, payload size, threshold and physical conditions. Choose methods by number (for example `2` for repetition-3, or `2,5,6` for repetition-3, Hamming and grid parity). The choice sets the actual transmission plan. Date/time is recorded automatically, with local and UTC timestamps.
 
-Setup saves a plan and prints its full path. Copy that exact file into `experiments/plans/` on A. Setup prints A's `transmit-plan` command too. Press Enter on B once A has the file, select the camera region, then press Space to record. Start the printed command on A only when B says RECORDING. Q in the setup prompt saves the plan and exits without opening a camera.
+Setup saves the plan on B only and prints A's `transmit-plan` command. A does not need the JSON file: that command rebuilds the same schedule from the seed and settings. Press Enter on B to open the camera, select the region, then press Space to record. Start the printed command on A only when B says RECORDING. Q in the setup prompt saves the plan and exits without opening a camera.
 
 Session folders include the name, venue, method (or `comparison` for mixed methods) and timestamp, such as `run1-UCL-East-repetition-3-20261026-153000-123456Z/`. The original name, venue and actual methods are saved in `session.json`, and each result row records its coding mode and venue. Reports keep different venues separate. Older CSVs without a venue still load with that field blank.
 
