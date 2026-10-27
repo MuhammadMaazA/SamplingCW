@@ -26,3 +26,13 @@ def test_transmitter_command_rebuilds_identical_plan():
         plan.seed,
     )
     assert rebuilt.trials == plan.trials
+
+
+def test_transmitter_command_keeps_multi_method_order():
+    configs = [parse_config(text) for text in
+               "none,repetition:3,repetition:5,repetition:7,hamming,parity2d,hamming-interleaved".split(",")]
+    plan = make_plan("full", configs, 3, 2, 0.25, 2.0, 1)
+    command = transmitter_command(plan, configs)
+    labels = command.split("--configs ")[1].split()[0].split(",")
+    rebuilt = make_plan("full", [parse_config(text) for text in labels], 3, 2, 0.25, 2.0, 1)
+    assert rebuilt.trials == plan.trials

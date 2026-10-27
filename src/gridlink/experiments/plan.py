@@ -93,11 +93,20 @@ def repeats_per_method(plan: ExperimentPlan) -> int:
     return len(plan.trials) // len(labels)
 
 
-def transmitter_command(plan: ExperimentPlan, lead_in: float = 5.0) -> str:
-    """Return an A-side command that rebuilds this plan from seed (no JSON copy)."""
+def transmitter_command(
+    plan: ExperimentPlan,
+    configs: list[CodingConfig] | None = None,
+    lead_in: float = 5.0,
+) -> str:
+    """Return an A-side command that rebuilds this plan from seed (no JSON copy).
+
+    The shuffle depends on config order, so pass the configs in the order given to
+    ``make_plan``. Without them, first-seen order only reproduces single-method plans.
+    """
     bit_rate = 1 / plan.symbol_duration
     payload_bytes = len(plan.trials[0].payload)
-    configs = ",".join(plan_method_labels(plan))
+    labels = [config_label(config) for config in configs] if configs else plan_method_labels(plan)
+    configs = ",".join(labels)
     command = (
         "gridlink transmit-plan "
         f"--name {plan.name} "

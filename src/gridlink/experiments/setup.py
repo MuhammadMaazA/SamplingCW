@@ -84,7 +84,7 @@ def interactive_setup(output="experiments/results"):
     print(f"Name: {name} | Venue: {venue or 'not recorded'} | Speed: {speed:g} bits/s")
     print(f"Plan saved on B only: {path.resolve()}")
     print("A does not need the JSON. When B says RECORDING, A runs:")
-    print(transmitter_command(plan))
+    print(transmitter_command(plan, configs))
     answer = input("Press Enter to open the camera, or Q to keep the plan and exit: ").strip()
     if answer.lower() == "q":
         print("Plan saved. No camera recording started.")
