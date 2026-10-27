@@ -1,0 +1,2 @@
+coding,repetitions,trials,synchronised,valid_frames,channel_ber,decoded_ber,useful_throughput_bps
+repetition,3,3,3,3,0.0,0.0,0.19047619047619047

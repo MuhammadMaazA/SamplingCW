@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "name": "test",
+  "symbol_duration": 0.25,
+  "gap": 2,
+  "seed": 1,
+  "trials": [
+    {
+      "index": 0,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "f1d8"
+    },
+    {
+      "index": 1,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "b791"
+    },
+    {
+      "index": 2,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "6522"
+    }
+  ]
+}

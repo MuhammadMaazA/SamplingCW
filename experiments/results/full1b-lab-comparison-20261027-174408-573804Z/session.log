@@ -1,0 +1,15 @@
+2026-10-27T17:44:08.577083+00:00 SETUP: full1b | venue: lab
+2026-10-27T17:44:08.577395+00:00 Session folder: C:\Users\HP Victus\gridlink\experiments\results\full1b-lab-comparison-20261027-174408-573804Z
+2026-10-27T17:44:08.577497+00:00 Methods: hamming, hamming-interleaved, none, parity2d, repetition:3, repetition:5, repetition:7 | 4 bits/s
+2026-10-27T17:44:08.577547+00:00 Select the screen region, check the preview, then press Space to record.
+2026-10-27T17:44:08.577618+00:00 Start A after B says RECORDING; Q stops early and keeps the samples.
+2026-10-27T18:15:07.813497+00:00 ANALYSING the saved recording. You can move the devices now.
+2026-10-27T18:15:08.066835+00:00 hamming x1: 0/3 valid frames
+2026-10-27T18:15:08.066971+00:00 hamming-interleaved x1: 0/3 valid frames
+2026-10-27T18:15:08.068285+00:00 none x1: 0/3 valid frames
+2026-10-27T18:15:08.068350+00:00 parity2d x1: 0/3 valid frames
+2026-10-27T18:15:08.068420+00:00 repetition x3: 0/3 valid frames
+2026-10-27T18:15:08.068526+00:00 repetition x5: 0/3 valid frames
+2026-10-27T18:15:08.068606+00:00 repetition x7: 0/3 valid frames
+2026-10-27T18:15:08.072493+00:00 Saving plots.
+2026-10-27T18:15:15.001070+00:00 DONE: raw data, selected-region image, plan, results and summary saved.
