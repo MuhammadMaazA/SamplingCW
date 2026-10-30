@@ -22,7 +22,7 @@ def _open_window(window: str):
 
 
 def _hold_until(cv2, deadline: float) -> None:
-    while time.monotonic() < deadline:
+    while time.perf_counter() < deadline:
         if cv2.waitKey(1) & 0xFF == ord("q"):
             raise _Stopped
 
@@ -44,7 +44,7 @@ def transmit(frame: Frame, symbol_duration: float = 0.25, window: str = "GridLin
     bits = build_frame(frame)
     cv2 = _open_window(window)
     try:
-        _show_bits(cv2, window, bits, symbol_duration, time.monotonic())
+        _show_bits(cv2, window, bits, symbol_duration, time.perf_counter())
     except _Stopped:
         return
     finally:
@@ -63,7 +63,7 @@ def transmit_plan(
     cv2 = _open_window(window)
     try:
         cv2.imshow(window, symbol_image(0))
-        session_start = time.monotonic() + lead_in
+        session_start = time.perf_counter() + lead_in
         _hold_until(cv2, session_start)
         for trial, offset in zip(plan.trials, trial_offsets(plan)):
             start = session_start + offset
@@ -73,7 +73,7 @@ def transmit_plan(
             print(f"trial {trial.index + 1}/{len(plan.trials)}: {label}")
             _show_bits(cv2, window, trial.frame_bits(), plan.symbol_duration, start)
         cv2.imshow(window, symbol_image(0))
-        _hold_until(cv2, time.monotonic() + plan.gap)
+        _hold_until(cv2, time.perf_counter() + plan.gap)
         return True
     except _Stopped:
         return False
@@ -88,7 +88,7 @@ def display_reference(bit: int, duration: float = 5.0, window: str = "GridLink r
     cv2 = _open_window(window)
     try:
         cv2.imshow(window, symbol_image(bit))
-        _hold_until(cv2, time.monotonic() + duration)
+        _hold_until(cv2, time.perf_counter() + duration)
     except _Stopped:
         return
     finally:

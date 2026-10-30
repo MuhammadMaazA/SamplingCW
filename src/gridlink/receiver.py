@@ -34,11 +34,11 @@ def receive(
                 raise RuntimeError("could not read an initial camera frame")
             roi = _select_roi(cv2, frame)
         samples: list[TimedSample] = []
-        started = time.monotonic()
+        started = time.perf_counter()
         next_decode_attempt = started
         last_error = "no synchronisation marker found"
         preamble_bits = bytes_to_bits(SYNC_WORD)
-        while time.monotonic() - started < timeout:
+        while time.perf_counter() - started < timeout:
             ok, frame = camera.read()
             if not ok:
                 continue
@@ -49,12 +49,12 @@ def receive(
             cv2.imshow("GridLink receiver (q to quit)", frame)
             samples.append(
                 TimedSample(
-                    timestamp=time.monotonic(),
+                    timestamp=time.perf_counter(),
                     bit=classify_intensity(intensity, threshold),
                     intensity=intensity,
                 )
             )
-            now = time.monotonic()
+            now = time.perf_counter()
             if now >= next_decode_attempt:
                 next_decode_attempt = now + max(symbol_duration / 2, 0.1)
                 recovered = recover_symbols(samples, symbol_duration, preamble_bits)
@@ -153,16 +153,16 @@ def capture(
                 raise RuntimeError("could not save the selected screen region")
             log.write(f"{started_utc.isoformat()} RECORDING camera={camera_index} roi={roi}\n")
             print(f"RECORDING: start the transmitter now. Saving to {destination}")
-            started = time.monotonic()
+            started = time.perf_counter()
             stopped_by_user = False
             window = "GridLink recording: Q stops and saves"
             cv2.namedWindow(window, cv2.WINDOW_NORMAL)
             cv2.resizeWindow(window, 960, 540)
-            while time.monotonic() - started < duration:
+            while time.perf_counter() - started < duration:
                 ok, frame = camera.read()
                 if not ok:
                     continue
-                timestamp = time.monotonic()
+                timestamp = time.perf_counter()
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 intensity = sample_roi(gray, roi)
                 write_capture_row(stream, timestamp, intensity)
@@ -182,7 +182,7 @@ def capture(
                 if cv2.waitKey(1) & 0xFF == ord("q"):
                     stopped_by_user = True
                     break
-            elapsed = time.monotonic() - started
+            elapsed = time.perf_counter() - started
             reason = "stopped by user" if stopped_by_user else "duration reached"
             ended_utc = datetime.now(timezone.utc).isoformat()
             stream.write(f"# stop_reason={reason}\n# elapsed_seconds={elapsed:.6f}\n")
