@@ -81,7 +81,7 @@ Both sides must use the same speed. `--bit-rate 10` is equivalent to `--duration
 - `--coding parity2d`: our additional method. Arrange 16 bits in a 4x4 grid, add row and column checks, then send the resulting 25-bit grid. One failed row and column locate a single error. Double errors are rejected; some larger patterns can be missed or miscorrected.
 - `--coding hamming-interleaved`: our extension. Send columns from groups of up to eight Hamming codewords, spreading a short burst across different words. Reverse the order before decoding. It adds no extra bits, but cannot fix arbitrary bursts or missing observations.
 
-The grid method is based on the [Kurose and Ross two-dimensional parity exercise](https://gaia.cs.umass.edu/kurose_ross/interactive/2d_parity.php). Its full-block rate is 16/25, compared with 4/7 for Hamming and 1/N for repetition-N. Padding and framing reduce the useful rate further. Extended Hamming was removed to keep the project focused; old plans using that optional mode are no longer supported. Its header ID is reserved rather than reassigned.
+The grid method is based on the [Kurose and Ross two-dimensional parity exercise](https://gaia.cs.umass.edu/kurose_ross/interactive/2d_parity.php). Its full-block rate is 16/25, compared with 4/7 for Hamming and 1/N for repetition-N. Padding and framing reduce the useful rate further.
 
 ## How the link works
 
@@ -167,11 +167,3 @@ Without a burst interval, each encoded bit flips independently. With `--burst-le
 - `experiments/`: trial plans, saved results, simulations, analysis and plots.
 
 Timing recovery uses a sorted list and binary search to find the closest camera sample efficiently. Keep this when explaining performance: scanning the whole recording for every symbol made long captures too slow.
-
-## Coursework status
-
-The group has reported receiving `hi` through a direct physical link. The methods and experiment tools are implemented, but repeated physical measurements and evaluation are still needed. Compare error and transmission rate, examine the actual noise, then evaluate interleaving under the same conditions as ordinary Hamming. Simulated noise alone does not meet the brief's physical-noise requirement.
-
-Finish the 4-6 page report, presentation/live demo and contribution forms using your measured results. Explain the additional method's source, the tradeoffs, and limitations. Four-person groups should investigate the extension in depth or attempt more than one. Every member must understand the submitted code.
-
-Lecture 4's compression algorithms and Thursday Lab 3's Wordle/decision-tree exercises are separate topics, not extra features required by the supplied Coursework 1 brief.

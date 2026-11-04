@@ -12,9 +12,8 @@ CODING_IDS = {
     "none": 0,
     "repetition": 1,
     "hamming": 2,
-    # ID 3 belonged to the removed extended-Hamming mode; do not reuse it.
-    "hamming-interleaved": 4,
-    "parity2d": 5,
+    "hamming-interleaved": 3,
+    "parity2d": 4,
 }
 CODING_NAMES = {value: key for key, value in CODING_IDS.items()}
 
