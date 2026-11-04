@@ -1,4 +1,0 @@
-source,run_id,timestamp_utc,observed_bits,unavailable_tail_bits,error_positions,failure_reason
-/Users/kanavmehta/SamplingCW/gridlink/experiments/results/quiet1d-lab-repetition-3-20261026-171013-285528Z/results.csv,quiet1-000,2026-10-26T17:10:21.075755+00:00,384,0,330 331 332 333 334,CRC check failed
-/Users/kanavmehta/SamplingCW/gridlink/experiments/results/quiet1d-lab-repetition-3-20261026-171013-285528Z/results.csv,quiet1-001,2026-10-26T17:10:21.075755+00:00,384,0,276 277 278 288 289 290 294 295 296 297 298 299 303 304 305 306 307 308 309 310 311 312 313 314 321 322 323 333 334 335 339 340 341 342 343 344 357 358 359 360 361 362 369 370 371 372 373 374 378 379 380,CRC check failed
-/Users/kanavmehta/SamplingCW/gridlink/experiments/results/quiet1d-lab-repetition-3-20261026-171013-285528Z/results.csv,quiet1-002,2026-10-26T17:10:21.075755+00:00,0,384,,synchronisation

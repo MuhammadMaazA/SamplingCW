@@ -1,2 +1,0 @@
-group,symbol_duration,payload_bits,distance_m,lighting,mirror_alignment,glare,obstruction,physical_notes,venue,coding,repetitions,trials,synchronised,valid_frames,channel_ber,decoded_ber,useful_throughput_bps,frame_error_rate,observed_channel_bits,decoded_trials,sync_failures,truncated,uncorrectable,header_crc_failures,payload_crc_failures,other_failures
-G01,0.25,32,,indoor dim,,True,False,ipad; recalibrated; auto-lock off,lab,repetition,3,3,3,0,0.08680555555555555,0.05555555555555555,0.0,1.0,1152,3,0,0,0,3,0,0

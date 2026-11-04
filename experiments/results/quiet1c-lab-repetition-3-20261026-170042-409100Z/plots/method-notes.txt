@@ -1,9 +1,0 @@
-Groups separate coding, speed, payload size and recorded physical conditions.
-Frame failures include all planned trials, including missing and truncated frames.
-Channel BER uses observed frame bits; decoded BER uses complete decodable trials.
-Both BERs are conditional on observation/decodability; read them with failure counts.
-Throughput uses nominal frame airtime, excluding gaps and setup.
-Counts and rates are descriptive; they do not establish statistical significance.
-Unavailable tails indicate sampling stopped; later bits were not evaluated.
-Noise maps show at most 20 trials and 2000 bits; error-position CSVs retain all errors.
-Offline alignment and first-trial identification can fail in noisy captures.

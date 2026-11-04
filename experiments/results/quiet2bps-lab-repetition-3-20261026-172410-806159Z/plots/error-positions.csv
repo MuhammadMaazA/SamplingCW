@@ -1,4 +1,0 @@
-source,run_id,timestamp_utc,observed_bits,unavailable_tail_bits,error_positions,failure_reason
-/Users/kanavmehta/SamplingCW/gridlink/experiments/results/quiet2bps-lab-repetition-3-20261026-172410-806159Z/results.csv,quiet2bps-000,2026-10-26T17:24:22.008105+00:00,384,0,279 383,
-/Users/kanavmehta/SamplingCW/gridlink/experiments/results/quiet2bps-lab-repetition-3-20261026-172410-806159Z/results.csv,quiet2bps-001,2026-10-26T17:24:22.008105+00:00,384,0,316 317 318,CRC check failed
-/Users/kanavmehta/SamplingCW/gridlink/experiments/results/quiet2bps-lab-repetition-3-20261026-172410-806159Z/results.csv,quiet2bps-002,2026-10-26T17:24:22.008105+00:00,384,0,,

@@ -1,9 +1,0 @@
-2026-10-26T16:33:04.311638+00:00 SETUP: quiet1 | venue: lab
-2026-10-26T16:33:04.311696+00:00 Session folder: /Users/kanavmehta/SamplingCW/gridlink/experiments/results/quiet1-lab-repetition-3-20261026-163304-310902Z
-2026-10-26T16:33:04.311708+00:00 Methods: repetition:3 | 4 bits/s
-2026-10-26T16:33:04.311716+00:00 Select the screen region, check the preview, then press Space to record.
-2026-10-26T16:33:04.311723+00:00 Start A after B says RECORDING; Q stops early and keeps the samples.
-2026-10-26T16:38:48.261940+00:00 ANALYSING the saved recording. You can move the devices now.
-2026-10-26T16:38:48.292089+00:00 repetition x3: 2/3 valid frames
-2026-10-26T16:38:48.294730+00:00 Saving plots.
-2026-10-26T16:38:48.852430+00:00 DONE: raw data, selected-region image, plan, results and summary saved.
