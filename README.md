@@ -157,6 +157,20 @@ gridlink simulate "Grid" --coding hamming-interleaved --burst-length 8 --flip-pr
 
 Without a burst interval, each encoded bit flips independently. With `--burst-length`, only bits inside that interval can flip; `--burst-start` sets its first bit. Simulations report decoded BER and rejection counts. Repetition runs also print the theoretical majority-vote BER for comparison with the lab example.
 
+## Rebuilding the report
+
+Every table row, figure and quoted statistic in `report/report.tex` is generated from the per-trial CSVs. Unpack the results archive into `experiments/results/` (it is not in Git), then:
+
+```bash
+python -m pip install -e ".[dev,analysis]"
+python -m pytest
+python report/make_figures.py      # figures/, generated/table-*.tex, generated/stats.json
+python report/gen_allruns.py       # generated/allruns-rows.tex
+cd report && latexmk -pdf report.tex
+```
+
+`report/data.py` lists the exact results files behind the report and reproduces its G01–G29 grouping. `make_figures.py` computes Wilson intervals, trial-bootstrap BER intervals, Fisher tests, burstiness permutation tests, and fits the Gilbert–Elliott burst models (`experiments/channel_model.py`). `design_sim.py` replays whole frames through a fitted model to compare layouts (spread repetition, interleaver depth, spread header).
+
 ## Reading the code
 
 - `cli.py`: command arguments and calls to the relevant functions.
@@ -164,6 +178,6 @@ Without a burst interval, each encoded bit flips independently. With `--burst-le
 - `protocol.py`: framing, bit order and CRC.
 - `coding/`: repetition, Hamming, grid parity and interleaving.
 - `optical/`: brightness measurements and timing recovery.
-- `experiments/`: trial plans, saved results, simulations, analysis and plots.
+- `experiments/`: trial plans, saved results, simulations, analysis and plots; `stats.py` and `channel_model.py` hold the statistics and burst model used by the report.
 
 Timing recovery uses a sorted list and binary search to find the closest camera sample efficiently. Keep this when explaining performance: scanning the whole recording for every symbol made long captures too slow.

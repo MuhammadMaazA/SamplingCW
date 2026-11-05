@@ -1,6 +1,13 @@
 
 from gridlink.coding.pipeline import CodingConfig
-from gridlink.experiments.plan import make_plan, transmitter_command, parse_config, repeats_per_method, plan_method_labels
+from gridlink.experiments.plan import (
+    make_plan,
+    parse_config,
+    plan_method_labels,
+    repeats_per_method,
+    transmitter_command,
+)
+
 
 def test_transmitter_command_rebuilds_identical_plan():
     plan = make_plan(

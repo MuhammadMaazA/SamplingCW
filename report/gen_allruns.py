@@ -6,7 +6,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 SUMMARY = HERE.parent / "experiments" / "results" / "report-final" / "summary.csv"
-OUT = HERE / "allruns-rows.tex"
+OUT = HERE / "generated" / "allruns-rows.tex"
 
 CODE = {
     ("none", "1"): "none", ("hamming", "1"): "Hamming",
