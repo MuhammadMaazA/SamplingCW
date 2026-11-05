@@ -5,7 +5,10 @@ import csv
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-SUMMARY = HERE.parent / "experiments" / "results" / "report-final" / "summary.csv"
+RESULTS = HERE.parent / "experiments" / "results"
+if not RESULTS.exists():
+    RESULTS = HERE.parent.parent / "gridlink-results-backup" / "results"
+SUMMARY = RESULTS / "report-final" / "summary.csv"
 OUT = HERE / "generated" / "allruns-rows.tex"
 
 CODE = {
@@ -20,16 +23,20 @@ def code_label(scheme, reps):
     return CODE.get((scheme, reps), scheme)
 
 
+# Camera path per run. The physical_notes text in summary.csv came from default prompt
+# text and does not describe the setup, so the path is assigned by group instead.
+FACING = {*range(1, 15), 28}
+REFLECTION = {*range(15, 22), 29}
+
+
 def env_label(row):
-    notes = row["physical_notes"].lower()
     if row["glare"].strip().lower() == "true":
         return "glare"
-    if "direct screen" in notes:
-        return "direct"
-    if "external monitor" in notes:
-        return "monitor"
-    if "mirror via" in notes:
-        return "mirror"
+    group = int(row["group"].lstrip("G"))
+    if group in FACING:
+        return "facing"
+    if group in REFLECTION:
+        return "reflection"
     return (row["venue"] or "lab").strip()[:7]
 
 
@@ -41,7 +48,7 @@ def num(value, places):
     try:
         return f"{float(value):.{places}f}"
     except (TypeError, ValueError):
-        return "--"
+        return "n/a"
 
 
 def main():
@@ -54,12 +61,16 @@ def main():
             thr = float(row["useful_throughput_bps"])
             thr_s = num(thr, 3) if thr > 0 else "0"
             lines.append(
-                f"{g} & {bps(row['symbol_duration'])} & {row['payload_bits']} & "
+                f"{g} & {bps(row['symbol_duration'])} & "
                 f"{env_label(row)} & {code_label(row['coding'], row['repetitions'])} & "
-                f"{trials} & {num(row['channel_ber'], 3)} & {num(row['decoded_ber'], 3)} & "
+                f"{num(row['channel_ber'], 3)} & {num(row['decoded_ber'], 3)} & "
                 f"{thr_s} & {valid}/{trials} \\\\"
             )
     OUT.write_text("\n".join(lines))
+    # Two halves so the appendix table can sit side by side and fit the page limit.
+    half = (len(lines) + 1) // 2
+    OUT.with_name("allruns-rows-a.tex").write_text("\n".join(lines[:half]))
+    OUT.with_name("allruns-rows-b.tex").write_text("\n".join(lines[half:]))
     print(f"wrote {len(lines)} rows to {OUT}")
 
 

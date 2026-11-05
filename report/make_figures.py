@@ -1,7 +1,8 @@
 """Regenerate every report figure, table row and quoted statistic from the per-trial data.
 
-Inputs are the analysed results CSVs listed in data.SOURCES (unpack the results archive
-into experiments/results first). Outputs go to report/figures/ and report/generated/,
+Inputs are the analysed results CSVs listed in data.SOURCES, read from experiments/results
+or, if that is missing, from ../gridlink-results-backup/results. Outputs go to
+report/figures/ (IEEE-style vector PDF plus a PNG copy) and report/generated/,
 which report.tex includes directly, so no number in the report is typed by hand.
 
 Run from the repository root with the project venv:
@@ -19,6 +20,7 @@ mpl.use("Agg")
 import burst_experiment
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np
+from matplotlib.patches import Patch
 from data import METHOD_ORDER, by_slice, load
 from design_sim import Layout, frame_success
 
@@ -46,20 +48,48 @@ GENDIR = HERE / "generated"
 FIGDIR.mkdir(exist_ok=True)
 GENDIR.mkdir(exist_ok=True)
 
-INK = "#22272e"
-BLUE = "#3b6ea5"
-CLAY = "#c1553b"
-GREEN = "#4f8a6b"
-GREY = "#8a929b"
-LIGHT = "#d7dbe0"
+# IEEE figure style. Figures are drawn at their printed width so fonts print at true size.
+FULL_WIDTH = 6.5     # in, the text width of report.tex
+SINGLE_COL = 3.5     # in
+BLACK = "#000000"
+BLUE = "#1f4e79"
+RED = "#a23b2a"
+GREY = "#7f7f7f"
+LIGHT = "#d9d9d9"
 mpl.rcParams.update({
-    "font.family": "DejaVu Sans", "font.size": 9.5, "axes.edgecolor": INK,
-    "axes.linewidth": 0.8, "axes.spines.top": False, "axes.spines.right": False,
-    "axes.titlesize": 10, "axes.titleweight": "bold", "axes.labelcolor": INK,
-    "text.color": INK, "xtick.color": INK, "ytick.color": INK, "figure.dpi": 200,
+    "font.family": "serif",
+    "font.serif": ["Times New Roman", "Times", "DejaVu Serif"],
+    "mathtext.fontset": "stix",
+    "font.size": 8, "axes.labelsize": 8, "axes.titlesize": 8,
+    "xtick.labelsize": 7, "ytick.labelsize": 7, "legend.fontsize": 7,
+    "axes.linewidth": 0.7, "axes.edgecolor": BLACK, "axes.labelcolor": BLACK,
+    "text.color": BLACK, "xtick.color": BLACK, "ytick.color": BLACK,
+    "axes.spines.top": True, "axes.spines.right": True,
+    "xtick.direction": "in", "ytick.direction": "in", "xtick.top": True, "ytick.right": True,
+    "xtick.major.width": 0.6, "ytick.major.width": 0.6,
+    "xtick.major.size": 3, "ytick.major.size": 3,
+    "lines.linewidth": 1.1, "lines.markersize": 3.5, "hatch.linewidth": 0.5,
+    "errorbar.capsize": 2,
+    "grid.color": "#b0b0b0", "grid.linestyle": ":", "grid.linewidth": 0.5,
+    "legend.frameon": False, "legend.handlelength": 1.8, "legend.borderaxespad": 0.4,
+    "savefig.dpi": 600, "pdf.fonttype": 42, "ps.fonttype": 42,
 })
 
-FAST, CLEAN, GLARE, SLOW = "8 bps direct", "4 bps mirror", "4 bps glare", "2 bps glare"
+
+def panel_label(ax, text):
+    """Panel label such as (a) just above the top-left corner of the axes."""
+    ax.text(0.0, 1.02, text, transform=ax.transAxes, ha="left", va="bottom", fontsize=8)
+
+
+def save(fig, name):
+    """Write vector PDF for the report and a PNG copy for slides."""
+    for ext in ("pdf", "png"):
+        fig.savefig(FIGDIR / f"{name}.{ext}", bbox_inches="tight", pad_inches=0.02)
+    plt.close(fig)
+
+
+FAST, CLEAN, GLARE, SLOW = "8 bps facing", "4 bps reflection", "4 bps glare", "2 bps glare"
+QUIET = "3 bps facing"
 RATES = {"none": "1", "rep-3": "1/3", "rep-5": "1/5", "rep-7": "1/7", "Hamming": "4/7",
          "Ham-interl.": "4/7", "2-D parity": "16/25"}
 STATS: dict = {}
@@ -118,7 +148,7 @@ def write_tables(slices):
 
     # Pooled frame success over the three seven-method sessions (9 trials per method).
     pooled = defaultdict(lambda: [0, 0])
-    for name in ("3 bps monitor", FAST, CLEAN):
+    for name in (QUIET, FAST, CLEAN):
         for method, trials in by_method(slices[name]).items():
             pooled[method][0] += sum(t.record.frame_valid for t in trials)
             pooled[method][1] += len(trials)
@@ -182,7 +212,7 @@ def codeword_failures(trials, method, size):
 def noise_analysis(slices):
     STATS["noise"] = {}
     models = {}
-    for name in (FAST, GLARE, "3 bps monitor"):
+    for name in (FAST, GLARE, QUIET):
         trials = [t for t in slices[name] if t.observed]
         positions = [t.error_positions for t in trials]
         observed = [t.observed for t in trials]
@@ -275,65 +305,89 @@ def design_study(models):
 
 
 # ---------------------------------------------------------------- figures
+BAR = {"edgecolor": BLACK, "lw": 0.5, "zorder": 2}
+WORSE = {"facecolor": "white", "edgecolor": RED, "hatch": "//////", "lw": 0.6, "zorder": 2}
+
+
 def fig_highnoise():
     fast = STATS["fast"]
-    fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(7.2, 2.9), gridspec_kw={"wspace": 0.32})
+    fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(FULL_WIDTH, 1.95), layout="constrained")
+    fig.get_layout_engine().set(w_pad=0.02, h_pad=0.02, wspace=0.06)
     x = np.arange(len(METHOD_ORDER))
     ok = [fast[m]["ok"] / fast[m]["trials"] for m in METHOD_ORDER]
     lo = [fast[m]["frames_ci"][0] for m in METHOD_ORDER]
     hi = [fast[m]["frames_ci"][1] for m in METHOD_ORDER]
-    ax0.bar(x, ok, 0.62, color=BLUE)
+    ax0.bar(x, ok, 0.6, facecolor=BLUE, **BAR)
     ax0.errorbar(x, ok, yerr=[np.subtract(ok, lo), np.subtract(hi, ok)], fmt="none",
-                 ecolor=INK, capsize=2.5, lw=0.9)
+                 ecolor=BLACK, lw=0.7, zorder=3)
     for xi, m in zip(x, METHOD_ORDER):
-        ax0.text(xi, 1.04, f"{fast[m]['ok']}/{fast[m]['trials']}", ha="center", fontsize=7.5)
-    ax0.set_ylim(0, 1.12)
+        ax0.text(xi, 1.035, f"{fast[m]['ok']}/{fast[m]['trials']}", ha="center", fontsize=7)
+    ax0.set_ylim(0, 1.13)
+    ax0.set_yticks(np.arange(0, 1.01, 0.25))
     ax0.set_ylabel("Frames delivered")
-    ax0.set_title("(a) Frame success, Wilson 95% CI", loc="left")
 
     base = fast["none"]["decoded_ber"]
     dec = [fast[m]["decoded_ber"] for m in METHOD_ORDER]
     cis = [fast[m].get("decoded_ci", (0, 0)) for m in METHOD_ORDER]
-    colours = [GREY if m == "none" else CLAY if d > base + 1e-9 else BLUE
-               for m, d in zip(METHOD_ORDER, dec)]
-    ax1.bar(x, dec, 0.62, color=colours)
+    for xi, m, d in zip(x, METHOD_ORDER, dec):
+        if m == "none":
+            ax1.bar(xi, d, 0.6, facecolor=GREY, **BAR)
+        elif d > base + 1e-9:
+            ax1.bar(xi, d, 0.6, **WORSE)
+        else:
+            ax1.bar(xi, d, 0.6, facecolor=BLUE, **BAR)
     ax1.errorbar(x, dec, yerr=[[d - c[0] for d, c in zip(dec, cis)],
                                [c[1] - d for d, c in zip(dec, cis)]],
-                 fmt="none", ecolor=INK, capsize=2.5, lw=0.9)
-    ax1.axhline(base, color=GREY, ls="--", lw=1)
+                 fmt="none", ecolor=BLACK, lw=0.7, zorder=3)
+    ax1.axhline(base, color=BLACK, ls="--", lw=0.8, zorder=1)
     ax1.set_ylabel("Decoded BER")
-    ax1.set_title("(b) Decoded BER, trial bootstrap 95% CI", loc="left")
-    for ax in (ax0, ax1):
+    for ax, label in ((ax0, "(a)"), (ax1, "(b)")):
         ax.set_xticks(x)
-        ax.set_xticklabels(METHOD_ORDER, rotation=40, ha="right", fontsize=8)
-        ax.yaxis.grid(True, color="#eef0f3", lw=0.9)
+        ax.set_xticklabels(METHOD_ORDER, rotation=35, ha="right")
+        ax.tick_params(axis="x", which="both", top=False)
+        ax.set_xlim(-0.6, len(x) - 0.4)
+        ax.yaxis.grid(True)
         ax.set_axisbelow(True)
-    fig.savefig(FIGDIR / "highnoise-bars.png", bbox_inches="tight")
-    plt.close(fig)
+        panel_label(ax, label)
+    save(fig, "highnoise-bars")
 
 
 def fig_noise(slices, run_hist):
-    fig = plt.figure(figsize=(7.2, 5.6))
-    gs = fig.add_gridspec(2, 2, height_ratios=[0.9, 1.0], hspace=0.75, wspace=0.3)
+    fig = plt.figure(figsize=(FULL_WIDTH, 3.1), layout="constrained")
+    fig.get_layout_engine().set(w_pad=0.02, h_pad=0.03, wspace=0.06, hspace=0.06)
+    gs = fig.add_gridspec(2, 2, height_ratios=[0.8, 1.0])
 
     ax0 = fig.add_subplot(gs[0, :])
     examples = [("8 bps", t, BLUE) for t in slices[FAST] if t.method == "Hamming"]
-    examples += [("glare", t, CLAY) for t in slices[GLARE]
+    examples += [("glare", t, RED) for t in slices[GLARE]
                  if t.observed and 30 < len(t.error_positions) < 90][:3]
     for y, (label, t, colour) in enumerate(examples):
-        ax0.add_patch(plt.Rectangle((t.observed, y - 0.4), 400 - t.observed, 0.8,
-                                    color=LIGHT, lw=0))
+        ax0.plot([0, t.observed], [y, y], color=LIGHT, lw=0.5, zorder=1,
+                 solid_capstyle="butt")
+        if t.observed < 400:
+            ax0.add_patch(plt.Rectangle((t.observed, y - 0.36), 400 - t.observed, 0.72,
+                                        facecolor="none", edgecolor=GREY, hatch="//////",
+                                        lw=0))
         for p in t.error_positions:
-            ax0.add_patch(plt.Rectangle((p - 0.5, y - 0.4), 1.0, 0.8, color=colour, lw=0))
+            ax0.add_patch(plt.Rectangle((p - 0.5, y - 0.36), 1.0, 0.72, facecolor=colour,
+                                        lw=0, zorder=2))
     ax0.set_xlim(0, 400)
     ax0.set_ylim(len(examples) - 0.4, -0.6)
     ax0.set_yticks(range(len(examples)))
-    ax0.set_yticklabels([e[0] for e in examples], fontsize=7.5)
+    ax0.set_yticklabels([e[0] for e in examples])
+    ax0.tick_params(axis="y", which="both", length=0, pad=3)
+    ax0.set_xticks(np.arange(0, 401, 50))
     ax0.set_xlabel("Transmitted frame bit position")
-    ax0.set_title("(a) Error positions in example trials", loc="left")
+    handles = [Patch(facecolor=BLUE, lw=0, label="Facing the screen, 8 bps"),
+               Patch(facecolor=RED, lw=0, label="Reflection with glare, 4 bps"),
+               Patch(facecolor="none", edgecolor=GREY, hatch="//////", lw=0,
+                     label="Not observed")]
+    ax0.legend(handles=handles, loc="lower right", bbox_to_anchor=(1.0, 1.0), ncol=3,
+               handlelength=1.2, columnspacing=1.6, borderaxespad=0.15)
+    panel_label(ax0, "(a)")
 
     ax1 = fig.add_subplot(gs[1, 0])
-    labels = ["1", "2", "3-4", "5-7", "8+"]
+    labels = ["1", "2", "3 to 4", "5 to 7", "8+"]
     bins = [(1, 1), (2, 2), (3, 4), (5, 7), (8, 10**6)]
 
     def errors_by_run(counter):
@@ -343,72 +397,89 @@ def fig_noise(slices, run_hist):
     observed = {name: Counter(length for t in slices[name] for length in
                               run_lengths(t.error_positions)) for name in (FAST, GLARE)}
     x = np.arange(len(labels))
-    ax1.bar(x - 0.2, errors_by_run(observed[FAST]), 0.38, color=BLUE, label="8 bps observed")
-    ax1.bar(x + 0.2, errors_by_run(observed[GLARE]), 0.38, color=CLAY, label="glare observed")
-    ax1.plot(x + 0.2, errors_by_run(run_hist["GE"]), "o", color=INK, ms=4,
-             label="glare, fitted G-E model")
-    ax1.plot(x + 0.2, errors_by_run(run_hist["memoryless"]), "x", color=GREEN, ms=5,
-             label="glare, memoryless model")
+    ax1.bar(x - 0.2, errors_by_run(observed[FAST]), 0.38, facecolor=BLUE, **BAR,
+            label="8 bps, observed")
+    ax1.bar(x + 0.2, errors_by_run(observed[GLARE]), 0.38, facecolor="white", edgecolor=RED,
+            hatch="/////", lw=0.6, zorder=2, label="Glare, observed")
+    ax1.plot(x + 0.2, errors_by_run(run_hist["GE"]), "o", color=BLACK, ms=3.5, zorder=3,
+             label="Glare, fitted G-E model")
+    ax1.plot(x + 0.2, errors_by_run(run_hist["memoryless"]), "x", color=GREY, ms=4.5,
+             mew=1.0, zorder=3, label="Glare, memoryless model")
     ax1.set_xticks(x)
     ax1.set_xticklabels(labels)
+    ax1.tick_params(axis="x", which="both", top=False)
+    ax1.set_xlim(-0.6, len(labels) - 0.4)
+    ax1.set_ylim(0, 1.0)
     ax1.set_xlabel("Error-run length (bits)")
     ax1.set_ylabel("Share of errors")
-    ax1.set_title("(b) Errors by run length", loc="left")
-    ax1.legend(frameon=False, fontsize=6.8, loc="upper right")
+    ax1.legend(loc="upper right", borderaxespad=0.3)
+    panel_label(ax1, "(b)")
 
     ax2 = fig.add_subplot(gs[1, 1])
-    for name, colour, label in ((FAST, BLUE, "8 bps"), (GLARE, CLAY, "glare")):
+    for name, colour, style, mfc, label in (
+            (FAST, BLUE, "o-", BLUE, "Facing the screen, 8 bps"),
+            (GLARE, RED, "s--", "white", "Reflection with glare, 4 bps")):
         rates = STATS["noise"][name]["run_position_rate"]
         keys = sorted(rates)
-        ax2.plot(keys, [rates[k][0] / rates[k][1] for k in keys], "o-", color=colour,
-                 label=label, ms=4)
+        ax2.plot(keys, [rates[k][0] / rates[k][1] for k in keys], style, color=colour,
+                 mfc=mfc, label=label)
     ax2.set_xticks(range(1, 7))
     ax2.set_xticklabels(["1", "2", "3", "4", "5", "6+"])
-    ax2.set_xlabel("Position within a run of same colour")
+    ax2.set_xlabel("Position within a run of the same colour")
     ax2.set_ylabel("Bit error rate")
-    ax2.set_title("(c) Where in a run errors occur", loc="left")
-    ax2.legend(frameon=False, fontsize=7.5)
+    ax2.set_ylim(0, 0.4)
+    ax2.legend(loc="upper left")
+    panel_label(ax2, "(c)")
     for ax in (ax1, ax2):
-        ax.yaxis.grid(True, color="#eef0f3", lw=0.9)
+        ax.yaxis.grid(True)
         ax.set_axisbelow(True)
-    fig.savefig(FIGDIR / "noise-regimes.png", bbox_inches="tight")
-    plt.close(fig)
+    save(fig, "noise-regimes")
 
 
 def fig_extension():
-    fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(7.2, 2.9), gridspec_kw={"wspace": 0.3,
-                                                                         "width_ratios": [1, 1.15]})
+    fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(FULL_WIDTH, 2.05), layout="constrained",
+                                   gridspec_kw={"width_ratios": [1, 1.15]})
+    fig.get_layout_engine().set(w_pad=0.02, h_pad=0.02, wspace=0.06)
     bursts = burst_experiment.run()
     STATS["controlled_burst"] = {name: means for name, (means, _) in bursts.items()}
     lengths = np.arange(1, burst_experiment.MAX_BURST + 1)
-    for (name, (means, ses)), colour in zip(bursts.items(), (CLAY, BLUE, GREEN)):
-        ax0.errorbar(lengths, means, yerr=ses, color=colour, marker="o", ms=3, lw=1.5,
-                     capsize=1.5, label=name)
-    ax0.axvline(8, color=GREY, ls=":", lw=1)
+    styles = {"Hamming": (RED, "s", "--", "white"),
+              "Hamming-interleaved": (BLUE, "o", "-", BLUE),
+              "repetition-3": (BLACK, "^", ":", BLACK)}
+    for name, (means, ses) in bursts.items():
+        colour, marker, ls, mfc = styles[name]
+        ax0.errorbar(lengths, means, yerr=ses, color=colour, marker=marker, ls=ls, mfc=mfc,
+                     ms=3, lw=0.9, elinewidth=0.6, label=name)
+    ax0.axvline(8, color=GREY, ls=":", lw=0.8)
     ax0.set_xlabel("Burst length (bits flipped)")
     ax0.set_ylabel("Mean decoded BER")
     ax0.set_xticks([1, 4, 8, 12, 16])
-    ax0.legend(frameon=False, fontsize=7.2, loc="upper left")
-    ax0.set_title("(a) Synthetic single bursts", loc="left")
+    ax0.set_xlim(0.5, 16.5)
+    ax0.yaxis.grid(True)
+    ax0.set_axisbelow(True)
+    ax0.legend(loc="upper left")
+    panel_label(ax0, "(a)")
 
     design = STATS["design"][GLARE]
     names = [layout.name for layout in LAYOUTS]
     values = [design[n]["payload"] for n in names]
-    colours = [CLAY if "adjacent" in n or n == "Hamming" else BLUE for n in names]
     x = np.arange(len(names))
-    ax1.bar(x, values, 0.62, color=colours)
-    for xi, v in zip(x, values):
-        ax1.text(xi, v + 0.015, f"{v:.2f}", ha="center", fontsize=6.8)
+    for xi, n, v in zip(x, names, values):
+        if "adjacent" in n or n == "Hamming":
+            ax1.bar(xi, v, 0.6, **WORSE)
+        else:
+            ax1.bar(xi, v, 0.6, facecolor=BLUE, **BAR)
+        ax1.text(xi, v + 0.015, f"{v:.2f}", ha="center", fontsize=6.5)
     ax1.set_xticks(x)
-    ax1.set_xticklabels(names, rotation=40, ha="right", fontsize=7.2)
+    ax1.set_xticklabels(names, rotation=35, ha="right")
+    ax1.tick_params(axis="x", which="both", top=False)
+    ax1.set_xlim(-0.6, len(x) - 0.4)
     ax1.set_ylabel("P(payload decoded)")
     ax1.set_ylim(0, max(values) * 1.18)
-    ax1.set_title("(b) Fitted glare channel", loc="left")
-    for ax in (ax0, ax1):
-        ax.yaxis.grid(True, color="#eef0f3", lw=0.9)
-        ax.set_axisbelow(True)
-    fig.savefig(FIGDIR / "extension.png", bbox_inches="tight")
-    plt.close(fig)
+    ax1.yaxis.grid(True)
+    ax1.set_axisbelow(True)
+    panel_label(ax1, "(b)")
+    save(fig, "extension")
 
 
 def main():

@@ -1,0 +1,37 @@
+{
+  "name": "quiet1d",
+  "camera_index": 0,
+  "conditions": {
+    "physical_notes": "ipad; same settings retry; auto-lock off",
+    "mirror_alignment": "",
+    "distance_m": null,
+    "lighting": "indoor dim",
+    "glare": true,
+    "obstruction": false,
+    "venue": "lab"
+  },
+  "requested_threshold": 187.7,
+  "status": "saved",
+  "planned_seconds": 292.0,
+  "plan": "plan.json",
+  "created_local": "2026-10-26T21:10:13.286286+04:00",
+  "created_utc": "2026-10-26T17:10:13.286295+00:00",
+  "trials": 3,
+  "bit_rate": 4.0,
+  "methods": [
+    "repetition:3"
+  ],
+  "samples": 6088,
+  "capture": {
+    "started_utc": "2026-10-26T17:10:21.075755+00:00",
+    "camera": "0",
+    "roi": "1398,462,222,231",
+    "frame_size": "1920,1080",
+    "stop_reason": "stopped by user",
+    "elapsed_seconds": "224.161166",
+    "samples": "6088",
+    "stopped_utc": "2026-10-26T17:14:05.241178+00:00"
+  },
+  "threshold": 187.7,
+  "finished_utc": "2026-10-26T17:14:05.827646+00:00"
+}

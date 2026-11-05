@@ -8,7 +8,10 @@ from pathlib import Path
 from gridlink.experiments.recording import ExperimentRecord, read_csv
 from gridlink.experiments.report import group_records
 
-RESULTS = Path(__file__).resolve().parent.parent / "experiments" / "results"
+REPO = Path(__file__).resolve().parent.parent
+RESULTS = REPO / "experiments" / "results"
+if not RESULTS.exists():
+    RESULTS = REPO.parent / "gridlink-results-backup" / "results"
 
 # The analysed CSVs combined by `gridlink report` into report-final, in the same order,
 # so group_records reproduces the G01-G29 numbering of the appendix table.
@@ -27,13 +30,13 @@ SOURCES = [
 ]
 
 SLICE_OF_GROUP = {
-    **{g: "3 bps monitor" for g in range(1, 8)},
-    **{g: "8 bps direct" for g in range(8, 15)},
-    **{g: "4 bps mirror" for g in range(15, 22)},
+    **{g: "3 bps facing" for g in range(1, 8)},
+    **{g: "8 bps facing" for g in range(8, 15)},
+    **{g: "4 bps reflection" for g in range(15, 22)},
     **{g: "4 bps glare" for g in range(22, 27)},
     27: "2 bps glare",
-    28: "4 bps direct (rep-3 check)",
-    29: "4 bps mirror (rep-3 check)",
+    28: "4 bps facing (rep-3 check)",
+    29: "4 bps reflection (rep-3 check)",
 }
 
 LABELS = {

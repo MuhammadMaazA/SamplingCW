@@ -1,0 +1,43 @@
+{
+  "name": "full1b",
+  "camera_index": 0,
+  "conditions": {
+    "physical_notes": "iPad front camera; direct screen; no mirror",
+    "mirror_alignment": "",
+    "distance_m": null,
+    "lighting": "",
+    "glare": false,
+    "obstruction": false,
+    "venue": "lab"
+  },
+  "requested_threshold": null,
+  "status": "saved",
+  "planned_seconds": 1805.5,
+  "plan": "plan.json",
+  "created_local": "2026-10-27T17:44:08.575965+00:00",
+  "created_utc": "2026-10-27T17:44:08.575988+00:00",
+  "trials": 21,
+  "bit_rate": 4.0,
+  "methods": [
+    "hamming",
+    "hamming-interleaved",
+    "none",
+    "parity2d",
+    "repetition:3",
+    "repetition:5",
+    "repetition:7"
+  ],
+  "samples": 55067,
+  "capture": {
+    "started_utc": "2026-10-27T17:44:32.014615+00:00",
+    "camera": "0",
+    "roi": "251,188,20,25",
+    "frame_size": "640,480",
+    "stop_reason": "duration reached",
+    "elapsed_seconds": "1835.514541",
+    "samples": "55067",
+    "stopped_utc": "2026-10-27T18:15:07.531066+00:00"
+  },
+  "threshold": 59.0,
+  "finished_utc": "2026-10-27T18:15:15.001098+00:00"
+}

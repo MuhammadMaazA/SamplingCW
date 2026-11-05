@@ -1,0 +1,7 @@
+2026-10-30T18:04:41.719112+00:00 SETUP: monitor | venue: room
+2026-10-30T18:04:41.719112+00:00 Session folder: C:\Users\mmaaz\University\Year 4\Term 1\Sampling Compression and Data Analysis\Coursework\gridlink\experiments\results\monitor-room-comparison-20261030-180441-714350Z
+2026-10-30T18:04:41.719627+00:00 Methods: hamming, hamming-interleaved, none, parity2d, repetition:3, repetition:5, repetition:7 | 3 bits/s
+2026-10-30T18:04:41.719627+00:00 Select the screen region, check the preview, then press Space to record.
+2026-10-30T18:04:41.719627+00:00 Start A after B says RECORDING; Q stops early and keeps the samples.
+2026-10-30T18:45:24.926243+00:00 ANALYSING the saved recording. You can move the devices now.
+2026-10-30T18:45:25.783077+00:00 FAILED: capture timestamps must be strictly increasing. Keep this folder; existing data has not been deleted.

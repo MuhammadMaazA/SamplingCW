@@ -2,9 +2,10 @@
 
 For each burst length we corrupt a contiguous run of transmitted bits (every bit in
 the run flipped) at a random position and measure the mean decoded BER over many
-trials. Hamming and Hamming-interleaved share the same encoded length, so each trial
-applies the same burst position to both, giving a paired comparison. This isolates the
-effect of bit ordering under bursty noise, the regime our physical glare/dim runs showed.
+trials. The comparison is not paired. Each code draws its own fresh payload and burst
+positions from one shared generator, so each point is an independent average. Hamming and
+Hamming-interleaved share code and rate, so the gap between them reflects bit ordering
+under bursty noise, the regime our physical glare runs showed.
 
 make_figures.py calls run() and plots the result; running this file writes the CSV only.
 """

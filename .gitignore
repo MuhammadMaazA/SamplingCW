@@ -5,7 +5,6 @@ __pycache__/
 *.egg-info/
 build/
 dist/
-experiments/results/
 *.csv
 *.json
 !experiments/plans/
@@ -16,3 +15,7 @@ experiments/results/
 
 !report/generated/
 !report/generated/*
+!experiments/results/**/*.csv
+!experiments/results/**/*.json
+!experiments/extra-analysis/
+!experiments/extra-analysis/*
