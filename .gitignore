@@ -19,3 +19,7 @@ dist/
 !experiments/results/**/*.json
 !experiments/extra-analysis/
 !experiments/extra-analysis/*
+presentation/node_modules/
+!presentation/package.json
+!presentation/package-lock.json
+!presentation/plots/stats.json

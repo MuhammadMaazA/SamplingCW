@@ -1,0 +1,817 @@
+{
+ "setup": [
+  {
+   "env": "Facing screen, 3 bps",
+   "bit_rates": [
+    3.0
+   ],
+   "fps_min": 22.6,
+   "fps_max": 22.6,
+   "thr_min": 114.1,
+   "thr_max": 114.1,
+   "white_med": 165,
+   "black_med": 62,
+   "spb_min": 7.5,
+   "spb_max": 7.5,
+   "roi_min": "28 by 41",
+   "roi_max": "28 by 41",
+   "sessions": 1
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "bit_rates": [
+    8.0
+   ],
+   "fps_min": 30.0,
+   "fps_max": 30.0,
+   "thr_min": 141.5,
+   "thr_max": 141.5,
+   "white_med": 229,
+   "black_med": 102,
+   "spb_min": 3.8,
+   "spb_max": 3.8,
+   "roi_min": "23 by 28",
+   "roi_max": "23 by 28",
+   "sessions": 1
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "bit_rates": [
+    4.0
+   ],
+   "fps_min": 30.0,
+   "fps_max": 30.0,
+   "thr_min": 59.0,
+   "thr_max": 59.0,
+   "white_med": 89,
+   "black_med": 27,
+   "spb_min": 7.5,
+   "spb_max": 7.5,
+   "roi_min": "20 by 25",
+   "roi_max": "20 by 25",
+   "sessions": 1
+  },
+  {
+   "env": "Reflection with glare, 4 bps",
+   "bit_rates": [
+    4.0
+   ],
+   "fps_min": 23.4,
+   "fps_max": 28.4,
+   "thr_min": 143.0,
+   "thr_max": 187.7,
+   "white_med": 211,
+   "black_med": 126,
+   "spb_min": 5.9,
+   "spb_max": 7.1,
+   "roi_min": "222 by 231",
+   "roi_max": "647 by 544",
+   "sessions": 5
+  },
+  {
+   "env": "Reflection with glare, 2 bps",
+   "bit_rates": [
+    2.0
+   ],
+   "fps_min": 28.0,
+   "fps_max": 28.0,
+   "thr_min": 182.3,
+   "thr_max": 182.3,
+   "white_med": 217,
+   "black_med": 100,
+   "spb_min": 14.0,
+   "spb_max": 14.0,
+   "roi_min": "317 by 254",
+   "roi_max": "317 by 254",
+   "sessions": 1
+  }
+ ],
+ "traces": [
+  {
+   "run": "full1b-000",
+   "threshold": 59.0,
+   "errors_in_window": 0
+  },
+  {
+   "run": "quiet1-001",
+   "threshold": 143.0,
+   "errors_in_window": 47
+  }
+ ],
+ "crops": {
+  "reflect4": [
+   20,
+   25
+  ],
+  "glare_b": [
+   662,
+   470
+  ],
+  "glare_c": [
+   647,
+   544
+  ]
+ },
+ "failures": [
+  {
+   "valid_frames": 14,
+   "sync_failures": 0,
+   "truncated": 6,
+   "header_crc_failures": 0,
+   "payload_crc_failures": 1,
+   "uncorrectable": 0,
+   "other_failures": 0,
+   "trials": 21,
+   "env": "Facing screen, 3 bps"
+  },
+  {
+   "valid_frames": 9,
+   "sync_failures": 0,
+   "truncated": 0,
+   "header_crc_failures": 0,
+   "payload_crc_failures": 10,
+   "uncorrectable": 2,
+   "other_failures": 0,
+   "trials": 21,
+   "env": "Facing screen, 8 bps"
+  },
+  {
+   "valid_frames": 23,
+   "sync_failures": 0,
+   "truncated": 0,
+   "header_crc_failures": 1,
+   "payload_crc_failures": 0,
+   "uncorrectable": 0,
+   "other_failures": 0,
+   "trials": 24,
+   "env": "Reflection, 4 bps"
+  },
+  {
+   "valid_frames": 2,
+   "sync_failures": 2,
+   "truncated": 0,
+   "header_crc_failures": 9,
+   "payload_crc_failures": 2,
+   "uncorrectable": 0,
+   "other_failures": 0,
+   "trials": 15,
+   "env": "Reflection with glare, 4 bps"
+  },
+  {
+   "valid_frames": 2,
+   "sync_failures": 0,
+   "truncated": 0,
+   "header_crc_failures": 0,
+   "payload_crc_failures": 1,
+   "uncorrectable": 0,
+   "other_failures": 0,
+   "trials": 3,
+   "env": "Reflection with glare, 2 bps"
+  },
+  {
+   "valid_frames": 1,
+   "sync_failures": 0,
+   "truncated": 1,
+   "header_crc_failures": 0,
+   "payload_crc_failures": 0,
+   "uncorrectable": 0,
+   "other_failures": 0,
+   "trials": 2,
+   "env": "Facing screen, 4 bps"
+  }
+ ],
+ "wilson": [
+  {
+   "env": "Facing screen, 3 bps",
+   "method": "none",
+   "k": 1,
+   "n": 3,
+   "lo": 0.06,
+   "hi": 0.79
+  },
+  {
+   "env": "Facing screen, 3 bps",
+   "method": "rep-3",
+   "k": 2,
+   "n": 3,
+   "lo": 0.21,
+   "hi": 0.94
+  },
+  {
+   "env": "Facing screen, 3 bps",
+   "method": "rep-5",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  },
+  {
+   "env": "Facing screen, 3 bps",
+   "method": "rep-7",
+   "k": 1,
+   "n": 3,
+   "lo": 0.06,
+   "hi": 0.79
+  },
+  {
+   "env": "Facing screen, 3 bps",
+   "method": "Hamming",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  },
+  {
+   "env": "Facing screen, 3 bps",
+   "method": "2-D parity",
+   "k": 2,
+   "n": 3,
+   "lo": 0.21,
+   "hi": 0.94
+  },
+  {
+   "env": "Facing screen, 3 bps",
+   "method": "Ham-interl.",
+   "k": 2,
+   "n": 3,
+   "lo": 0.21,
+   "hi": 0.94
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "none",
+   "k": 0,
+   "n": 3,
+   "lo": 0.0,
+   "hi": 0.56
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "rep-3",
+   "k": 2,
+   "n": 3,
+   "lo": 0.21,
+   "hi": 0.94
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "rep-5",
+   "k": 2,
+   "n": 3,
+   "lo": 0.21,
+   "hi": 0.94
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "rep-7",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "Hamming",
+   "k": 0,
+   "n": 3,
+   "lo": 0.0,
+   "hi": 0.56
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "2-D parity",
+   "k": 1,
+   "n": 3,
+   "lo": 0.06,
+   "hi": 0.79
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "Ham-interl.",
+   "k": 1,
+   "n": 3,
+   "lo": 0.06,
+   "hi": 0.79
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "none",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "rep-3",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "rep-5",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "rep-7",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "Hamming",
+   "k": 2,
+   "n": 3,
+   "lo": 0.21,
+   "hi": 0.94
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "2-D parity",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "Ham-interl.",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  }
+ ],
+ "wilson_3of3": [
+  0.44,
+  1.0
+ ],
+ "wilson_0of3": [
+  0.0,
+  0.56
+ ],
+ "fisher_rep7_vs_hamming_8bps_one_sided": 0.05,
+ "depth_facing8": [
+  {
+   "depth": 1,
+   "errors": 130,
+   "bits": 850,
+   "rate": 0.1529
+  },
+  {
+   "depth": 2,
+   "errors": 6,
+   "bits": 421,
+   "rate": 0.0143
+  },
+  {
+   "depth": 3,
+   "errors": 11,
+   "bits": 347,
+   "rate": 0.0317
+  },
+  {
+   "depth": 4,
+   "errors": 1,
+   "bits": 233,
+   "rate": 0.0043
+  },
+  {
+   "depth": 5,
+   "errors": 4,
+   "bits": 222,
+   "rate": 0.018
+  },
+  {
+   "depth": 6,
+   "errors": 16,
+   "bits": 207,
+   "rate": 0.0773
+  },
+  {
+   "depth": 7,
+   "errors": 5,
+   "bits": 173,
+   "rate": 0.0289
+  },
+  {
+   "depth": 8,
+   "errors": 1,
+   "bits": 159,
+   "rate": 0.0063
+  },
+  {
+   "depth": 9,
+   "errors": 17,
+   "bits": 159,
+   "rate": 0.1069
+  },
+  {
+   "depth": 10,
+   "errors": 6,
+   "bits": 135,
+   "rate": 0.0444
+  },
+  {
+   "depth": 11,
+   "errors": 3,
+   "bits": 130,
+   "rate": 0.0231
+  },
+  {
+   "depth": 12,
+   "errors": 12,
+   "bits": 130,
+   "rate": 0.0923
+  }
+ ],
+ "depth_glare4": [
+  {
+   "depth": 1,
+   "errors": 3,
+   "bits": 557,
+   "rate": 0.0054
+  },
+  {
+   "depth": 2,
+   "errors": 0,
+   "bits": 336,
+   "rate": 0.0
+  },
+  {
+   "depth": 3,
+   "errors": 72,
+   "bits": 310,
+   "rate": 0.2323
+  },
+  {
+   "depth": 4,
+   "errors": 54,
+   "bits": 179,
+   "rate": 0.3017
+  },
+  {
+   "depth": 5,
+   "errors": 63,
+   "bits": 179,
+   "rate": 0.352
+  },
+  {
+   "depth": 6,
+   "errors": 68,
+   "bits": 179,
+   "rate": 0.3799
+  },
+  {
+   "depth": 7,
+   "errors": 39,
+   "bits": 113,
+   "rate": 0.3451
+  },
+  {
+   "depth": 8,
+   "errors": 38,
+   "bits": 113,
+   "rate": 0.3363
+  },
+  {
+   "depth": 9,
+   "errors": 34,
+   "bits": 113,
+   "rate": 0.3009
+  },
+  {
+   "depth": 10,
+   "errors": 16,
+   "bits": 75,
+   "rate": 0.2133
+  },
+  {
+   "depth": 11,
+   "errors": 13,
+   "bits": 75,
+   "rate": 0.1733
+  },
+  {
+   "depth": 12,
+   "errors": 10,
+   "bits": 75,
+   "rate": 0.1333
+  }
+ ],
+ "flips_facing8": {
+  "black_read_white": 256,
+  "white_read_black": 4,
+  "trials_with_errors": 21,
+  "trials_mostly_one_way": 21
+ },
+ "flips_glare4": {
+  "black_read_white": 435,
+  "white_read_black": 203,
+  "trials_with_errors": 13,
+  "trials_mostly_one_way": 11
+ },
+ "quarters_glare4": {
+  "observed": [
+   58,
+   159,
+   183,
+   238
+  ],
+  "pattern_predicted": [
+   110,
+   149,
+   185,
+   193
+  ]
+ },
+ "quarters_facing8": {
+  "observed": [
+   101,
+   36,
+   43,
+   80
+  ],
+  "pattern_predicted": [
+   96,
+   60,
+   47,
+   57
+  ]
+ },
+ "glare_mean_pos": {
+  "glare_a": 0.64,
+  "glare_b": 0.53,
+  "glare_c": 0.54,
+  "glare_d": 0.85,
+  "glare_e": 0.65
+ },
+ "model": {
+  "Facing screen, 8 bps": {
+   "bits": 7062,
+   "errors": 260,
+   "ber": 0.0368,
+   "n_runs": 241,
+   "max_run": 9,
+   "mean_run": 1.08,
+   "frac_errors_in_runs_ge3": 0.073,
+   "frac_runs_ge3": 0.012,
+   "geom_frac_runs_ge3": 0.0014,
+   "runs_test_R": 502,
+   "runs_test_expected": 516.2,
+   "runs_test_z": -2.18,
+   "p_err_after_err": 0.073,
+   "p_err_after_ok": 0.0355
+  },
+  "Reflection with glare, 4 bps": {
+   "bits": 4992,
+   "errors": 638,
+   "ber": 0.1278,
+   "n_runs": 179,
+   "max_run": 16,
+   "mean_run": 3.56,
+   "frac_errors_in_runs_ge3": 0.87,
+   "frac_runs_ge3": 0.564,
+   "geom_frac_runs_ge3": 0.0163,
+   "runs_test_R": 368,
+   "runs_test_expected": 1024.6,
+   "runs_test_z": -37.97,
+   "p_err_after_err": 0.723,
+   "p_err_after_ok": 0.0412
+  }
+ },
+ "repetition": [
+  {
+   "group": "G02",
+   "n": 3,
+   "channel": 0.0031779661016949155,
+   "decoded": 0.0,
+   "theory": 0.0
+  },
+  {
+   "group": "G04",
+   "n": 7,
+   "channel": 0.0014064697609001407,
+   "decoded": 0.0,
+   "theory": 0.0
+  },
+  {
+   "group": "G07",
+   "n": 5,
+   "channel": 0.025833333333333333,
+   "decoded": 0.0,
+   "theory": 0.0002
+  },
+  {
+   "group": "G09",
+   "n": 3,
+   "channel": 0.02976190476190476,
+   "decoded": 0.010416666666666666,
+   "theory": 0.0026
+  },
+  {
+   "group": "G11",
+   "n": 7,
+   "channel": 0.015804597701149427,
+   "decoded": 0.0,
+   "theory": 0.0
+  },
+  {
+   "group": "G14",
+   "n": 5,
+   "channel": 0.045,
+   "decoded": 0.03125,
+   "theory": 0.0009
+  },
+  {
+   "group": "G15",
+   "n": 5,
+   "channel": 0.0,
+   "decoded": 0.0,
+   "theory": 0.0
+  },
+  {
+   "group": "G16",
+   "n": 3,
+   "channel": 0.0,
+   "decoded": 0.0,
+   "theory": 0.0
+  },
+  {
+   "group": "G18",
+   "n": 7,
+   "channel": 0.0,
+   "decoded": 0.0,
+   "theory": 0.0
+  },
+  {
+   "group": "G22",
+   "n": 3,
+   "channel": 0.07291666666666667,
+   "decoded": 0.10416666666666667,
+   "theory": 0.0152
+  },
+  {
+   "group": "G23",
+   "n": 3,
+   "channel": 0.3151041666666667,
+   "decoded": 0.20833333333333334,
+   "theory": 0.2353
+  },
+  {
+   "group": "G24",
+   "n": 3,
+   "channel": 0.08680555555555555,
+   "decoded": 0.05555555555555555,
+   "theory": 0.0213
+  },
+  {
+   "group": "G25",
+   "n": 3,
+   "channel": 0.07291666666666667,
+   "decoded": 0.19791666666666666,
+   "theory": 0.0152
+  },
+  {
+   "group": "G26",
+   "n": 3,
+   "channel": 0.13541666666666666,
+   "decoded": 0.1597222222222222,
+   "theory": 0.05
+  },
+  {
+   "group": "G27",
+   "n": 3,
+   "channel": 0.004340277777777778,
+   "decoded": 0.006944444444444444,
+   "theory": 0.0001
+  },
+  {
+   "group": "G28",
+   "n": 3,
+   "channel": 0.0,
+   "decoded": 0.0,
+   "theory": 0.0
+  },
+  {
+   "group": "G29",
+   "n": 3,
+   "channel": 0.0,
+   "decoded": 0.0,
+   "theory": 0.0
+  }
+ ],
+ "tradeoff": [
+  {
+   "env": "Reflection, 4 bps",
+   "method": "rep-5",
+   "code_rate": 0.2,
+   "throughput": 0.16,
+   "ok": "3/3"
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "rep-3",
+   "code_rate": 0.333,
+   "throughput": 0.19,
+   "ok": "3/3"
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "none",
+   "code_rate": 1.0,
+   "throughput": 0.235,
+   "ok": "3/3"
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "rep-7",
+   "code_rate": 0.143,
+   "throughput": 0.138,
+   "ok": "3/3"
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "Hamming",
+   "code_rate": 0.571,
+   "throughput": 0.144,
+   "ok": "2/3"
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "Ham-interl.",
+   "code_rate": 0.571,
+   "throughput": 0.216,
+   "ok": "3/3"
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "2-D parity",
+   "code_rate": 0.64,
+   "throughput": 0.221,
+   "ok": "3/3"
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "Ham-interl.",
+   "code_rate": 0.571,
+   "throughput": 0.144,
+   "ok": "1/3"
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "rep-3",
+   "code_rate": 0.333,
+   "throughput": 0.254,
+   "ok": "2/3"
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "2-D parity",
+   "code_rate": 0.64,
+   "throughput": 0.147,
+   "ok": "1/3"
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "rep-7",
+   "code_rate": 0.143,
+   "throughput": 0.276,
+   "ok": "3/3"
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "Hamming",
+   "code_rate": 0.571,
+   "throughput": 0.0,
+   "ok": "0/3"
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "none",
+   "code_rate": 1.0,
+   "throughput": 0.0,
+   "ok": "0/3"
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "rep-5",
+   "code_rate": 0.2,
+   "throughput": 0.213,
+   "ok": "2/3"
+  }
+ ],
+ "noise_regimes": {
+  "isolated_single_share": 1.0,
+  "burst_errors_in_runs_ge3": 0.909,
+  "longest_burst": 16
+ }
+}

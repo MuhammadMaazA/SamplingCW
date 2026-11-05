@@ -188,3 +188,16 @@ cd report && latexmk -pdf report.tex
 - `experiments/`: trial plans, saved results, simulations, analysis and plots; `stats.py` and `channel_model.py` hold the statistics and burst model used by the report.
 
 Timing recovery uses a sorted list and binary search to find the closest camera sample efficiently. Keep this when explaining performance: scanning the whole recording for every symbol made long captures too slow.
+
+## Presentation
+
+The slides are in `presentation/gridlink-presentation.pptx` (and a PDF copy). To rebuild them from the recorded data:
+
+```bash
+cd presentation
+npm install
+python make_plots.py
+node build_deck.js
+```
+
+`make_plots.py` reads `experiments/results/` and writes the charts and `plots/stats.json`; `build_deck.js` reads those and the report's `report/generated/stats.json`, so every number on the slides comes from the data.
