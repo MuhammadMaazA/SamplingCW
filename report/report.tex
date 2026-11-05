@@ -43,7 +43,7 @@ be studied.
 \subsection*{Binary to signal and back}
 The receiver measures the median brightness inside a calibrated region and thresholds it at the
 midpoint of reference black and white levels, and low contrast is flagged at calibration. The
-camera and screen clocks are independent and the camera delivers only 28 to 33 frames per
+camera and screen clocks are independent and the camera delivers only 22.6 to 30 frames per
 second in our captures, so the channel is a sampling problem in the sense of this module.
 At 8\,bps there are about four camera samples per symbol, at 2\,bps about fourteen. The
 receiver timestamps every frame and takes the sample nearest each symbol centre by binary search
@@ -201,7 +201,7 @@ codeword. The 8\,bps channel nearly meets that assumption, but at a BER where (7
 overwhelmed. Glare breaks it badly. Of 624 repetition-3 groups, 77 had all three copies
 flipped, against 3.0 expected from a memoryless channel at the same BER, because adjacent copies
 share one burst. Worse, repetition lengthens same-colour runs, which is exactly what triggers the
-glare errors. Ten of the 15 glare failures were header CRC failures, so the payload code was never
+glare errors. Nine of the 13 failed glare frames were header CRC failures, so the payload code was never
 reached, because the header uses the same adjacent repetition over mostly zero bytes. A further
 confound follows from the 8\,bps mechanism. Channel BER depends on how often the data switches
 colour, so repetition-7's low channel BER (0.016) partly reflects its fewer transitions, not
