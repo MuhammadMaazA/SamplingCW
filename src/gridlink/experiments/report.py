@@ -9,6 +9,7 @@ from pathlib import Path
 
 import numpy as np
 
+from ..coding.pipeline import CodingConfig, method_label
 from .analysis import summarise_records
 from .metrics import error_run_lengths
 from .recording import ExperimentRecord, read_csv
@@ -22,7 +23,7 @@ CONDITIONS = (
 def group_records(records: list[ExperimentRecord]) -> list[list[ExperimentRecord]]:
     groups: dict[tuple, list[ExperimentRecord]] = {}
     for record in records:
-        key = (record.coding_scheme, record.repetition_factor or 1) + tuple(
+        key = (record.coding_scheme, record.repetition_factor or 1, record.spread_header) + tuple(
             getattr(record, name) for name in CONDITIONS
         )
         groups.setdefault(key, []).append(record)
@@ -71,12 +72,11 @@ def _save_table(rows: list[dict], path: Path) -> None:
 
 def _comparison(rows: list[dict], destination: Path, plt) -> None:
     figure, axes = plt.subplots(2, 2, figsize=(12, 9), layout="constrained")
-    labels = []
-    for row in rows:
-        coding = row["coding"]
-        if coding == "repetition":
-            coding += f"-{row['repetitions']}"
-        labels.append(f"{row['group']}\n{coding}")
+    labels = [
+        f"{row['group']}\n"
+        + method_label(CodingConfig(row["coding"], row["repetitions"], row["spread_header"]))
+        for row in rows
+    ]
     positions = np.arange(len(rows))
     for axis, key, title in (
         (axes[0, 0], "channel_ber", "Observed channel BER (sync + header + data)"),

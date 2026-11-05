@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 from math import isfinite
 
-from .coding.pipeline import CODING_IDS, CodingConfig
+from .coding.pipeline import CODING_IDS, REPETITION_SCHEMES, CodingConfig, method_label
 from .experiments.simulation import repetition_error_probability, run_trials, summarise_trials
 from .protocol import Frame, bytes_to_bits
 
@@ -166,7 +166,7 @@ def _run_experiment_command(args) -> None:
         print(f"threshold={records[0].threshold:.1f}")
         print(f"{'coding':<14}{'sync':>7}{'valid':>7}{'chan BER':>10}{'dec BER':>10}{'bps':>8}")
         for row in summarise_records(records):
-            label = f"{row.coding} x{row.repetitions}" if row.coding == "repetition" else row.coding
+            label = method_label(CodingConfig(row.coding, row.repetitions, row.spread_header))
             channel = "-" if row.channel_ber is None else f"{row.channel_ber:.4f}"
             decoded = "-" if row.decoded_ber is None else f"{row.decoded_ber:.4f}"
             print(
@@ -183,6 +183,9 @@ def main() -> None:
     _add_speed_options(send)
     send.add_argument("--coding", choices=tuple(CODING_IDS), default="none")
     send.add_argument("--repetitions", type=int, default=1)
+    send.add_argument(
+        "--spread-header", action="store_true", help="send the header copies one after another"
+    )
     recv = subparsers.add_parser("receive")
     recv.add_argument("--camera", type=int, default=0)
     _add_speed_options(recv)
@@ -242,6 +245,7 @@ def main() -> None:
                 args.message.encode("utf-8"),
                 coding=args.coding,
                 repetitions=args.repetitions,
+                spread_header=args.spread_header,
             ),
             args.duration,
         )
@@ -250,6 +254,7 @@ def main() -> None:
 
         frame = receive(args.camera, args.duration, args.threshold, timeout=args.timeout)
         print(f"coding={frame.coding} repetitions={frame.repetitions}")
+        print(f"spread_header={frame.spread_header}")
         print(f"corrected_codewords={frame.corrected_codewords}")
         print(frame.payload.decode("utf-8", errors="replace"))
     elif args.command == "reference":
@@ -288,6 +293,6 @@ def main() -> None:
         print(f"mean_decoded_ber={summary.mean_decoded_ber}")
         print(f"standard_deviation={summary.standard_deviation}")
         print(f"coding_rate={summary.coding_rate:.6f}")
-        if config.scheme == "repetition" and burst is None:
+        if config.scheme in REPETITION_SCHEMES and burst is None:
             predicted = repetition_error_probability(args.flip_probability, config.repetitions)
             print(f"theoretical_decoded_ber={predicted:.6f}")

@@ -6,7 +6,8 @@ or whose CRC failed, so failures cannot silently disappear from the results.
 Two decoding views are recorded for each trial:
 
 * ``frame_valid`` is the realistic receiver outcome from ``parse_frame``: the header
-  and payload CRCs must both pass.
+  and payload CRCs must both pass. The header is read in the trial's planned layout
+  (adjacent or spread), and the decoded frame must match the plan in every field.
 * ``decoded_bit_errors`` is genie-aided: the known plan supplies the header, and only
   the coded section is decoded and compared with the transmitted payload plus CRC.
   This isolates how well each code corrects channel errors from header failures.
@@ -19,7 +20,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from ..coding.errors import UncorrectableError
-from ..coding.pipeline import CodingConfig, decode
+from ..coding.pipeline import REPETITION_SCHEMES, decode
 from ..optical.detection import classify_intensity
 from ..optical.synchronization import TimedSample, find_first_pattern, sample_symbols
 from ..protocol import FRAME_OVERHEAD_BITS, SYNC_WORD, bytes_to_bits, crc16, parse_frame
@@ -82,7 +83,7 @@ def _record(
 ) -> ExperimentRecord:
     transmitted = trial.frame_bits()
     protected = _protected_bits(trial)
-    config = CodingConfig(trial.coding, trial.repetitions)
+    config = trial.config()
     channel_errors = decoded_errors = corrected = None
     decoded_payload = None
     frame_valid = False
@@ -100,7 +101,7 @@ def _record(
             else:
                 decoded_errors = _mismatches(protected, decoded)
             try:
-                frame = parse_frame(received)
+                frame = parse_frame(received, trial.spread_header)
             except ValueError as error:
                 failure = str(error)
             else:
@@ -109,6 +110,7 @@ def _record(
                     and frame.sequence == trial.index % 256
                     and frame.coding == trial.coding
                     and frame.repetitions == trial.repetitions
+                    and frame.spread_header == trial.spread_header
                 )
                 failure = None if frame_valid else "frame does not match planned trial"
                 corrected = frame.corrected_codewords
@@ -117,7 +119,7 @@ def _record(
         run_id=f"{plan.name}-{trial.index:03d}",
         timestamp_utc=timestamp_utc,
         coding_scheme=trial.coding,
-        repetition_factor=trial.repetitions if trial.coding == "repetition" else None,
+        repetition_factor=trial.repetitions if trial.coding in REPETITION_SCHEMES else None,
         payload_bits=len(trial.payload) * 8,
         encoded_bits=len(transmitted) - HEADER_BITS,
         random_seed=plan.seed,
@@ -143,6 +145,7 @@ def _record(
         corrected_codewords=corrected,
         failure_reason=failure,
         venue=conditions.venue,
+        spread_header=trial.spread_header,
     )
 
 
@@ -211,6 +214,7 @@ def analyse_capture(
 class ConfigSummary:
     coding: str
     repetitions: int
+    spread_header: bool
     trials: int
     synchronised: int
     valid_frames: int
@@ -220,13 +224,13 @@ class ConfigSummary:
 
 
 def summarise_records(records: list[ExperimentRecord]) -> list[ConfigSummary]:
-    """Aggregate per coding configuration, pooling bits across trials."""
-    groups: dict[tuple[str, int], list[ExperimentRecord]] = {}
+    """Aggregate per coding configuration and header layout, pooling bits across trials."""
+    groups: dict[tuple[str, int, bool], list[ExperimentRecord]] = {}
     for record in records:
-        key = (record.coding_scheme, record.repetition_factor or 1)
+        key = (record.coding_scheme, record.repetition_factor or 1, record.spread_header)
         groups.setdefault(key, []).append(record)
     summaries = []
-    for (coding, repetitions), group in sorted(groups.items()):
+    for (coding, repetitions, spread_header), group in sorted(groups.items()):
         received = [record for record in group if record.received_bits is not None]
         complete = [record for record in group if record.decoded_bit_errors is not None]
         channel_bits = sum(len(record.received_bits or []) for record in received)
@@ -237,6 +241,7 @@ def summarise_records(records: list[ExperimentRecord]) -> list[ConfigSummary]:
             ConfigSummary(
                 coding=coding,
                 repetitions=repetitions,
+                spread_header=spread_header,
                 trials=len(group),
                 synchronised=len(received),
                 valid_frames=sum(record.frame_valid for record in group),

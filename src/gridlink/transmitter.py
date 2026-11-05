@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import time
 
+from .coding.pipeline import method_label
 from .experiments.plan import ExperimentPlan, trial_offsets
 from .optical.patterns import symbol_image
 from .protocol import Frame, build_frame
@@ -69,8 +70,7 @@ def transmit_plan(
             start = session_start + offset
             cv2.imshow(window, symbol_image(0))
             _hold_until(cv2, start)
-            label = f"{trial.coding} x{trial.repetitions}"
-            print(f"trial {trial.index + 1}/{len(plan.trials)}: {label}")
+            print(f"trial {trial.index + 1}/{len(plan.trials)}: {method_label(trial.config())}")
             _show_bits(cv2, window, trial.frame_bits(), plan.symbol_duration, start)
         cv2.imshow(window, symbol_image(0))
         _hold_until(cv2, time.perf_counter() + plan.gap)

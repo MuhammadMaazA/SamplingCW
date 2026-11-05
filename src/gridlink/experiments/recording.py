@@ -43,6 +43,7 @@ class ExperimentRecord:
     corrected_codewords: int | None = None
     failure_reason: str | None = None
     venue: str = ""
+    spread_header: bool = False
 
 
 def record_as_dict(record: ExperimentRecord) -> dict[str, object]:
@@ -72,12 +73,13 @@ def read_csv(path: str | Path) -> list[ExperimentRecord]:
         "channel_bit_errors", "decoded_bit_errors", "corrected_codewords",
     }
     floats = {"symbol_duration", "threshold", "distance_m", "elapsed_seconds", "frame_start"}
-    booleans = {"glare", "obstruction", "frame_valid"}
+    booleans = {"glare", "obstruction", "frame_valid", "spread_header"}
     optional_text = {"decoded_payload", "failure_reason"}
     records = []
     with Path(path).open(newline="", encoding="utf-8") as stream:
         reader = csv.DictReader(stream)
-        required = {field.name for field in fields(ExperimentRecord)} - {"venue"}
+        optional = {"venue", "spread_header"}
+        required = {field.name for field in fields(ExperimentRecord)} - optional
         missing = required - set(reader.fieldnames or [])
         if missing:
             raise ValueError(f"not an analysed trial CSV; missing columns: {sorted(missing)}")
@@ -94,6 +96,8 @@ def read_csv(path: str | Path) -> list[ExperimentRecord]:
                     if values[name] is not None and not isfinite(values[name]):
                         raise ValueError(f"non-finite {name}")
                 elif name in booleans:
+                    if name == "spread_header" and not value:
+                        value = "False"
                     if value not in ("True", "False"):
                         raise ValueError(f"invalid boolean in {name}")
                     values[name] = value == "True"

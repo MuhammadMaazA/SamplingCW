@@ -9,9 +9,10 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 
+from ..coding.pipeline import CodingConfig, method_label
 from .analysis import SessionConditions, analyse_capture, summarise_records
 from .capture import load_capture
-from .plan import load_plan, plan_duration, save_plan
+from .plan import config_label, load_plan, plan_duration, save_plan
 from .recording import write_csv
 
 
@@ -36,13 +37,10 @@ def record_session(
         raise ValueError("use a simple session name without directory separators")
     plan = load_plan(plan_path)
     conditions = conditions or SessionConditions()
-    methods = sorted({
-        f"{trial.coding}:{trial.repetitions}" if trial.coding == "repetition" else trial.coding
-        for trial in plan.trials
-    })
-    method_label = methods[0].replace(":", "-") if len(methods) == 1 else "comparison"
+    methods = sorted({config_label(trial.config()) for trial in plan.trials})
+    folder_method = methods[0].replace(":", "-") if len(methods) == 1 else "comparison"
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S-%fZ")
-    folder = Path(output) / f"{session_label(name, conditions.venue)}-{method_label}-{stamp}"
+    folder = Path(output) / f"{session_label(name, conditions.venue)}-{folder_method}-{stamp}"
     folder.mkdir(parents=True, exist_ok=False)
     save_plan(plan, folder / "plan.json")
     metadata = {
@@ -84,8 +82,8 @@ def record_session(
                 writer.writeheader()
                 writer.writerows(summaries)
             for row in summaries:
-                note(f"{row['coding']} x{row['repetitions']}: "
-                     f"{row['valid_frames']}/{row['trials']} valid frames")
+                config = CodingConfig(row["coding"], row["repetitions"], row["spread_header"])
+                note(f"{method_label(config)}: {row['valid_frames']}/{row['trials']} valid frames")
             if plots:
                 from .report import write_report
 

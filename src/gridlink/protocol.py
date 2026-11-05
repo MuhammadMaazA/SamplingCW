@@ -12,6 +12,7 @@ from .coding.pipeline import (
     encode,
     encoded_length,
 )
+from .coding.spreading import spread, unspread
 
 MAGIC = bytes((0xD3, 0x91))
 VERSION = 2
@@ -21,8 +22,9 @@ HEADER_LENGTH = 6
 HEADER_CRC_LENGTH = 2
 # One fixed code for every frame, so header losses do not depend on the payload code.
 HEADER_CODING = CodingConfig("repetition", 3)
+HEADER_PLAIN_BITS = (HEADER_LENGTH + HEADER_CRC_LENGTH) * 8
 SYNC_BITS = len(SYNC_WORD) * 8
-HEADER_CODED_BITS = encoded_length((HEADER_LENGTH + HEADER_CRC_LENGTH) * 8, HEADER_CODING)
+HEADER_CODED_BITS = encoded_length(HEADER_PLAIN_BITS, HEADER_CODING)
 FRAME_OVERHEAD_BITS = SYNC_BITS + HEADER_CODED_BITS
 MAX_SYNC_MISMATCHES = 9
 
@@ -34,6 +36,7 @@ class Frame:
     coding: str = "none"
     repetitions: int = 1
     corrected_codewords: int = 0
+    spread_header: bool = False
 
 
 def bytes_to_bits(data: bytes) -> list[int]:
@@ -79,6 +82,24 @@ def find_sync(bits: list[int], maximum_mismatches: int = MAX_SYNC_MISMATCHES) ->
     return best_start
 
 
+def _encode_header(header: bytes, spread_header: bool) -> list[int]:
+    bits = encode(bytes_to_bits(header + crc16(header).to_bytes(2, "big")), HEADER_CODING)
+    return spread(bits, HEADER_CODING.repetitions) if spread_header else bits
+
+
+def _decode_header(bits: list[int], spread_header: bool) -> bytes:
+    """Return the six header bytes, or raise if the CRC or version check fails."""
+    if spread_header:
+        bits = unspread(bits, HEADER_CODING.repetitions)
+    block = bits_to_bytes(decode(bits, HEADER_PLAIN_BITS, HEADER_CODING)[0])
+    header = block[:HEADER_LENGTH]
+    if crc16(header) != int.from_bytes(block[HEADER_LENGTH:], "big"):
+        raise ValueError("header CRC check failed")
+    if header[0] != VERSION:
+        raise ValueError(f"unsupported protocol version: {header[0]}")
+    return header
+
+
 def build_frame(frame: Frame) -> list[int]:
     if not 0 <= frame.sequence <= 255:
         raise ValueError("sequence must fit in one byte")
@@ -91,13 +112,17 @@ def build_frame(frame: Frame) -> list[int]:
     header = bytes(
         (VERSION, CODING_IDS[config.scheme], config.repetitions, frame.sequence)
     ) + len(frame.payload).to_bytes(2, "big")
-    header_bits = encode(
-        bytes_to_bits(header + crc16(header).to_bytes(2, "big")), HEADER_CODING
-    )
+    header_bits = _encode_header(header, frame.spread_header)
     return bytes_to_bits(SYNC_WORD) + header_bits + encoded_bits
 
 
-def parse_frame(bits: list[int]) -> Frame:
+def parse_frame(bits: list[int], spread_header: bool | None = None) -> Frame:
+    """Decode one frame after the first sync word.
+
+    The header layout is not known before the header is read, so by default the
+    adjacent layout is tried first and the spread layout only if that fails. A caller
+    that already knows the layout, such as the offline analysis, can pass it instead.
+    """
     start = find_sync(bits)
     if start < 0:
         raise ValueError("frame synchronisation marker not found")
@@ -105,15 +130,17 @@ def parse_frame(bits: list[int]) -> Frame:
     header_end = header_start + HEADER_CODED_BITS
     if len(bits) < header_end:
         raise ValueError("incomplete frame header")
-    header_bits, _ = decode(
-        bits[header_start:header_end], (HEADER_LENGTH + HEADER_CRC_LENGTH) * 8, HEADER_CODING
-    )
-    block = bits_to_bytes(header_bits)
-    header = block[:HEADER_LENGTH]
-    if crc16(header) != int.from_bytes(block[HEADER_LENGTH:], "big"):
-        raise ValueError("header CRC check failed")
-    if header[0] != VERSION:
-        raise ValueError(f"unsupported protocol version: {header[0]}")
+    layouts = (False, True) if spread_header is None else (spread_header,)
+    first_error = None
+    for layout in layouts:
+        try:
+            header = _decode_header(bits[header_start:header_end], layout)
+        except ValueError as error:
+            first_error = first_error or error
+        else:
+            break
+    else:
+        raise first_error
     config = config_from_id(header[1], header[2])
     sequence = header[3]
     payload_length = int.from_bytes(header[4:6], "big")
@@ -133,5 +160,5 @@ def parse_frame(bits: list[int]) -> Frame:
         coding=config.scheme,
         repetitions=config.repetitions,
         corrected_codewords=corrected,
+        spread_header=layout,
     )
-

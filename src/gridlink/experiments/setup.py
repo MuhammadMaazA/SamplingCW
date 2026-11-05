@@ -4,13 +4,14 @@ from datetime import datetime, timezone
 from math import isfinite
 from pathlib import Path
 
-from ..coding.pipeline import CodingConfig
 from .analysis import SessionConditions
-from .plan import make_plan, plan_duration, save_plan, transmitter_command
+from .plan import make_plan, parse_config, plan_duration, save_plan, transmitter_command
 from .session import record_session, session_label
 
 METHODS = ["none", "repetition:3", "repetition:5", "repetition:7",
-           "hamming", "parity2d", "hamming-interleaved"]
+           "hamming", "parity2d", "hamming-interleaved",
+           "repetition-spread:3", "repetition-spread:3+sh",
+           "hamming-interleaved-16", "hamming-interleaved-16+sh"]
 
 
 def _number(label, default, integer=False, minimum=0, maximum=None):
@@ -42,13 +43,9 @@ def _choose_methods():
             ]
             if any(index < 1 or index > len(METHODS) for index in indices):
                 raise ValueError
-            configs = []
-            for index in dict.fromkeys(indices):
-                scheme, _, factor = METHODS[index - 1].partition(":")
-                configs.append(CodingConfig(scheme, int(factor) if factor else 1))
-            return configs
+            return [parse_config(METHODS[index - 1]) for index in dict.fromkeys(indices)]
         except ValueError:
-            print("Choose numbers 1-7, for example 2,5,6, or type all.")
+            print(f"Choose numbers 1-{len(METHODS)}, for example 2,5,6, or type all.")
 
 
 def interactive_setup(output="experiments/results"):

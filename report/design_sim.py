@@ -17,6 +17,7 @@ from gridlink.coding import hamming, repetition
 from gridlink.coding.errors import UncorrectableError
 from gridlink.coding.interleaving import deinterleave, interleave
 from gridlink.coding.pipeline import CodingConfig, decode, encode
+from gridlink.coding.spreading import spread, unspread
 from gridlink.experiments.channel_model import GilbertElliott, sample_errors
 from gridlink.protocol import (
     HEADER_CRC_LENGTH,
@@ -40,25 +41,10 @@ class Layout:
     spread_header: bool = False
 
 
-def _spread(bits: list[int], factor: int) -> list[int]:
-    """Copy-major order: the whole message, then the whole message again, and so on."""
-    count = len(bits) // factor
-    return [bits[i * factor + c] for c in range(factor) for i in range(count)]
-
-
-def _unspread(bits: list[int], factor: int) -> list[int]:
-    count = len(bits) // factor
-    out = [0] * len(bits)
-    for c in range(factor):
-        for i in range(count):
-            out[i * factor + c] = bits[c * count + i]
-    return out
-
-
 def _encode_payload(bits: list[int], layout: Layout) -> list[int]:
     if layout.scheme == "repetition":
         coded = repetition.encode(bits, layout.repetitions)
-        return _spread(coded, layout.repetitions) if layout.spread_repetition else coded
+        return spread(coded, layout.repetitions) if layout.spread_repetition else coded
     if layout.scheme == "hamming-interleaved":
         return interleave(hamming.encode(bits), layout.depth)
     return encode(bits, CodingConfig(layout.scheme, layout.repetitions))
@@ -67,7 +53,7 @@ def _encode_payload(bits: list[int], layout: Layout) -> list[int]:
 def _decode_payload(bits: list[int], length: int, layout: Layout) -> list[int]:
     if layout.scheme == "repetition":
         if layout.spread_repetition:
-            bits = _unspread(bits, layout.repetitions)
+            bits = unspread(bits, layout.repetitions)
         return repetition.decode(bits, layout.repetitions)
     if layout.scheme == "hamming-interleaved":
         return hamming.decode(deinterleave(bits, layout.depth))[0][:length]
@@ -87,7 +73,7 @@ def frame_success(
         header_plain = bytes_to_bits(header + crc16(header).to_bytes(2, "big"))
         header_bits = repetition.encode(header_plain, 3)
         if layout.spread_header:
-            header_bits = _spread(header_bits, 3)
+            header_bits = spread(header_bits, 3)
         body = _encode_payload(protected, layout)
         frame = sync + header_bits + body
         noise = sample_errors(model, len(frame), rng)
@@ -96,7 +82,7 @@ def frame_success(
         sync_good = sum(noise[: len(sync)]) <= MAX_SYNC_MISMATCHES
         h = noisy[len(sync): len(sync) + len(header_bits)]
         if layout.spread_header:
-            h = _unspread(h, 3)
+            h = unspread(h, 3)
         block = bits_to_bytes(repetition.decode(h, 3))
         head_good = crc16(block[:HEADER_LENGTH]) == int.from_bytes(
             block[HEADER_LENGTH: HEADER_LENGTH + HEADER_CRC_LENGTH], "big"

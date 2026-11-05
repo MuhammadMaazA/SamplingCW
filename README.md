@@ -80,6 +80,13 @@ Both sides must use the same speed. `--bit-rate 10` is equivalent to `--duration
 - `--coding hamming`: Hamming (7,4), sending seven bits for four data bits. Corrects one error per codeword.
 - `--coding parity2d`: our additional method. Arrange 16 bits in a 4x4 grid, add row and column checks, then send the resulting 25-bit grid. One failed row and column locate a single error. Double errors are rejected; some larger patterns can be missed or miscorrected.
 - `--coding hamming-interleaved`: our extension. Send columns from groups of up to eight Hamming codewords, spreading a short burst across different words. Reverse the order before decoding. It adds no extra bits, but cannot fix arbitrary bursts or missing observations.
+- `--coding hamming-interleaved-16`: the same, with groups of up to sixteen codewords. A burst of up to 16 bits now lands on 16 different codewords, so each one sees at most one error. Same number of bits as Hamming.
+- `--coding repetition-spread --repetitions 3`: the same bits as repetition-3, in a different order. Plain repetition sends `aaabbbccc`, so one burst can flip every copy of a bit. Spread repetition sends the whole message, then the whole message again, then a third time (`abcabcabc`). Copies of a bit are now a whole message apart, so a burst no longer than one copy flips at most one copy of each bit and the majority vote still wins. The receiver puts the copies back next to each other before voting.
+- `--spread-header` (with any coding): the header always uses repetition-3. This option sends its three copies one after another, the same way as spread repetition. The receiver does not know the layout before it reads the header, so it tries the normal layout first and, if the header CRC fails, the spread one. It reports which one worked. Older frames still decode as before.
+
+In plans and `--configs`, write these as `repetition-spread:3` and `hamming-interleaved-16`, and add `+sh` to any method for a spread header, for example `repetition-spread:3+sh` or `hamming-interleaved+sh`. Results and reports keep each layout as its own group, labelled for example `repetition-spread x3 +sh`.
+
+These layouts come from the burst model of the glare channel (`report/design_sim.py`). It predicts that adjacent repetition copies fail together, that deeper interleaving helps, and that the header is the main bottleneck under glare.
 
 The grid method is based on the [Kurose and Ross two-dimensional parity exercise](https://gaia.cs.umass.edu/kurose_ross/interactive/2d_parity.php). Its full-block rate is 16/25, compared with 4/7 for Hamming and 1/N for repetition-N. Padding and framing reduce the useful rate further.
 
@@ -97,7 +104,7 @@ For guided setup, run this on B:
 gridlink setup
 ```
 
-It asks for the run name, venue/room, iPad camera index, coding methods, repeats, speed, payload size, threshold and physical conditions. Choose methods by number (for example `2` for repetition-3, or `2,5,6` for repetition-3, Hamming and grid parity). The choice sets the actual transmission plan. Date/time is recorded automatically, with local and UTC timestamps.
+It asks for the run name, venue/room, iPad camera index, coding methods, repeats, speed, payload size, threshold and physical conditions. Choose methods by number (for example `2` for repetition-3, or `2,5,6` for repetition-3, Hamming and grid parity). Numbers 8 to 11 are the spread and deep-interleaving layouts. The choice sets the actual transmission plan. Date/time is recorded automatically, with local and UTC timestamps.
 
 Setup saves the plan on B only and prints A's `transmit-plan` command. A does not need the JSON file: that command rebuilds the same schedule from the seed and settings. Press Enter on B to open the camera, select the region, then press Space to record. Start the printed command on A only when B says RECORDING. Q in the setup prompt saves the plan and exits without opening a camera.
 
@@ -176,7 +183,7 @@ cd report && latexmk -pdf report.tex
 - `cli.py`: command arguments and calls to the relevant functions.
 - `transmitter.py` and `receiver.py`: screen display, camera capture and calibration.
 - `protocol.py`: framing, bit order and CRC.
-- `coding/`: repetition, Hamming, grid parity and interleaving.
+- `coding/`: repetition, Hamming, grid parity, interleaving and spreading.
 - `optical/`: brightness measurements and timing recovery.
 - `experiments/`: trial plans, saved results, simulations, analysis and plots; `stats.py` and `channel_model.py` hold the statistics and burst model used by the report.
 
