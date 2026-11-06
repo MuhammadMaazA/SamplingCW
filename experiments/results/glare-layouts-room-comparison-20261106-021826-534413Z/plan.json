@@ -1,0 +1,513 @@
+{
+  "version": 2,
+  "name": "glare-layouts",
+  "symbol_duration": 0.25,
+  "gap": 2.0,
+  "seed": 1,
+  "trials": [
+    {
+      "index": 0,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "3c344c41",
+      "spread_header": true
+    },
+    {
+      "index": 1,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "c4bb86c3",
+      "spread_header": false
+    },
+    {
+      "index": 2,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "6110e578",
+      "spread_header": false
+    },
+    {
+      "index": 3,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "df6af1d8",
+      "spread_header": false
+    },
+    {
+      "index": 4,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "7bd5d47e",
+      "spread_header": false
+    },
+    {
+      "index": 5,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "3c344c41",
+      "spread_header": true
+    },
+    {
+      "index": 6,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "f5b16522",
+      "spread_header": false
+    },
+    {
+      "index": 7,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "446fcec2",
+      "spread_header": true
+    },
+    {
+      "index": 8,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "4a58b791",
+      "spread_header": true
+    },
+    {
+      "index": 9,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "89eb2f1e",
+      "spread_header": false
+    },
+    {
+      "index": 10,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "df6af1d8",
+      "spread_header": false
+    },
+    {
+      "index": 11,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "89eb2f1e",
+      "spread_header": false
+    },
+    {
+      "index": 12,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "f5b16522",
+      "spread_header": true
+    },
+    {
+      "index": 13,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "7bd5d47e",
+      "spread_header": false
+    },
+    {
+      "index": 14,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "c4bb86c3",
+      "spread_header": false
+    },
+    {
+      "index": 15,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "303e61cd",
+      "spread_header": false
+    },
+    {
+      "index": 16,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "7bd5d47e",
+      "spread_header": true
+    },
+    {
+      "index": 17,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "7bd5d47e",
+      "spread_header": true
+    },
+    {
+      "index": 18,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "c4bb86c3",
+      "spread_header": false
+    },
+    {
+      "index": 19,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "446fcec2",
+      "spread_header": false
+    },
+    {
+      "index": 20,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "6110e578",
+      "spread_header": false
+    },
+    {
+      "index": 21,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "c4bb86c3",
+      "spread_header": false
+    },
+    {
+      "index": 22,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "df6af1d8",
+      "spread_header": false
+    },
+    {
+      "index": 23,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "a3d81173",
+      "spread_header": false
+    },
+    {
+      "index": 24,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "3c344c41",
+      "spread_header": false
+    },
+    {
+      "index": 25,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "89eb2f1e",
+      "spread_header": true
+    },
+    {
+      "index": 26,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "446fcec2",
+      "spread_header": false
+    },
+    {
+      "index": 27,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "4a58b791",
+      "spread_header": true
+    },
+    {
+      "index": 28,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "6110e578",
+      "spread_header": false
+    },
+    {
+      "index": 29,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "7bd5d47e",
+      "spread_header": false
+    },
+    {
+      "index": 30,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "d1c42710",
+      "spread_header": false
+    },
+    {
+      "index": 31,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "303e61cd",
+      "spread_header": true
+    },
+    {
+      "index": 32,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "a3d81173",
+      "spread_header": true
+    },
+    {
+      "index": 33,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "446fcec2",
+      "spread_header": false
+    },
+    {
+      "index": 34,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "3c344c41",
+      "spread_header": false
+    },
+    {
+      "index": 35,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "d1c42710",
+      "spread_header": true
+    },
+    {
+      "index": 36,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "a3d81173",
+      "spread_header": false
+    },
+    {
+      "index": 37,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "303e61cd",
+      "spread_header": false
+    },
+    {
+      "index": 38,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "a3d81173",
+      "spread_header": false
+    },
+    {
+      "index": 39,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "6110e578",
+      "spread_header": true
+    },
+    {
+      "index": 40,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "6110e578",
+      "spread_header": true
+    },
+    {
+      "index": 41,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "89eb2f1e",
+      "spread_header": true
+    },
+    {
+      "index": 42,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "c4bb86c3",
+      "spread_header": true
+    },
+    {
+      "index": 43,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "6110e578",
+      "spread_header": false
+    },
+    {
+      "index": 44,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "446fcec2",
+      "spread_header": true
+    },
+    {
+      "index": 45,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "d1c42710",
+      "spread_header": false
+    },
+    {
+      "index": 46,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "303e61cd",
+      "spread_header": true
+    },
+    {
+      "index": 47,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "4a58b791",
+      "spread_header": false
+    },
+    {
+      "index": 48,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "89eb2f1e",
+      "spread_header": false
+    },
+    {
+      "index": 49,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "f5b16522",
+      "spread_header": true
+    },
+    {
+      "index": 50,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "c4bb86c3",
+      "spread_header": true
+    },
+    {
+      "index": 51,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "a3d81173",
+      "spread_header": true
+    },
+    {
+      "index": 52,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "d1c42710",
+      "spread_header": false
+    },
+    {
+      "index": 53,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "3c344c41",
+      "spread_header": false
+    },
+    {
+      "index": 54,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "d1c42710",
+      "spread_header": true
+    },
+    {
+      "index": 55,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "4a58b791",
+      "spread_header": false
+    },
+    {
+      "index": 56,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "7bd5d47e",
+      "spread_header": false
+    },
+    {
+      "index": 57,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "3c344c41",
+      "spread_header": false
+    },
+    {
+      "index": 58,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "4a58b791",
+      "spread_header": false
+    },
+    {
+      "index": 59,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "df6af1d8",
+      "spread_header": false
+    },
+    {
+      "index": 60,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "303e61cd",
+      "spread_header": false
+    },
+    {
+      "index": 61,
+      "coding": "hamming-interleaved",
+      "repetitions": 1,
+      "payload_hex": "a3d81173",
+      "spread_header": false
+    },
+    {
+      "index": 62,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "d1c42710",
+      "spread_header": false
+    },
+    {
+      "index": 63,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "446fcec2",
+      "spread_header": false
+    },
+    {
+      "index": 64,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "f5b16522",
+      "spread_header": false
+    },
+    {
+      "index": 65,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "89eb2f1e",
+      "spread_header": false
+    },
+    {
+      "index": 66,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "4a58b791",
+      "spread_header": false
+    },
+    {
+      "index": 67,
+      "coding": "repetition",
+      "repetitions": 3,
+      "payload_hex": "303e61cd",
+      "spread_header": false
+    },
+    {
+      "index": 68,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "df6af1d8",
+      "spread_header": true
+    },
+    {
+      "index": 69,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "f5b16522",
+      "spread_header": false
+    },
+    {
+      "index": 70,
+      "coding": "repetition-spread",
+      "repetitions": 3,
+      "payload_hex": "df6af1d8",
+      "spread_header": true
+    },
+    {
+      "index": 71,
+      "coding": "hamming-interleaved-16",
+      "repetitions": 1,
+      "payload_hex": "f5b16522",
+      "spread_header": false
+    }
+  ]
+}

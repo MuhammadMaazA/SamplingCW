@@ -1,0 +1,42 @@
+{
+  "name": "glare-layouts",
+  "camera_index": 0,
+  "conditions": {
+    "physical_notes": "ipad reflection; glare; auto-lock off; glare-layouts",
+    "mirror_alignment": "",
+    "distance_m": null,
+    "lighting": "indoor dim",
+    "glare": true,
+    "obstruction": false,
+    "venue": "room"
+  },
+  "requested_threshold": 151.8,
+  "status": "saved",
+  "planned_seconds": 6514.0,
+  "plan": "plan.json",
+  "created_local": "2026-11-06T02:15:01.979808+00:00",
+  "created_utc": "2026-11-06T02:15:01.979808+00:00",
+  "trials": 72,
+  "bit_rate": 4.0,
+  "methods": [
+    "hamming-interleaved",
+    "hamming-interleaved-16",
+    "hamming-interleaved-16+sh",
+    "repetition-spread:3",
+    "repetition-spread:3+sh",
+    "repetition:3"
+  ],
+  "samples": 3192,
+  "capture": {
+    "started_utc": "2026-11-06T02:15:39.902605+00:00",
+    "camera": "0",
+    "roi": "106,226,21,26",
+    "frame_size": "640,480",
+    "stop_reason": "stopped by user",
+    "elapsed_seconds": "106.425693",
+    "samples": "3192",
+    "stopped_utc": "2026-11-06T02:17:26.340426+00:00"
+  },
+  "threshold": 151.8,
+  "finished_utc": "2026-11-06T02:17:27.069888+00:00"
+}

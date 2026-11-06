@@ -1,0 +1,13 @@
+2026-11-06T02:19:21.308383+00:00 SETUP: glare-layouts | venue: room
+2026-11-06T02:19:21.308383+00:00 Session folder: C:\Users\mmaaz\University\Year 4\Term 1\Sampling Compression and Data Analysis\Coursework\gridlink\experiments\results\glare-layouts-room-comparison-20261106-021921-294106Z
+2026-11-06T02:19:21.308383+00:00 Methods: hamming-interleaved, hamming-interleaved-16, hamming-interleaved-16+sh, repetition-spread:3, repetition-spread:3+sh, repetition:3 | 4 bits/s
+2026-11-06T02:19:21.310107+00:00 Select the screen region, check the preview, then press Space to record.
+2026-11-06T02:19:21.310107+00:00 Start A after B says RECORDING; Q stops early and keeps the samples.
+2026-11-06T04:08:43.200605+00:00 ANALYSING the saved recording. You can move the devices now.
+2026-11-06T04:08:46.500890+00:00 hamming-interleaved: 12/12 valid frames
+2026-11-06T04:08:46.500890+00:00 hamming-interleaved-16: 11/12 valid frames
+2026-11-06T04:08:46.501891+00:00 hamming-interleaved-16 +sh: 10/12 valid frames
+2026-11-06T04:08:46.501891+00:00 repetition x3: 12/12 valid frames
+2026-11-06T04:08:46.501891+00:00 repetition-spread x3: 10/12 valid frames
+2026-11-06T04:08:46.501891+00:00 repetition-spread x3 +sh: 9/12 valid frames
+2026-11-06T04:08:46.501891+00:00 DONE: raw data, selected-region image, plan, results and summary saved.

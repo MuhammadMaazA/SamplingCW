@@ -1,0 +1,7 @@
+coding,repetitions,spread_header,trials,synchronised,valid_frames,channel_ber,decoded_ber,useful_throughput_bps
+hamming-interleaved,1,False,12,0,0,,,0.0
+hamming-interleaved-16,1,False,12,0,0,,,0.0
+hamming-interleaved-16,1,True,12,1,0,0.06172839506172839,0.041666666666666664,0.0
+repetition,3,False,12,1,0,0.04878048780487805,,0.0
+repetition-spread,3,False,12,0,0,,,0.0
+repetition-spread,3,True,12,0,0,,,0.0
