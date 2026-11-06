@@ -2,7 +2,7 @@
 
 One session comparing the as-built frame layouts with the spread and deep-interleaving layouts, under the same glare conditions as the earlier glare runs: the same dim room, the iPad reflection, 4 bits/s and a 4-byte (32-bit) payload.
 
-Laptop 1 transmits (A). Laptop 2 records through the iPad camera (B).
+Laptop 1 transmits (A). Laptop 2 records (B), with its camera filming laptop 1's screen as reflected in the iPad screen.
 
 ## Plan
 
@@ -56,7 +56,7 @@ Press Space on B while white is showing. Check `valid=True` and write down the t
 
 ## 2. Start recording on laptop 2 (B)
 
-Replace `143` with the calibrated threshold and `0` with the iPad camera index:
+Replace `143` with the calibrated threshold and `0` with the camera index:
 
 ```bash
 gridlink record experiments/plans/glare-layouts.json --name glare-layouts --camera 0 --threshold 143 --venue lab --lighting "indoor dim" --glare --notes "ipad reflection; glare; auto-lock off; glare-layouts"
