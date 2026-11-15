@@ -188,14 +188,14 @@ function experiment() {
 
 // ---------- the optional clip ----------
 // Built only when there is a clip. A genuine recording, media/demo.mp4, is shown as "Demonstration of one run". Otherwise the
-// replay of one recorded run, media/replay.mp4, is shown as "A recorded run, replayed" and says so on the slide.
+// replay of one recorded run, media/replay.mp4, is shown as "One recording, animated" and says so on the slide.
 async function demo() {
   if (!k.HAS_DEMO) return;
   const clip = require("./demo"), info = clip.probe(k.DEMO), replay = k.DEMO_KIND === "replay";
   const N = replay ? clip.replaySpeed() : 0;
   const { s, top } = content(replay ? {
-    title: "A recorded run, replayed",
-    notes: `This next clip isn't a live run. It's one of our own recordings, normal light at 4 bits per second, replayed about ${N} times faster than it happened, so one whole frame fits in under half a minute. First watch the patch flash on laptop 1 and the iPad, and the brightness line follow it. The dashed line is the threshold. Every dot above it is read as a 1 and every dot below it as a 0, and those readings fill in the squares underneath. At the end it steps through the checks, the sync word, then the header CRC, then the payload CRC, and the decoded message matches what we sent.`,
+    title: "One recording, animated",
+    notes: `This next clip isn't a live run, and it isn't a video of us filming the setup either. It's an animation we drew from the data of one of our recordings, normal light at 4 bits per second, played about ${N} times faster than it happened, so one whole frame fits in under half a minute. First watch the patch flash on laptop 1 and the iPad, and the brightness line follow it. The dashed line is the threshold. Every dot above it is read as a 1 and every dot below it as a 0, and those readings fill in the squares underneath. At the end it steps through the checks, the sync word, then the header CRC, then the payload CRC, and the decoded message matches what we sent.`,
     secs: Math.round(info.secs + 15), fixed: true,
   } : {
     title: "Demonstration of one run",
@@ -206,7 +206,7 @@ async function demo() {
   const room = replay ? 4.78 - top : 5.15 - top;
   const h = Math.min(room, (9.4 * info.h) / info.w), w = (h * info.w) / info.h;
   s.addMedia({ type: "video", path: k.DEMO, x: (10 - w) / 2, y: top, w, h, cover: await clip.poster(k.DEMO, info, replay ? Math.round(info.secs * 0.35) : undefined), objectName: replay ? "replay clip" : "demonstration clip" });
-  if (replay) text(s, `One of our recordings replayed about ${N} times faster. It is not a live run.`, { x: M, y: top + h + 0.12, w: 8.8, h: 0.3, fontSize: 15, color: C.text2, align: "center", objectName: "replay caption" });
+  if (replay) text(s, `Animation of one recording, ${N} times faster. Not a live run and not a video of the setup.`, { x: M, y: top + h + 0.12, w: 8.8, h: 0.3, fontSize: 14, color: C.text2, align: "center", objectName: "replay caption" });
 }
 
 module.exports = { txrx, plugAndCheck, experiment, demo, box, label, elbow, deviceBand, SHORT };

@@ -86,17 +86,17 @@ class Scene:
         self.ov = ov = self.fig.add_axes([0, 0, 1, 1])
         ov.set_xlim(0, W); ov.set_ylim(H, 0); ov.axis("off")
         self.main, self.title, self.conf, self.compare = [], [], [[], [], []], []
-        ov.text(0.4, 0.34, f"Replay of a recorded run, shown {speed_label} times faster. Not a live run.", fontsize=18,
+        ov.text(0.4, 0.34, f"Animation of one recording, shown {speed_label} times faster. Not a live run.", fontsize=18,
                 fontweight="bold", color=INK, va="center", ha="left")
-        ov.text(0.4, 0.72, f"{CONDITION}. One recorded frame, with the brightness values the camera measured.", fontsize=16, color=GREY1, va="center", ha="left")
+        ov.text(0.4, 0.72, f"{CONDITION}. Drawn from the brightness the camera measured. Not a video of the setup.", fontsize=16, color=GREY1, va="center", ha="left")
         self.clock = ov.text(12.4, 0.34, "", fontsize=16, color=GREY1, va="center", ha="right")
         self.main.append(self.clock)
         self._devices()
         self._trace()
         self._bits()
         self._results()
-        for text, y, size, col in ((f"Replay of a recorded run,", 2.75, 38, INK), (f"shown {speed_label} times faster.", 3.4, 38, INK),
-                                   ("Not a live run.", 4.1, 38, ACCENT), (f"{CONDITION}, one recorded frame", 4.95, 22, GREY1)):
+        for text, y, size, col in ((f"Animation of one recorded run,", 2.75, 38, INK), (f"shown {speed_label} times faster.", 3.4, 38, INK),
+                                   ("Not a live run.", 4.1, 38, ACCENT), (f"{CONDITION}. Not a video of the setup.", 4.95, 22, GREY1)):
             self.title.append(ov.text(W / 2, y, text, fontsize=size, fontweight="bold" if size > 30 else "normal", color=col, ha="center", va="center"))
 
     def _add(self, artist, group=None):

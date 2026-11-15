@@ -84,16 +84,14 @@ function limits() {
   const N = RSTATS.noise, GL = N[k.findKey(N, 4, true)], share = Math.round(GL.burst_share * 100);
   const { s } = content({
     title: "Conclusion and limitations",
-    notes: `To wrap up, the main message is on the slide. Coding only helps if it fits the noise. On a clean channel it only costs speed, and with bursts the order of the bits matters as much as how many extra bits we add. On the good side, we built a working link from a laptop screen to a camera, with the three required codes, 2-D parity and three new layouts. We scripted and seeded every run, and we reported every recording, failures included. We also measured the noise instead of assuming it, and in glare ${share} percent of errors come in runs of 3 or more. Now the limitations. We only had 3 trials per method, so the frame results are suggestive. Room light changed between sessions, so we only compare codes within a session. The layout test glare was mild, so heavy bursts are untested, and we don't know yet why the spread header lost frames. One more, our simulation doesn't model glare switching between frames.`,
+    notes: `To wrap up, the main message is on the slide. Coding only helps if it fits the noise. On a clean channel it only costs speed, and with bursts the order of the bits matters as much as how many extra bits we add. On the good side, we built a working link from a laptop screen to a camera, with the three required codes, 2-D parity and three new layouts. We scripted and seeded every run, and we reported every recording, failures included. We also measured the noise instead of assuming it, and in glare ${share} percent of errors come in runs of 3 or more. Now the limitations. Room light changed between sessions, so we only compare codes within a session. Our simulation also doesn't model glare switching between frames. The other limits, only 3 trials per method and the mild glare in the layout test, we already covered on the earlier slides.`,
   });
   text(s, "Conclusion", { x: M, y: 1.3, w: 8.8, h: 0.4, fontSize: 22, bold: true, fontFace: FONT.head, objectName: "conclusion heading" });
   text(s, "Coding only helps if it fits the noise. On a clean channel it just costs speed, and with bursts the order of the bits matters as much as how many extra bits we add.", { x: M, y: 1.82, w: 8.2, h: 1.0, fontSize: 20, bold: true, objectName: "conclusion sentence" });
   hline(s, M, 3.0, 8.8, { name: "limitations rule" });
   text(s, "Limitations", { x: M, y: 3.15, w: 8.8, h: 0.4, fontSize: 22, bold: true, fontFace: FONT.head, objectName: "limitations heading" });
   [
-    "Only 3 trials per method, so the frame results are suggestive.",
     "Room light changed between sessions, so we only compare codes within a session.",
-    "The layout test glare was mild, so heavy bursts are untested, and we do not know yet why the spread header lost frames.",
   ].forEach((t, i) => text(s, t, { x: M, y: 3.7 + i * 0.36, w: 8.8, h: i === 2 ? 0.62 : 0.34, fontSize: 16, objectName: `limitation ${i + 1}` }));
 }
 
