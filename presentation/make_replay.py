@@ -31,7 +31,7 @@ HERE = Path(__file__).resolve().parent
 MEDIA = HERE / "media"
 W, H, FPS = 12.8, 7.2, 30
 SPEED = 6.0                 # recording seconds shown per video second
-TITLE_S, GAP_S, STEP_S, HOLD_S = 3.0, 0.6, 1.2, 4.0
+TITLE_S, GAP_S, STEP_S, HOLD_S = 0.0, 0.4, 0.8, 0.4
 KEY = "reflect4"            # normal light, 4 bps, repetition and Hamming comparison session
 CONDITION = "Normal light, 4 bps, repetition-3"
 
@@ -86,9 +86,9 @@ class Scene:
         self.ov = ov = self.fig.add_axes([0, 0, 1, 1])
         ov.set_xlim(0, W); ov.set_ylim(H, 0); ov.axis("off")
         self.main, self.title, self.conf, self.compare = [], [], [[], [], []], []
-        ov.text(0.4, 0.34, f"Animation of one recording, shown {speed_label} times faster. Not a live run.", fontsize=18,
+        ov.text(0.4, 0.34, f"One recording, shown {speed_label} times faster. Not a live run.", fontsize=18,
                 fontweight="bold", color=INK, va="center", ha="left")
-        ov.text(0.4, 0.72, f"{CONDITION}. Drawn from the brightness the camera measured. Not a video of the setup.", fontsize=16, color=GREY1, va="center", ha="left")
+        ov.text(0.4, 0.72, f"{CONDITION}. Drawn from the brightness the camera measured, not a video of the setup.", fontsize=16, color=GREY1, va="center", ha="left")
         self.clock = ov.text(12.4, 0.34, "", fontsize=16, color=GREY1, va="center", ha="right")
         self.main.append(self.clock)
         self._devices()

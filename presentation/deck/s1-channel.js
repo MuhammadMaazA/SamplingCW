@@ -139,7 +139,7 @@ function rateBars() {
   const { s, top } = content({
     title: "The three codes and their rates",
     take: "The rate of a code is the share of the sent bits that carry the message.",
-    notes: `These are the codes and their rates. The rate is the share of sent bits that carry the message, so a lower rate means more protection but slower sending. Uncoded is 1. Repetition sends each bit 3, 5 or 7 times. Hamming seven four turns 4 message bits into 7. 2-D parity puts 16 bits in a grid with check bits, 16 out of 25.`,
+    notes: `These are the codes and their rates. The rate is the share of sent bits that carry the message, so a lower rate means more protection but slower sending. Uncoded is 1. Repetition sends each bit 3, 5 or 7 times. Hamming seven four turns 4 message bits into 7. 2-D, or two-dimensional, parity puts 16 bits in a grid with check bits, 16 out of 25.`,
   });
   const x0 = 2.7, full = 5.6, rh = 0.34, pitch = 0.5, y0 = top + 0.15;
   rows.forEach(([name, r, frac], i) => {

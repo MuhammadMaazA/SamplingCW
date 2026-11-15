@@ -51,7 +51,7 @@ async function twoState() {
   const { s, top } = content({
     title: "A two-state model of glare",
     take: `The bad state lasts ${g.mean_bad_length.toFixed(1)} bits on average and covers ${pct(g.bad_fraction, 0)} percent of the time.`,
-    notes: `Here we model the glare with two states. In the good state it flips about ${pct(g.error_good, 0)} percent of bits, in the bad state almost all of them. The bad state lasts ${g.mean_bad_length.toFixed(1)} bits on average and covers ${pct(g.bad_fraction, 0)} percent of the time. On BIC, a score where lower is better, it does far better than flips with no memory.`,
+    notes: `Here we model the glare with two states. In the good state it flips about ${pct(g.error_good, 0)} percent of bits, in the bad state almost all of them. The bad state lasts ${g.mean_bad_length.toFixed(1)} bits on average and covers ${pct(g.bad_fraction, 0)} percent of the time. On BIC, the Bayesian information criterion, a score where lower is better, it does far better than flips with no memory.`,
   });
   const p = await plot(s, "fig-ge-fit.png", { y: top, maxW: 9.4, maxH: 5.15 - top - 0.75, name: "recorded glare frame against the fitted model", alt: "One recorded glare frame, three frames from the two state model and one draw with no memory" });
   const by = p.y + p.h + 0.14;

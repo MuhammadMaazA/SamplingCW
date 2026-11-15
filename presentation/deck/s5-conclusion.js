@@ -28,7 +28,7 @@ function context() {
   const { s, top } = content({
     title: "How close we are to the limit",
     take: `At 8 bps the measured error rate allows a rate of ${cap[3].toFixed(2)}, and Hamming uses ${(4 / 7).toFixed(2)}.`,
-    notes: `This chart shows capacity, the highest rate any code could reach and still decode reliably when bits flip independently. At 8 bits per second it's ${cap[3].toFixed(2)}, above the Hamming rate of 0.57, so better codes exist. Glare has memory, so its ${cap[4].toFixed(2)} is pessimistic. On the right, a Markov chain is a model where the next state depends only on the current one, and Reed-Solomon is a strong code from CDs and QR codes. I'll hand back to Maaz for the conclusion.`,
+    notes: `This chart shows capacity, the highest rate any code could reach and still decode reliably when bits flip independently. At 8 bits per second it's ${cap[3].toFixed(2)}, above the Hamming rate of 0.57, so better codes exist. Glare has memory, so its ${cap[4].toFixed(2)} is pessimistic. On the right, a Markov chain is a model where the next state depends only on the current one, and Reed-Solomon is a strong code from compact discs, CDs, and from QR, quick response, codes. I'll hand back to Maaz for the conclusion.`,
   });
   s.addChart([
     { type: pres.charts.BAR, data: [{ name: "Capacity", labels, values: cap }], options: { chartColors: [X.ink], barGapWidthPct: 50, showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.00" } },

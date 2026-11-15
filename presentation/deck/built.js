@@ -42,7 +42,7 @@ function txrx() {
   const { s, top } = content({
     title: "How the two laptops work",
     take: "Laptop 1 turns the message into timed colours, and laptop 2 turns them back.",
-    notes: `One row for each laptop, and we read each from left to right. Laptop 1 takes our two byte message and adds a CRC, a check value, then applies the code, which adds extra bits. In front go the sync word, which marks the start, and the header, sent three times. That whole block is one frame, ${E.frame_bits} bits, and at ${bps} bps, bits per second, it takes ${frameSecs} seconds. Each bit is a colour held until a deadline counted from the start, so a late redraw can't push the rest back. Laptop 2 does the reverse on every camera frame, meaning every webcam picture. It takes the median brightness inside the box and compares it with the threshold, the level halfway between black and white. Then it finds the sync word, even with up to ${CODE.max_sync_mismatches} of its ${CODE.sync_bits} bits wrong, samples each symbol at its centre, and votes and decodes to get our message back.`,
+    notes: `One row for each laptop, and we read each from left to right. Laptop 1 takes our two byte message and adds a CRC, short for cyclic redundancy check, which is a check value, then applies the code, which adds extra bits. In front go the sync word, which marks the start, and the header, sent three times. That whole block is one frame, ${E.frame_bits} bits, and at ${bps} bps, bits per second, it takes ${frameSecs} seconds. Each bit is a colour held until a deadline counted from the start, so a late redraw can't push the rest back. Laptop 2 does the reverse on every camera frame, meaning every webcam picture. It takes the median brightness inside the box and compares it with the threshold, the level halfway between black and white. Then it finds the sync word, even with up to ${CODE.max_sync_mismatches} of its ${CODE.sync_bits} bits wrong, samples each symbol at its centre, and votes and decodes to get our message back.`,
   });
   const r1 = top - 0.05, r2 = r1 + 1.82;
   deviceBand(s, r1, "Laptop 1", "runs the transmitter", { patch: true });
@@ -81,7 +81,7 @@ function plugAndCheck() {
   const { s, top } = content({
     title: "Plugging in and checking a code",
     take: TS.passed === TS.total ? `A coding id picks the code, and every check on the decoder passes, ${TS.total} of ${TS.total} tests.` : `A coding id picks the code, and ${TS.passed} of ${TS.total} tests pass.`,
-    notes: `The top half shows how a code plugs in, and the bottom half shows how we checked it. The header carries a coding id from ${ids[0].id} to ${ids[ids.length - 1].id}, and both laptops look it up in one table. Every code has the same two functions, encode and decode, so a new layout, meaning a new way of ordering the bits, is a new entry. Spread repetition is id 5 and interleaved Hamming at depth 16 is id 6. The spread header is a frame option, not an id. Below, our Hamming decoder fixed ${one[0]} of ${one[1]} single flips and ${two[0]} of ${two[1]} double flips, as theory says. The CRC gives the standard value ${RT.crc_check}, ${RT.passed} of ${RT.total} frames decode back, all ${TS.total} tests pass, and our simulation matches the theory.`,
+    notes: `The top half shows how a code plugs in, and the bottom half shows how we checked it. The header carries a coding identifier, or id, from ${ids[0].id} to ${ids[ids.length - 1].id}, and both laptops look it up in one table. Every code has the same two functions, encode and decode, so a new layout, meaning a new way of ordering the bits, is a new entry. Spread repetition is id 5 and interleaved Hamming at depth 16 is id 6. The spread header is a frame option, not an id. Below, our Hamming decoder fixed ${one[0]} of ${one[1]} single flips and ${two[0]} of ${two[1]} double flips, as theory says. The CRC gives the standard value ${RT.crc_check}, ${RT.passed} of ${RT.total} frames decode back, all ${TS.total} tests pass, and our simulation matches the theory.`,
   });
   // the top half, the header picks a row of the table, every code has the same two functions
   const rh = 0.28, ty = top + 0.3, tx = 2.35, idw = 0.42, nws = [2.15, 2.6], colGap = 0.1;
@@ -188,14 +188,14 @@ function experiment() {
 
 // ---------- the optional clip ----------
 // Built only when there is a clip. A genuine recording, media/demo.mp4, is shown as "Demonstration of one run". Otherwise the
-// replay of one recorded run, media/replay.mp4, is shown as "One recording, animated" and says so on the slide.
+// replay of one recorded run, media/replay.mp4, is shown as "One recorded run" and says so on the slide.
 async function demo() {
   if (!k.HAS_DEMO) return;
   const clip = require("./demo"), info = clip.probe(k.DEMO), replay = k.DEMO_KIND === "replay";
   const N = replay ? clip.replaySpeed() : 0;
   const { s, top } = content(replay ? {
-    title: "One recording, animated",
-    notes: `This next clip isn't a live run, and it isn't a video of us filming the setup either. It's an animation we drew from the data of one of our recordings, normal light at 4 bits per second, played about ${N} times faster than it happened, so one whole frame fits in under half a minute. First watch the patch flash on laptop 1 and the iPad, and the brightness line follow it. The dashed line is the threshold. Every dot above it is read as a 1 and every dot below it as a 0, and those readings fill in the squares underneath. At the end it steps through the checks, the sync word, then the header CRC, then the payload CRC, and the decoded message matches what we sent.`,
+    title: "One recorded run",
+    notes: `This next clip isn't a live run, and it isn't a video of us filming the setup either. It's a picture we drew from the data of one of our recordings, normal light at 4 bits per second, played about ${N} times faster than it happened, so one whole frame fits in under half a minute. First watch the patch flash on laptop 1 and the iPad, and the brightness line follow it. The dashed line is the threshold. Every dot above it is read as a 1 and every dot below it as a 0, and those readings fill in the squares underneath. At the end it steps through the checks, the sync word, then the header CRC, then the payload CRC, and the decoded message matches what we sent.`,
     secs: Math.round(info.secs + 15), fixed: true,
   } : {
     title: "Demonstration of one run",
@@ -206,7 +206,7 @@ async function demo() {
   const room = replay ? 4.78 - top : 5.15 - top;
   const h = Math.min(room, (9.4 * info.h) / info.w), w = (h * info.w) / info.h;
   s.addMedia({ type: "video", path: k.DEMO, x: (10 - w) / 2, y: top, w, h, cover: await clip.poster(k.DEMO, info, replay ? Math.round(info.secs * 0.35) : undefined), objectName: replay ? "replay clip" : "demonstration clip" });
-  if (replay) text(s, `Animation of one recording, ${N} times faster. Not a live run and not a video of the setup.`, { x: M, y: top + h + 0.12, w: 8.8, h: 0.3, fontSize: 14, color: C.text2, align: "center", objectName: "replay caption" });
+  if (replay) text(s, `Drawn from one recording, ${N} times faster. Not a live run and not a video of the setup.`, { x: M, y: top + h + 0.12, w: 8.8, h: 0.3, fontSize: 14, color: C.text2, align: "center", objectName: "replay caption" });
 }
 
 module.exports = { txrx, plugAndCheck, experiment, demo, box, label, elbow, deviceBand, SHORT };
