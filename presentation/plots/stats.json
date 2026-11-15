@@ -86,32 +86,6 @@
    "sessions": 1
   }
  ],
- "traces": [
-  {
-   "run": "full1b-000",
-   "threshold": 59.0,
-   "errors_in_window": 0
-  },
-  {
-   "run": "quiet1-001",
-   "threshold": 143.0,
-   "errors_in_window": 47
-  }
- ],
- "crops": {
-  "reflect4": [
-   20,
-   25
-  ],
-  "glare_b": [
-   662,
-   470
-  ],
-  "glare_c": [
-   647,
-   544
-  ]
- },
  "failures": [
   {
    "valid_frames": 14,
@@ -180,185 +154,6 @@
    "env": "Facing screen, 4 bps"
   }
  ],
- "wilson": [
-  {
-   "env": "Facing screen, 3 bps",
-   "method": "none",
-   "k": 1,
-   "n": 3,
-   "lo": 0.06,
-   "hi": 0.79
-  },
-  {
-   "env": "Facing screen, 3 bps",
-   "method": "rep-3",
-   "k": 2,
-   "n": 3,
-   "lo": 0.21,
-   "hi": 0.94
-  },
-  {
-   "env": "Facing screen, 3 bps",
-   "method": "rep-5",
-   "k": 3,
-   "n": 3,
-   "lo": 0.44,
-   "hi": 1.0
-  },
-  {
-   "env": "Facing screen, 3 bps",
-   "method": "rep-7",
-   "k": 1,
-   "n": 3,
-   "lo": 0.06,
-   "hi": 0.79
-  },
-  {
-   "env": "Facing screen, 3 bps",
-   "method": "Hamming",
-   "k": 3,
-   "n": 3,
-   "lo": 0.44,
-   "hi": 1.0
-  },
-  {
-   "env": "Facing screen, 3 bps",
-   "method": "2-D parity",
-   "k": 2,
-   "n": 3,
-   "lo": 0.21,
-   "hi": 0.94
-  },
-  {
-   "env": "Facing screen, 3 bps",
-   "method": "Ham-interl.",
-   "k": 2,
-   "n": 3,
-   "lo": 0.21,
-   "hi": 0.94
-  },
-  {
-   "env": "Facing screen, 8 bps",
-   "method": "none",
-   "k": 0,
-   "n": 3,
-   "lo": 0.0,
-   "hi": 0.56
-  },
-  {
-   "env": "Facing screen, 8 bps",
-   "method": "rep-3",
-   "k": 2,
-   "n": 3,
-   "lo": 0.21,
-   "hi": 0.94
-  },
-  {
-   "env": "Facing screen, 8 bps",
-   "method": "rep-5",
-   "k": 2,
-   "n": 3,
-   "lo": 0.21,
-   "hi": 0.94
-  },
-  {
-   "env": "Facing screen, 8 bps",
-   "method": "rep-7",
-   "k": 3,
-   "n": 3,
-   "lo": 0.44,
-   "hi": 1.0
-  },
-  {
-   "env": "Facing screen, 8 bps",
-   "method": "Hamming",
-   "k": 0,
-   "n": 3,
-   "lo": 0.0,
-   "hi": 0.56
-  },
-  {
-   "env": "Facing screen, 8 bps",
-   "method": "2-D parity",
-   "k": 1,
-   "n": 3,
-   "lo": 0.06,
-   "hi": 0.79
-  },
-  {
-   "env": "Facing screen, 8 bps",
-   "method": "Ham-interl.",
-   "k": 1,
-   "n": 3,
-   "lo": 0.06,
-   "hi": 0.79
-  },
-  {
-   "env": "Reflection, 4 bps",
-   "method": "none",
-   "k": 3,
-   "n": 3,
-   "lo": 0.44,
-   "hi": 1.0
-  },
-  {
-   "env": "Reflection, 4 bps",
-   "method": "rep-3",
-   "k": 3,
-   "n": 3,
-   "lo": 0.44,
-   "hi": 1.0
-  },
-  {
-   "env": "Reflection, 4 bps",
-   "method": "rep-5",
-   "k": 3,
-   "n": 3,
-   "lo": 0.44,
-   "hi": 1.0
-  },
-  {
-   "env": "Reflection, 4 bps",
-   "method": "rep-7",
-   "k": 3,
-   "n": 3,
-   "lo": 0.44,
-   "hi": 1.0
-  },
-  {
-   "env": "Reflection, 4 bps",
-   "method": "Hamming",
-   "k": 2,
-   "n": 3,
-   "lo": 0.21,
-   "hi": 0.94
-  },
-  {
-   "env": "Reflection, 4 bps",
-   "method": "2-D parity",
-   "k": 3,
-   "n": 3,
-   "lo": 0.44,
-   "hi": 1.0
-  },
-  {
-   "env": "Reflection, 4 bps",
-   "method": "Ham-interl.",
-   "k": 3,
-   "n": 3,
-   "lo": 0.44,
-   "hi": 1.0
-  }
- ],
- "wilson_3of3": [
-  0.44,
-  1.0
- ],
- "wilson_0of3": [
-  0.0,
-  0.56
- ],
- "fisher_rep7_vs_hamming_8bps_one_sided": 0.05,
  "depth_facing8": [
   {
    "depth": 1,
@@ -554,6 +349,435 @@
   "glare_d": 0.85,
   "glare_e": 0.65
  },
+ "physical": {
+  "session": "glare-layouts-room-comparison-20261106-021921-294106Z",
+  "layouts": [
+   {
+    "label": "rep-3 adjacent",
+    "short": "rep-3",
+    "coding": "repetition",
+    "repetitions": 3,
+    "spread_header": false,
+    "frames": 12,
+    "n": 12,
+    "wilson_lo": 0.757,
+    "wilson_hi": 1.0,
+    "channel_ber": 0.006944444444444444,
+    "decoded_ber": 0.0,
+    "useful_throughput_bps": 0.3333333333333333,
+    "baseline": null,
+    "fisher_p_vs_baseline": null
+   },
+   {
+    "label": "rep-3 spread",
+    "short": "rep-3 spread",
+    "coding": "repetition-spread",
+    "repetitions": 3,
+    "spread_header": false,
+    "frames": 10,
+    "n": 12,
+    "wilson_lo": 0.552,
+    "wilson_hi": 0.953,
+    "channel_ber": 0.006293402777777778,
+    "decoded_ber": 0.003472222222222222,
+    "useful_throughput_bps": 0.2777777777777778,
+    "baseline": "rep-3 adjacent",
+    "fisher_p_vs_baseline": 0.4783
+   },
+   {
+    "label": "rep-3 spread +sh",
+    "short": "rep-3 spread +sh",
+    "coding": "repetition-spread",
+    "repetitions": 3,
+    "spread_header": true,
+    "frames": 9,
+    "n": 12,
+    "wilson_lo": 0.468,
+    "wilson_hi": 0.911,
+    "channel_ber": 0.025390625,
+    "decoded_ber": 0.006944444444444444,
+    "useful_throughput_bps": 0.25,
+    "baseline": "rep-3 adjacent",
+    "fisher_p_vs_baseline": 0.2174
+   },
+   {
+    "label": "Ham-int depth 8",
+    "short": "Ham d8",
+    "coding": "hamming-interleaved",
+    "repetitions": 1,
+    "spread_header": false,
+    "frames": 12,
+    "n": 12,
+    "wilson_lo": 0.757,
+    "wilson_hi": 1.0,
+    "channel_ber": 0.0059156378600823045,
+    "decoded_ber": 0.0,
+    "useful_throughput_bps": 0.3950617283950617,
+    "baseline": null,
+    "fisher_p_vs_baseline": null
+   },
+   {
+    "label": "Ham-int depth 16",
+    "short": "Ham d16",
+    "coding": "hamming-interleaved-16",
+    "repetitions": 1,
+    "spread_header": false,
+    "frames": 11,
+    "n": 12,
+    "wilson_lo": 0.646,
+    "wilson_hi": 0.985,
+    "channel_ber": 0.0038580246913580245,
+    "decoded_ber": 0.001736111111111111,
+    "useful_throughput_bps": 0.36213991769547327,
+    "baseline": "Ham-int depth 8",
+    "fisher_p_vs_baseline": 1.0
+   },
+   {
+    "label": "Ham-int depth 16 +sh",
+    "short": "Ham d16 +sh",
+    "coding": "hamming-interleaved-16",
+    "repetitions": 1,
+    "spread_header": true,
+    "frames": 10,
+    "n": 12,
+    "wilson_lo": 0.552,
+    "wilson_hi": 0.953,
+    "channel_ber": 0.004886831275720165,
+    "decoded_ber": 0.0,
+    "useful_throughput_bps": 0.3292181069958848,
+    "baseline": "Ham-int depth 8",
+    "fisher_p_vs_baseline": 0.4783
+   }
+  ],
+  "frames_range": [
+   9,
+   12
+  ],
+  "channel_ber_range_pct": [
+   0.39,
+   2.54
+  ],
+  "original_glare_channel_ber_range_pct": [
+   7.3,
+   31.5
+  ],
+  "fisher_p_range": [
+   0.2174,
+   1.0
+  ]
+ },
+ "traces": [
+  {
+   "run": "full1b-000",
+   "threshold": 59.0,
+   "errors_in_window": 0,
+   "errors_in_frame": 0
+  },
+  {
+   "run": "quiet1-001",
+   "threshold": 143.0,
+   "errors_in_window": 47,
+   "errors_in_frame": 116
+  }
+ ],
+ "crops": {
+  "reflect4": [
+   20,
+   25
+  ],
+  "glare_b": [
+   662,
+   470
+  ],
+  "glare_c": [
+   647,
+   544
+  ]
+ },
+ "wilson": [
+  {
+   "env": "Facing screen, 3 bps",
+   "method": "none",
+   "k": 1,
+   "n": 3,
+   "lo": 0.06,
+   "hi": 0.79
+  },
+  {
+   "env": "Facing screen, 3 bps",
+   "method": "rep-3",
+   "k": 2,
+   "n": 3,
+   "lo": 0.21,
+   "hi": 0.94
+  },
+  {
+   "env": "Facing screen, 3 bps",
+   "method": "rep-5",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  },
+  {
+   "env": "Facing screen, 3 bps",
+   "method": "rep-7",
+   "k": 1,
+   "n": 3,
+   "lo": 0.06,
+   "hi": 0.79
+  },
+  {
+   "env": "Facing screen, 3 bps",
+   "method": "Hamming",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  },
+  {
+   "env": "Facing screen, 3 bps",
+   "method": "2-D parity",
+   "k": 2,
+   "n": 3,
+   "lo": 0.21,
+   "hi": 0.94
+  },
+  {
+   "env": "Facing screen, 3 bps",
+   "method": "Ham-interl.",
+   "k": 2,
+   "n": 3,
+   "lo": 0.21,
+   "hi": 0.94
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "none",
+   "k": 0,
+   "n": 3,
+   "lo": 0.0,
+   "hi": 0.56
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "rep-3",
+   "k": 2,
+   "n": 3,
+   "lo": 0.21,
+   "hi": 0.94
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "rep-5",
+   "k": 2,
+   "n": 3,
+   "lo": 0.21,
+   "hi": 0.94
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "rep-7",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "Hamming",
+   "k": 0,
+   "n": 3,
+   "lo": 0.0,
+   "hi": 0.56
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "2-D parity",
+   "k": 1,
+   "n": 3,
+   "lo": 0.06,
+   "hi": 0.79
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "Ham-interl.",
+   "k": 1,
+   "n": 3,
+   "lo": 0.06,
+   "hi": 0.79
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "none",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "rep-3",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "rep-5",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "rep-7",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "Hamming",
+   "k": 2,
+   "n": 3,
+   "lo": 0.21,
+   "hi": 0.94
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "2-D parity",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "Ham-interl.",
+   "k": 3,
+   "n": 3,
+   "lo": 0.44,
+   "hi": 1.0
+  }
+ ],
+ "wilson_3of3": [
+  0.44,
+  1.0
+ ],
+ "wilson_0of3": [
+  0.0,
+  0.56
+ ],
+ "fisher_rep7_vs_hamming_8bps_one_sided": 0.05,
+ "tradeoff": [
+  {
+   "env": "Reflection, 4 bps",
+   "method": "rep-5",
+   "code_rate": 0.2,
+   "throughput": 0.16,
+   "ok": "3/3"
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "rep-3",
+   "code_rate": 0.333,
+   "throughput": 0.19,
+   "ok": "3/3"
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "none",
+   "code_rate": 1.0,
+   "throughput": 0.235,
+   "ok": "3/3"
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "rep-7",
+   "code_rate": 0.143,
+   "throughput": 0.138,
+   "ok": "3/3"
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "Hamming",
+   "code_rate": 0.571,
+   "throughput": 0.144,
+   "ok": "2/3"
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "Ham-interl.",
+   "code_rate": 0.571,
+   "throughput": 0.216,
+   "ok": "3/3"
+  },
+  {
+   "env": "Reflection, 4 bps",
+   "method": "2-D parity",
+   "code_rate": 0.64,
+   "throughput": 0.221,
+   "ok": "3/3"
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "Ham-interl.",
+   "code_rate": 0.571,
+   "throughput": 0.144,
+   "ok": "1/3"
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "rep-3",
+   "code_rate": 0.333,
+   "throughput": 0.254,
+   "ok": "2/3"
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "2-D parity",
+   "code_rate": 0.64,
+   "throughput": 0.147,
+   "ok": "1/3"
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "rep-7",
+   "code_rate": 0.143,
+   "throughput": 0.276,
+   "ok": "3/3"
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "Hamming",
+   "code_rate": 0.571,
+   "throughput": 0.0,
+   "ok": "0/3"
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "none",
+   "code_rate": 1.0,
+   "throughput": 0.0,
+   "ok": "0/3"
+  },
+  {
+   "env": "Facing screen, 8 bps",
+   "method": "rep-5",
+   "code_rate": 0.2,
+   "throughput": 0.213,
+   "ok": "2/3"
+  }
+ ],
+ "noise_regimes": {
+  "isolated_single_share": 1.0,
+  "burst_errors_in_runs_ge3": 0.909,
+  "longest_burst": 16
+ },
  "model": {
   "Facing screen, 8 bps": {
    "bits": 7062,
@@ -709,109 +933,426 @@
    "theory": 0.0
   }
  ],
- "tradeoff": [
+ "sessions": [
   {
-   "env": "Reflection, 4 bps",
-   "method": "rep-5",
-   "code_rate": 0.2,
-   "throughput": 0.16,
-   "ok": "3/3"
+   "lane": "Glare, 4 bps",
+   "start": "2026-10-26T16:33:04",
+   "planned": 15,
+   "filmed": 13,
+   "valid": 2,
+   "kind": "lost",
+   "label": "2 of 15",
+   "x": 0.32131849315068495
   },
   {
-   "env": "Reflection, 4 bps",
-   "method": "rep-3",
-   "code_rate": 0.333,
-   "throughput": 0.19,
-   "ok": "3/3"
+   "lane": "Glare, 2 bps",
+   "start": "2026-10-26T17:24:10",
+   "planned": 3,
+   "filmed": 3,
+   "valid": 2,
+   "kind": "delivered",
+   "label": "2 of 3",
+   "x": 0.9639554794520548
   },
   {
-   "env": "Reflection, 4 bps",
-   "method": "none",
-   "code_rate": 1.0,
-   "throughput": 0.235,
-   "ok": "3/3"
+   "lane": "Pipeline test",
+   "start": "2026-10-27T16:22:04",
+   "planned": 0,
+   "filmed": 0,
+   "valid": 0,
+   "kind": "unusable",
+   "label": "pipeline test",
+   "x": 1.5566095890410958
   },
   {
-   "env": "Reflection, 4 bps",
-   "method": "rep-7",
-   "code_rate": 0.143,
-   "throughput": 0.138,
-   "ok": "3/3"
+   "lane": "Reflection, 4 bps",
+   "start": "2026-10-27T16:39:16",
+   "planned": 3,
+   "filmed": 3,
+   "valid": 3,
+   "kind": "delivered",
+   "label": "3 of 3",
+   "x": 2.0992808219178083
   },
   {
-   "env": "Reflection, 4 bps",
-   "method": "Hamming",
-   "code_rate": 0.571,
-   "throughput": 0.144,
-   "ok": "2/3"
+   "lane": "Outside the lab, 2 bps",
+   "start": "2026-10-27T17:07:08",
+   "planned": 21,
+   "filmed": 3,
+   "valid": 1,
+   "kind": "unusable",
+   "label": "1 of 21, only 3 filmed",
+   "x": 2.6419520547945208
   },
   {
-   "env": "Reflection, 4 bps",
-   "method": "Ham-interl.",
-   "code_rate": 0.571,
-   "throughput": 0.216,
-   "ok": "3/3"
+   "lane": "Facing, 4 bps",
+   "start": "2026-10-27T17:32:12",
+   "planned": 2,
+   "filmed": 2,
+   "valid": 1,
+   "kind": "delivered",
+   "label": "1 of 2",
+   "x": 3.184623287671233
   },
   {
-   "env": "Reflection, 4 bps",
-   "method": "2-D parity",
-   "code_rate": 0.64,
-   "throughput": 0.221,
-   "ok": "3/3"
+   "lane": "Reflection, 4 bps",
+   "start": "2026-10-27T17:44:08",
+   "planned": 21,
+   "filmed": 21,
+   "valid": 20,
+   "kind": "delivered",
+   "label": "20 of 21",
+   "x": 3.7272945205479453
   },
   {
-   "env": "Facing screen, 8 bps",
-   "method": "Ham-interl.",
-   "code_rate": 0.571,
-   "throughput": 0.144,
-   "ok": "1/3"
+   "lane": "Facing, 3 bps",
+   "start": "2026-10-30T18:03:12",
+   "planned": 21,
+   "filmed": 0,
+   "valid": 0,
+   "kind": "unusable",
+   "label": "stopped at 16.7 s",
+   "x": 5.176797945205479
   },
   {
-   "env": "Facing screen, 8 bps",
-   "method": "rep-3",
-   "code_rate": 0.333,
-   "throughput": 0.254,
-   "ok": "2/3"
+   "lane": "Facing, 3 bps",
+   "start": "2026-10-30T18:04:41",
+   "planned": 21,
+   "filmed": 21,
+   "valid": 14,
+   "kind": "delivered",
+   "label": "14 of 21",
+   "x": 5.81943493150685
   },
   {
-   "env": "Facing screen, 8 bps",
-   "method": "2-D parity",
-   "code_rate": 0.64,
-   "throughput": 0.147,
-   "ok": "1/3"
-  },
-  {
-   "env": "Facing screen, 8 bps",
-   "method": "rep-7",
-   "code_rate": 0.143,
-   "throughput": 0.276,
-   "ok": "3/3"
-  },
-  {
-   "env": "Facing screen, 8 bps",
-   "method": "Hamming",
-   "code_rate": 0.571,
-   "throughput": 0.0,
-   "ok": "0/3"
-  },
-  {
-   "env": "Facing screen, 8 bps",
-   "method": "none",
-   "code_rate": 1.0,
-   "throughput": 0.0,
-   "ok": "0/3"
-  },
-  {
-   "env": "Facing screen, 8 bps",
-   "method": "rep-5",
-   "code_rate": 0.2,
-   "throughput": 0.213,
-   "ok": "2/3"
+   "lane": "Facing, 8 bps",
+   "start": "2026-10-31T15:03:50",
+   "planned": 21,
+   "filmed": 21,
+   "valid": 9,
+   "kind": "lost",
+   "label": "9 of 21",
+   "x": 6.545376712328767
   }
  ],
- "noise_regimes": {
-  "isolated_single_share": 1.0,
-  "burst_errors_in_runs_ge3": 0.909,
-  "longest_burst": 16
+ "changes": {
+  "speed-facing": {
+   "a": {
+    "label": "3 bps",
+    "groups": [
+     "G01",
+     "G02",
+     "G03",
+     "G04",
+     "G05",
+     "G06",
+     "G07"
+    ],
+    "frames": 14,
+    "trials": 21,
+    "wilson": [
+     0.454,
+     0.828
+    ],
+    "channel_ber_pct": [
+     0.113,
+     0.123,
+     0.141,
+     0.241,
+     0.318,
+     1.0,
+     2.583
+    ],
+    "median_channel_ber_pct": 0.241
+   },
+   "b": {
+    "label": "8 bps",
+    "groups": [
+     "G08",
+     "G09",
+     "G10",
+     "G11",
+     "G12",
+     "G13",
+     "G14"
+    ],
+    "frames": 9,
+    "trials": 21,
+    "wilson": [
+     0.245,
+     0.635
+    ],
+    "channel_ber_pct": [
+     1.58,
+     2.976,
+     3.431,
+     4.5,
+     4.617,
+     4.73,
+     4.943
+    ],
+    "median_channel_ber_pct": 4.5
+   }
+  },
+  "path": {
+   "a": {
+    "label": "Reflection",
+    "groups": [
+     "G15",
+     "G16",
+     "G17",
+     "G18",
+     "G19",
+     "G20",
+     "G21",
+     "G29"
+    ],
+    "frames": 23,
+    "trials": 24,
+    "wilson": [
+     0.798,
+     0.993
+    ],
+    "channel_ber_pct": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.338
+    ],
+    "median_channel_ber_pct": 0.0
+   },
+   "b": {
+    "label": "Facing",
+    "groups": [
+     "G28"
+    ],
+    "frames": 1,
+    "trials": 2,
+    "wilson": [
+     0.095,
+     0.905
+    ],
+    "channel_ber_pct": [
+     0.0
+    ],
+    "median_channel_ber_pct": 0.0
+   }
+  },
+  "lighting": {
+   "a": {
+    "label": "Normal light",
+    "groups": [
+     "G15",
+     "G16",
+     "G17",
+     "G18",
+     "G19",
+     "G20",
+     "G21"
+    ],
+    "frames": 20,
+    "trials": 21,
+    "wilson": [
+     0.773,
+     0.992
+    ],
+    "channel_ber_pct": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.338
+    ],
+    "median_channel_ber_pct": 0.0
+   },
+   "b": {
+    "label": "Dim, glare",
+    "groups": [
+     "G22",
+     "G23",
+     "G24",
+     "G25",
+     "G26"
+    ],
+    "frames": 2,
+    "trials": 15,
+    "wilson": [
+     0.037,
+     0.379
+    ],
+    "channel_ber_pct": [
+     7.292,
+     7.292,
+     8.681,
+     13.542,
+     31.51
+    ],
+    "median_channel_ber_pct": 8.681
+   }
+  },
+  "speed-glare": {
+   "a": {
+    "label": "4 bps",
+    "groups": [
+     "G22",
+     "G23",
+     "G24",
+     "G25",
+     "G26"
+    ],
+    "frames": 2,
+    "trials": 15,
+    "wilson": [
+     0.037,
+     0.379
+    ],
+    "channel_ber_pct": [
+     7.292,
+     7.292,
+     8.681,
+     13.542,
+     31.51
+    ],
+    "median_channel_ber_pct": 8.681
+   },
+   "b": {
+    "label": "2 bps",
+    "groups": [
+     "G27"
+    ],
+    "frames": 2,
+    "trials": 3,
+    "wilson": [
+     0.208,
+     0.939
+    ],
+    "channel_ber_pct": [
+     0.434
+    ],
+    "median_channel_ber_pct": 0.434
+   }
+  }
+ },
+ "levels": {
+  "reflect4": {
+   "threshold": 59.0,
+   "n_black": 4590,
+   "n_white": 2472,
+   "median_black": 27.0,
+   "median_white": 89.0,
+   "wrong_side_share": 0.0004,
+   "overlap_band": null
+  },
+  "glare_c": {
+   "threshold": 187.7,
+   "n_black": 732,
+   "n_white": 420,
+   "median_black": 125.5,
+   "median_white": 196.0,
+   "wrong_side_share": 0.0868,
+   "overlap_band": [
+    155.7,
+    197.0
+   ]
+  }
+ },
+ "sampling": [
+  {
+   "bps": 8,
+   "frames_per_bit": 3.8,
+   "frames_in_window": [
+    3,
+    4,
+    4,
+    3,
+    4,
+    4
+   ]
+  },
+  {
+   "bps": 4,
+   "frames_per_bit": 7.5,
+   "frames_in_window": [
+    8,
+    8,
+    8,
+    7,
+    7,
+    7
+   ]
+  },
+  {
+   "bps": 2,
+   "frames_per_bit": 14.0,
+   "frames_in_window": [
+    15,
+    12,
+    14,
+    12,
+    14,
+    15
+   ]
+  }
+ ],
+ "raster": [
+  {
+   "setup": "Facing, 4 bps",
+   "trials": 2,
+   "errors": 0,
+   "observed_bits": 336,
+   "channel_ber": 0.0
+  },
+  {
+   "setup": "Reflection, 4 bps",
+   "trials": 24,
+   "errors": 3,
+   "observed_bits": 8070,
+   "channel_ber": 0.00037
+  },
+  {
+   "setup": "Glare, 2 bps",
+   "trials": 3,
+   "errors": 5,
+   "observed_bits": 1152,
+   "channel_ber": 0.00434
+  },
+  {
+   "setup": "Facing, 3 bps",
+   "trials": 21,
+   "errors": 45,
+   "observed_bits": 5987,
+   "channel_ber": 0.00752
+  },
+  {
+   "setup": "Facing, 8 bps",
+   "trials": 21,
+   "errors": 260,
+   "observed_bits": 7062,
+   "channel_ber": 0.03682
+  },
+  {
+   "setup": "Glare, 4 bps",
+   "trials": 15,
+   "errors": 638,
+   "observed_bits": 4992,
+   "channel_ber": 0.1278
+  }
+ ],
+ "ge_fit": {
+  "p_good_to_bad": 0.0315,
+  "p_bad_to_good": 0.2288,
+  "error_good": 0.0099,
+  "error_bad": 1.0,
+  "mean_bad_length": 4.37,
+  "bad_fraction": 0.1209,
+  "memoryless_flip": 0.1278,
+  "real_frame": "quiet1-000",
+  "real_errors": 44
  }
 }

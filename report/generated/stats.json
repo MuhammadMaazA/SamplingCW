@@ -527,6 +527,283 @@
    }
   }
  },
+ "physical": {
+  "session": {
+   "trials": 72,
+   "per_layout": 12,
+   "bit_rate": 4.0,
+   "threshold": 112.5,
+   "minutes": 109.06684518333333,
+   "payload_bits": 32
+  },
+  "layouts": {
+   "rep-3 adjacent": {
+    "trials": 12,
+    "ok": 12,
+    "frames_ci": [
+     0.7574992425007574,
+     1.0
+    ],
+    "header_failures": 0,
+    "channel_ber": 0.006944444444444444,
+    "channel_ci": [
+     0.0026041666666666665,
+     0.012586805555555556
+    ],
+    "decoded_ber": 0.0,
+    "baseline": null
+   },
+   "rep-3 spread": {
+    "trials": 12,
+    "ok": 10,
+    "frames_ci": [
+     0.5519636426153274,
+     0.9530358523851776
+    ],
+    "header_failures": 0,
+    "channel_ber": 0.006293402777777778,
+    "channel_ci": [
+     0.0028211805555555555,
+     0.010199652777777778
+    ],
+    "decoded_ber": 0.003472222222222222,
+    "baseline": "rep-3 adjacent",
+    "fisher_p": 0.4782608695652174
+   },
+   "rep-3 spread + header": {
+    "trials": 12,
+    "ok": 9,
+    "frames_ci": [
+     0.46768966087934005,
+     0.9110599603710386
+    ],
+    "header_failures": 3,
+    "channel_ber": 0.025390625,
+    "channel_ci": [
+     0.004557291666666667,
+     0.053168402777777776
+    ],
+    "decoded_ber": 0.006944444444444444,
+    "baseline": "rep-3 adjacent",
+    "fisher_p": 0.21739130434782608
+   },
+   "Ham-int depth 8": {
+    "trials": 12,
+    "ok": 12,
+    "frames_ci": [
+     0.7574992425007574,
+     1.0
+    ],
+    "header_failures": 0,
+    "channel_ber": 0.0059156378600823045,
+    "channel_ci": [
+     0.0030864197530864196,
+     0.009002057613168725
+    ],
+    "decoded_ber": 0.0,
+    "baseline": null
+   },
+   "Ham-int depth 16": {
+    "trials": 12,
+    "ok": 11,
+    "frames_ci": [
+     0.6461140782014047,
+     0.9851352905492264
+    ],
+    "header_failures": 0,
+    "channel_ber": 0.0038580246913580245,
+    "channel_ci": [
+     0.001286008230452675,
+     0.006944444444444444
+    ],
+    "decoded_ber": 0.001736111111111111,
+    "baseline": "Ham-int depth 8",
+    "fisher_p": 1.0
+   },
+   "Ham-int depth 16 + header": {
+    "trials": 12,
+    "ok": 10,
+    "frames_ci": [
+     0.5519636426153274,
+     0.9530358523851776
+    ],
+    "header_failures": 2,
+    "channel_ber": 0.004886831275720165,
+    "channel_ci": [
+     0.0015432098765432098,
+     0.00977366255144033
+    ],
+    "decoded_ber": 0.0,
+    "baseline": "Ham-int depth 8",
+    "fisher_p": 0.4782608695652174
+   }
+  },
+  "ranges": {
+   "frames": [
+    9,
+    12
+   ],
+   "channel_ber": [
+    0.0038580246913580245,
+    0.025390625
+   ],
+   "decoded_ber": [
+    0.0,
+    0.006944444444444444
+   ],
+   "fisher_p": [
+    0.21739130434782608,
+    1.0
+   ]
+  },
+  "earlier_glare": {
+   "G22": 0.07291666666666667,
+   "G23": 0.3151041666666667,
+   "G24": 0.08680555555555555,
+   "G25": 0.07291666666666667,
+   "G26": 0.13541666666666666
+  },
+  "earlier_range": [
+   0.07291666666666667,
+   0.3151041666666667
+  ],
+  "earlier_frames": {
+   "ok": 2,
+   "trials": 15,
+   "ci": [
+    0.0373604698913593,
+    0.3788249920651624
+   ]
+  },
+  "episode": {
+   "layout": "rep-3 spread + header",
+   "trials": [
+    41,
+    42
+   ],
+   "errors": [
+    54,
+    38
+   ],
+   "failed": 2,
+   "seconds": 193.96875,
+   "ber_without": 0.006510416666666667
+  },
+  "header": {
+   "spread": {
+    "frames": 24,
+    "failed": 5
+   },
+   "other": {
+    "frames": 48,
+    "failed": 0
+   },
+   "fisher_p": 0.0030378348522507597,
+   "mild_fisher_p": 0.028132992327365727,
+   "mild_spread": {
+    "frames": 22,
+    "errors": 29,
+    "observed": 3,
+    "null_mean": 0.6365,
+    "p": 0.0102,
+    "failed": 3
+   },
+   "adjacent": {
+    "frames": 48,
+    "errors": 51,
+    "observed": 0,
+    "null_mean": 0.5549,
+    "p": 1.0
+   },
+   "coincident_run_positions": [
+    3,
+    8
+   ],
+   "coincident_all_black": true,
+   "spread_payload": {
+    "frames": 22,
+    "errors": 22,
+    "observed": 2,
+    "null_mean": 0.3686,
+    "p": 0.0425,
+    "failed": 2
+   }
+  }
+ },
+ "contrasts": {
+  "speed": {
+   "ber": [
+    [
+     0.0011261261261261261,
+     0.025833333333333333
+    ],
+    [
+     0.015804597701149427,
+     0.04942528735632184
+    ]
+   ],
+   "frames": [
+    [
+     14,
+     21
+    ],
+    [
+     9,
+     21
+    ]
+   ]
+  },
+  "path": {
+   "frames": [
+    [
+     23,
+     24
+    ],
+    [
+     1,
+     2
+    ]
+   ]
+  },
+  "light": {
+   "ber": [
+    [
+     0.0,
+     0.0033783783783783786
+    ],
+    [
+     0.07291666666666667,
+     0.3151041666666667
+    ]
+   ],
+   "frames": [
+    [
+     20,
+     21
+    ],
+    [
+     2,
+     15
+    ]
+   ]
+  },
+  "slow": {
+   "ber": [
+    0.004340277777777778,
+    0.004340277777777778
+   ],
+   "frames": [
+    [
+     2,
+     15
+    ],
+    [
+     2,
+     3
+    ]
+   ]
+  }
+ },
  "controlled_burst": {
   "Hamming": [
    0.0,

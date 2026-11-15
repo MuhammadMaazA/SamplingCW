@@ -30,13 +30,14 @@ REFLECTION = {*range(15, 22), 29}
 
 
 def env_label(row):
+    """F facing the screen, R reflection in an iPad screen, Rg reflection with glare."""
     if row["glare"].strip().lower() == "true":
-        return "glare"
+        return "Rg"
     group = int(row["group"].lstrip("G"))
     if group in FACING:
-        return "facing"
+        return "F"
     if group in REFLECTION:
-        return "reflection"
+        return "R"
     return (row["venue"] or "lab").strip()[:7]
 
 
@@ -67,10 +68,11 @@ def main():
                 f"{thr_s} & {valid}/{trials} \\\\"
             )
     OUT.write_text("\n".join(lines))
-    # Two halves so the appendix table can sit side by side and fit the page limit.
-    half = (len(lines) + 1) // 2
-    OUT.with_name("allruns-rows-a.tex").write_text("\n".join(lines[:half]))
-    OUT.with_name("allruns-rows-b.tex").write_text("\n".join(lines[half:]))
+    # Three blocks so the appendix table can sit side by side and fit the page limit.
+    third = (len(lines) + 2) // 3
+    for name, chunk in (("a", lines[:third]), ("b", lines[third:2 * third]),
+                        ("c", lines[2 * third:])):
+        OUT.with_name(f"allruns-rows-{name}.tex").write_text("\n".join(chunk))
     print(f"wrote {len(lines)} rows to {OUT}")
 
 
