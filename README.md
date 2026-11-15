@@ -172,9 +172,11 @@ Every table row, figure and quoted statistic in `report/report.tex` is generated
 python -m pip install -e ".[dev,analysis]"
 python -m pytest
 python report/make_figures.py      # figures/, generated/table-*.tex, generated/stats.json
-python report/gen_allruns.py       # generated/allruns-rows.tex
+python report/gen_allruns.py       # generated/allruns-rows-a, -b and -c .tex
 cd report && latexmk -pdf report.tex
 ```
+
+The report uses the IEEEtran class (two columns, A4) and the Gill Sans MT font in its figures. Without that font the figures fall back to DejaVu Sans. `make_figures.py` also writes `generated/physical.tex`, `contrasts.tex`, `table-physical.tex` and `table-slices.tex`.
 
 `report/data.py` lists the exact results files behind the report and reproduces its G01–G29 grouping. `make_figures.py` computes Wilson intervals, trial-bootstrap BER intervals, Fisher tests, burstiness permutation tests, and fits the Gilbert–Elliott burst models (`experiments/channel_model.py`). `design_sim.py` replays whole frames through a fitted model to compare layouts (spread repetition, interleaver depth, spread header).
 
@@ -191,13 +193,15 @@ Timing recovery uses a sorted list and binary search to find the closest camera 
 
 ## Presentation
 
-The slides are in `presentation/gridlink-presentation.pptx` (and a PDF copy). To rebuild them from the recorded data:
+The slides are in `presentation/gridlink-presentation.pptx` (and a PDF copy). There is no live demo. To rebuild them from the recorded data:
 
 ```bash
 cd presentation
 npm install
-python make_plots.py
+python make_plots.py         # charts and plots/stats.json from experiments/results
+python extract_deck_data.py  # table data for the slides, written to deck/data.js
+python make_photos.py        # camera crops from the saved recordings
 node build_deck.js
 ```
 
-`make_plots.py` reads `experiments/results/` and writes the charts and `plots/stats.json`; `build_deck.js` reads those and the report's `report/generated/stats.json`, so every number on the slides comes from the data.
+`build_deck.js` reads those files and the report's `report/generated/stats.json`, so every number on the slides comes from the data. The slide code is in `deck/`. If a clip of a full run is saved as `presentation/media/demo.mp4`, the build adds a demonstration slide that plays it. The slides and figures use the Gill Sans MT font, which comes with Microsoft Office.

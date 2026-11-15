@@ -26,14 +26,14 @@ for _name in ("GIL_____.TTF", "GILB____.TTF", "GILI____.TTF", "GILBI___.TTF"):
 FONT = "Gill Sans MT" if any(f.name == "Gill Sans MT" for f in fm.fontManager.ttflist) else "DejaVu Sans"
 
 mpl.rcParams.update({
-    "font.family": "sans-serif", "font.sans-serif": [FONT, "DejaVu Sans"], "font.size": 11,
-    "axes.labelsize": 12, "axes.labelcolor": INK, "axes.edgecolor": GREY2, "axes.linewidth": 0.8,
+    "font.family": "sans-serif", "font.sans-serif": [FONT, "DejaVu Sans"], "font.size": 13,
+    "axes.labelsize": 14, "axes.labelcolor": INK, "axes.edgecolor": GREY2, "axes.linewidth": 0.8,
     "axes.spines.top": False, "axes.spines.right": False, "axes.facecolor": "none", "axes.grid": False,
     "axes.unicode_minus": False, "text.color": INK,
     "xtick.color": GREY2, "ytick.color": GREY2, "xtick.labelcolor": INK, "ytick.labelcolor": INK,
-    "xtick.labelsize": 11, "ytick.labelsize": 11, "xtick.direction": "out", "ytick.direction": "out",
+    "xtick.labelsize": 13, "ytick.labelsize": 13, "xtick.direction": "out", "ytick.direction": "out",
     "xtick.major.size": 3, "ytick.major.size": 3, "xtick.major.width": 0.7, "ytick.major.width": 0.7,
-    "legend.fontsize": 11, "legend.frameon": False, "lines.linewidth": 1.6, "lines.markersize": 6,
+    "legend.fontsize": 13, "legend.frameon": False, "lines.linewidth": 1.6, "lines.markersize": 6,
     "patch.linewidth": 0, "grid.color": GREY3, "grid.linewidth": 0.6, "grid.linestyle": "-",
     "figure.facecolor": "none", "figure.dpi": 100, "savefig.facecolor": "none",
     "savefig.transparent": True, "savefig.dpi": DPI,
@@ -54,7 +54,7 @@ def tidy(ax, grid=None):
     for side in ("left", "bottom"):
         ax.spines[side].set_color(GREY2)
         ax.spines[side].set_linewidth(0.8)
-    ax.tick_params(colors=GREY2, labelcolor=INK, length=3, width=0.7, labelsize=11)
+    ax.tick_params(colors=GREY2, labelcolor=INK, length=3, width=0.7, labelsize=13)
     if grid:
         ax.grid(True, axis="both" if grid == "both" else grid, color=GREY3, linewidth=0.6)
         ax.set_axisbelow(True)
@@ -68,13 +68,13 @@ def box(fig, left, top, width, height, **kw):
     return tidy(ax)
 
 
-def panel(ax, letter, description="", dy=5):
+def panel(ax, letter, description="", dy=5, size=14):
     """Bold panel letter above the top-left corner, with an optional plain description after it."""
     tag = ax.annotate(letter, xy=(0, 1), xycoords="axes fraction", xytext=(0, dy), textcoords="offset points",
-                      ha="left", va="bottom", fontsize=13, fontweight="bold", color=INK, annotation_clip=False)
+                      ha="left", va="bottom", fontsize=15, fontweight="bold", color=INK, annotation_clip=False)
     if description:
         ax.annotate(description, xy=(1, 0), xycoords=tag, xytext=(6, 0), textcoords="offset points",
-                    ha="left", va="bottom", fontsize=12, color=GREY1, annotation_clip=False)
+                    ha="left", va="bottom", fontsize=size, color=GREY1, annotation_clip=False)
     return tag
 
 

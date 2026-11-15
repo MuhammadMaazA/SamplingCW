@@ -92,10 +92,172 @@ module.exports = {
   "longest": 16,
   "share_le8": 0.927
  },
+ "boxes": [
+  {
+   "key": "n3",
+   "label": "Normal light, 3 bps",
+   "groups": "G01 to G07",
+   "roi": [
+    44,
+    136,
+    28,
+    41
+   ],
+   "frame": [
+    640,
+    480
+   ],
+   "fraction": 0.0037369791666666667
+  },
+  {
+   "key": "n8",
+   "label": "Normal light, 8 bps",
+   "groups": "G08 to G14",
+   "roi": [
+    99,
+    268,
+    23,
+    28
+   ],
+   "frame": [
+    640,
+    480
+   ],
+   "fraction": 0.0020963541666666665
+  },
+  {
+   "key": "n4",
+   "label": "Normal light, 4 bps",
+   "groups": "G15 to G21",
+   "roi": [
+    251,
+    188,
+    20,
+    25
+   ],
+   "frame": [
+    640,
+    480
+   ],
+   "fraction": 0.0016276041666666667
+  },
+  {
+   "key": "g22",
+   "label": "Dim with glare, 4 bps",
+   "groups": "G22",
+   "roi": [
+    1210,
+    594,
+    559,
+    369
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "fraction": 0.0994748263888889
+  },
+  {
+   "key": "g23",
+   "label": "Dim with glare, 4 bps",
+   "groups": "G23",
+   "roi": [
+    1205,
+    361,
+    662,
+    470
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "fraction": 0.15004822530864198
+  },
+  {
+   "key": "g24",
+   "label": "Dim with glare, 4 bps",
+   "groups": "G24",
+   "roi": [
+    1193,
+    317,
+    647,
+    544
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "fraction": 0.16973765432098764
+  },
+  {
+   "key": "g25",
+   "label": "Dim with glare, 4 bps",
+   "groups": "G25",
+   "roi": [
+    1398,
+    462,
+    222,
+    231
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "fraction": 0.02473090277777778
+  },
+  {
+   "key": "g26",
+   "label": "Dim with glare, 4 bps",
+   "groups": "G26",
+   "roi": [
+    1375,
+    485,
+    409,
+    320
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "fraction": 0.06311728395061729
+  },
+  {
+   "key": "g27",
+   "label": "Dim with glare, 2 bps",
+   "groups": "G27",
+   "roi": [
+    1455,
+    535,
+    317,
+    254
+   ],
+   "frame": [
+    1920,
+    1080
+   ],
+   "fraction": 0.038830054012345676
+  },
+  {
+   "key": "test",
+   "label": "Dim with glare, 4 bps, physical test",
+   "groups": "6 Nov",
+   "roi": [
+    106,
+    224,
+    23,
+    32
+   ],
+   "frame": [
+    640,
+    480
+   ],
+   "fraction": 0.002395833333333333
+  }
+ ],
  "physical": {
   "layouts": [
    {
-    "label": "rep-3, adjacent",
+    "label": "rep-3 adjacent copies",
     "valid": [
      true,
      true,
@@ -112,7 +274,7 @@ module.exports = {
     ]
    },
    {
-    "label": "rep-3, spread",
+    "label": "rep-3 spread copies",
     "valid": [
      false,
      true,
@@ -129,7 +291,7 @@ module.exports = {
     ]
    },
    {
-    "label": "rep-3, spread and spread header",
+    "label": "rep-3 spread copies and spread header",
     "valid": [
      true,
      true,
@@ -146,7 +308,7 @@ module.exports = {
     ]
    },
    {
-    "label": "Ham-int, depth 8",
+    "label": "Hamming depth 8",
     "valid": [
      true,
      true,
@@ -163,7 +325,7 @@ module.exports = {
     ]
    },
    {
-    "label": "Ham-int, depth 16",
+    "label": "Hamming depth 16",
     "valid": [
      true,
      true,
@@ -180,7 +342,7 @@ module.exports = {
     ]
    },
    {
-    "label": "Ham-int, depth 16, spread header",
+    "label": "Hamming depth 16 and spread header",
     "valid": [
      false,
      true,
@@ -202,5 +364,243 @@ module.exports = {
   "threshold": 112.5,
   "bit_rate": 4.0,
   "started": "2026-11-06T02:19"
- }
+ },
+ "failures": [
+  {
+   "valid_frames": 14,
+   "sync_failures": 0,
+   "truncated": 6,
+   "header_crc_failures": 0,
+   "payload_crc_failures": 1,
+   "uncorrectable": 0,
+   "other_failures": 0,
+   "trials": 21,
+   "display": "Normal light, 3 bps"
+  },
+  {
+   "valid_frames": 9,
+   "sync_failures": 0,
+   "truncated": 0,
+   "header_crc_failures": 0,
+   "payload_crc_failures": 10,
+   "uncorrectable": 2,
+   "other_failures": 0,
+   "trials": 21,
+   "display": "Normal light, 8 bps"
+  },
+  {
+   "valid_frames": 20,
+   "sync_failures": 0,
+   "truncated": 0,
+   "header_crc_failures": 1,
+   "payload_crc_failures": 0,
+   "uncorrectable": 0,
+   "other_failures": 0,
+   "trials": 21,
+   "display": "Normal light, 4 bps"
+  },
+  {
+   "valid_frames": 2,
+   "sync_failures": 2,
+   "truncated": 0,
+   "header_crc_failures": 9,
+   "payload_crc_failures": 2,
+   "uncorrectable": 0,
+   "other_failures": 0,
+   "trials": 15,
+   "display": "Dim with glare, 4 bps"
+  },
+  {
+   "valid_frames": 2,
+   "sync_failures": 0,
+   "truncated": 0,
+   "header_crc_failures": 0,
+   "payload_crc_failures": 1,
+   "uncorrectable": 0,
+   "other_failures": 0,
+   "trials": 3,
+   "display": "Dim with glare, 2 bps"
+  },
+  {
+   "valid_frames": 4,
+   "sync_failures": 0,
+   "truncated": 1,
+   "header_crc_failures": 0,
+   "payload_crc_failures": 0,
+   "uncorrectable": 0,
+   "other_failures": 0,
+   "trials": 5,
+   "display": "Normal light, 4 bps, rep-3 check"
+  }
+ ],
+ "sessions": [
+  {
+   "folder": "quiet1-lab-repetition-3-20261026-163304-310902Z",
+   "start": "2026-10-26T16:33:04",
+   "venue": "lab",
+   "glare": true,
+   "bit_rate": 4.0,
+   "trials": 15,
+   "methods": 1,
+   "status": "saved",
+   "threshold": 143.0,
+   "stop": "duration reached",
+   "elapsed": 322.024763,
+   "threshold_hi": 187.7
+  },
+  {
+   "folder": "quiet2bps-lab-repetition-3-20261026-172410-806159Z",
+   "start": "2026-10-26T17:24:10",
+   "venue": "lab",
+   "glare": true,
+   "bit_rate": 2.0,
+   "trials": 3,
+   "methods": 1,
+   "status": "saved",
+   "threshold": 182.3,
+   "stop": "duration reached",
+   "elapsed": 610.024727,
+   "threshold_hi": 182.3
+  },
+  {
+   "folder": "test-lab-repetition-3-20261027-163916-214973Z",
+   "start": "2026-10-27T16:39:16",
+   "venue": "lab",
+   "glare": false,
+   "bit_rate": 4.0,
+   "trials": 3,
+   "methods": 1,
+   "status": "saved",
+   "threshold": 95.0,
+   "stop": "duration reached",
+   "elapsed": 286.025346,
+   "threshold_hi": 95.0
+  },
+  {
+   "folder": "full1-laboutside-comparison-20261027-170708-296161Z",
+   "start": "2026-10-27T17:07:08",
+   "venue": "laboutside",
+   "glare": true,
+   "bit_rate": 2.0,
+   "trials": 21,
+   "methods": 7,
+   "status": "preparing",
+   "threshold": 93.0,
+   "stop": null,
+   "elapsed": null,
+   "threshold_hi": 93.0
+  },
+  {
+   "folder": "quick-lab-repetition-3-20261027-173212-078354Z",
+   "start": "2026-10-27T17:32:12",
+   "venue": "lab",
+   "glare": false,
+   "bit_rate": 4.0,
+   "trials": 2,
+   "methods": 1,
+   "status": "saved",
+   "threshold": 65.0,
+   "stop": "duration reached",
+   "elapsed": 200.044149,
+   "threshold_hi": 65.0
+  },
+  {
+   "folder": "full1b-lab-comparison-20261027-174408-573804Z",
+   "start": "2026-10-27T17:44:08",
+   "venue": "lab",
+   "glare": false,
+   "bit_rate": 4.0,
+   "trials": 21,
+   "methods": 7,
+   "status": "saved",
+   "threshold": 59.0,
+   "stop": "duration reached",
+   "elapsed": 1835.514541,
+   "threshold_hi": 59.0
+  },
+  {
+   "folder": "monitor-room-comparison-20261030-180312-849922Z",
+   "start": "2026-10-30T18:03:12",
+   "venue": "room",
+   "glare": false,
+   "bit_rate": 3.0,
+   "trials": 21,
+   "methods": 7,
+   "status": "failed",
+   "threshold": null,
+   "stop": null,
+   "elapsed": null,
+   "threshold_hi": null
+  },
+  {
+   "folder": "monitor-room-comparison-20261030-180441-714350Z",
+   "start": "2026-10-30T18:04:41",
+   "venue": "room",
+   "glare": false,
+   "bit_rate": 3.0,
+   "trials": 21,
+   "methods": 7,
+   "status": "failed",
+   "threshold": null,
+   "stop": null,
+   "elapsed": null,
+   "threshold_hi": null
+  },
+  {
+   "folder": "final-comparison-20261031-150350-900428Z",
+   "start": "2026-10-31T15:03:50",
+   "venue": "",
+   "glare": false,
+   "bit_rate": 8.0,
+   "trials": 21,
+   "methods": 7,
+   "status": "saved",
+   "threshold": 141.5,
+   "stop": "duration reached",
+   "elapsed": 952.764113,
+   "threshold_hi": 141.5
+  },
+  {
+   "folder": "glare-layouts-room-comparison-20261106-021501-951575Z",
+   "start": "2026-11-06T02:15:01",
+   "venue": "room",
+   "glare": true,
+   "bit_rate": 4.0,
+   "trials": 72,
+   "methods": 6,
+   "status": "saved",
+   "threshold": 151.8,
+   "stop": "stopped by user",
+   "elapsed": 106.425693,
+   "threshold_hi": 151.8
+  },
+  {
+   "folder": "glare-layouts-room-comparison-20261106-021826-534413Z",
+   "start": "2026-11-06T02:18:26",
+   "venue": "room",
+   "glare": true,
+   "bit_rate": 4.0,
+   "trials": 72,
+   "methods": 6,
+   "status": "saved",
+   "threshold": 151.8,
+   "stop": "stopped by user",
+   "elapsed": 13.707068,
+   "threshold_hi": 151.8
+  },
+  {
+   "folder": "glare-layouts-room-comparison-20261106-021921-294106Z",
+   "start": "2026-11-06T02:19:21",
+   "venue": "room",
+   "glare": true,
+   "bit_rate": 4.0,
+   "trials": 72,
+   "methods": 6,
+   "status": "saved",
+   "threshold": 112.5,
+   "stop": "duration reached",
+   "elapsed": 6544.010711,
+   "threshold_hi": 112.5
+  }
+ ]
 };

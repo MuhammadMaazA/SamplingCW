@@ -2,6 +2,7 @@
  "setup": [
   {
    "env": "Facing screen, 3 bps",
+   "display": "Normal light, 3 bps",
    "bit_rates": [
     3.0
    ],
@@ -19,6 +20,7 @@
   },
   {
    "env": "Facing screen, 8 bps",
+   "display": "Normal light, 8 bps",
    "bit_rates": [
     8.0
    ],
@@ -36,6 +38,7 @@
   },
   {
    "env": "Reflection, 4 bps",
+   "display": "Normal light, 4 bps",
    "bit_rates": [
     4.0
    ],
@@ -53,6 +56,7 @@
   },
   {
    "env": "Reflection with glare, 4 bps",
+   "display": "Dim with glare, 4 bps",
    "bit_rates": [
     4.0
    ],
@@ -70,6 +74,7 @@
   },
   {
    "env": "Reflection with glare, 2 bps",
+   "display": "Dim with glare, 2 bps",
    "bit_rates": [
     2.0
    ],
@@ -96,7 +101,8 @@
    "uncorrectable": 0,
    "other_failures": 0,
    "trials": 21,
-   "env": "Facing screen, 3 bps"
+   "env": "Facing screen, 3 bps",
+   "display": "Normal light, 3 bps"
   },
   {
    "valid_frames": 9,
@@ -107,7 +113,8 @@
    "uncorrectable": 2,
    "other_failures": 0,
    "trials": 21,
-   "env": "Facing screen, 8 bps"
+   "env": "Facing screen, 8 bps",
+   "display": "Normal light, 8 bps"
   },
   {
    "valid_frames": 23,
@@ -118,7 +125,8 @@
    "uncorrectable": 0,
    "other_failures": 0,
    "trials": 24,
-   "env": "Reflection, 4 bps"
+   "env": "Reflection, 4 bps",
+   "display": "Normal light, 4 bps"
   },
   {
    "valid_frames": 2,
@@ -129,7 +137,8 @@
    "uncorrectable": 0,
    "other_failures": 0,
    "trials": 15,
-   "env": "Reflection with glare, 4 bps"
+   "env": "Reflection with glare, 4 bps",
+   "display": "Dim with glare, 4 bps"
   },
   {
    "valid_frames": 2,
@@ -140,7 +149,8 @@
    "uncorrectable": 0,
    "other_failures": 0,
    "trials": 3,
-   "env": "Reflection with glare, 2 bps"
+   "env": "Reflection with glare, 2 bps",
+   "display": "Dim with glare, 2 bps"
   },
   {
    "valid_frames": 1,
@@ -151,7 +161,8 @@
    "uncorrectable": 0,
    "other_failures": 0,
    "trials": 2,
-   "env": "Facing screen, 4 bps"
+   "env": "Facing screen, 4 bps",
+   "display": "Normal light, 4 bps, rep-3 check"
   }
  ],
  "depth_facing8": [
@@ -351,6 +362,7 @@
  },
  "physical": {
   "session": "glare-layouts-room-comparison-20261106-021921-294106Z",
+  "display": "Dim with glare (mild), six layouts",
   "layouts": [
    {
     "label": "rep-3 adjacent",
@@ -464,17 +476,81 @@
   "fisher_p_range": [
    0.2174,
    1.0
-  ]
+  ],
+  "header": {
+   "display": "Dim with glare (mild), header CRC failures by layout",
+   "layouts": [
+    {
+     "label": "rep-3 adjacent",
+     "short": "rep-3",
+     "spread_header": false,
+     "frames": 12,
+     "header_crc_failures": 0,
+     "payload_crc_failures": 0
+    },
+    {
+     "label": "rep-3 spread",
+     "short": "rep-3 spread",
+     "spread_header": false,
+     "frames": 12,
+     "header_crc_failures": 0,
+     "payload_crc_failures": 2
+    },
+    {
+     "label": "rep-3 spread +sh",
+     "short": "rep-3 spread +sh",
+     "spread_header": true,
+     "frames": 12,
+     "header_crc_failures": 3,
+     "payload_crc_failures": 0
+    },
+    {
+     "label": "Ham-int depth 8",
+     "short": "Ham d8",
+     "spread_header": false,
+     "frames": 12,
+     "header_crc_failures": 0,
+     "payload_crc_failures": 0
+    },
+    {
+     "label": "Ham-int depth 16",
+     "short": "Ham d16",
+     "spread_header": false,
+     "frames": 12,
+     "header_crc_failures": 0,
+     "payload_crc_failures": 1
+    },
+    {
+     "label": "Ham-int depth 16 +sh",
+     "short": "Ham d16 +sh",
+     "spread_header": true,
+     "frames": 12,
+     "header_crc_failures": 2,
+     "payload_crc_failures": 0
+    }
+   ],
+   "as_built": {
+    "failures": 0,
+    "frames": 48
+   },
+   "spread": {
+    "failures": 5,
+    "frames": 24
+   },
+   "fisher_p": 0.003
+  }
  },
  "traces": [
   {
    "run": "full1b-000",
+   "display": "Normal light, 4 bps",
    "threshold": 59.0,
    "errors_in_window": 0,
    "errors_in_frame": 0
   },
   {
    "run": "quiet1-001",
+   "display": "Dim with glare, 4 bps",
    "threshold": 143.0,
    "errors_in_window": 47,
    "errors_in_frame": 116
@@ -497,6 +573,7 @@
  "wilson": [
   {
    "env": "Facing screen, 3 bps",
+   "display": "Normal light, 3 bps",
    "method": "none",
    "k": 1,
    "n": 3,
@@ -505,6 +582,7 @@
   },
   {
    "env": "Facing screen, 3 bps",
+   "display": "Normal light, 3 bps",
    "method": "rep-3",
    "k": 2,
    "n": 3,
@@ -513,6 +591,7 @@
   },
   {
    "env": "Facing screen, 3 bps",
+   "display": "Normal light, 3 bps",
    "method": "rep-5",
    "k": 3,
    "n": 3,
@@ -521,6 +600,7 @@
   },
   {
    "env": "Facing screen, 3 bps",
+   "display": "Normal light, 3 bps",
    "method": "rep-7",
    "k": 1,
    "n": 3,
@@ -529,6 +609,7 @@
   },
   {
    "env": "Facing screen, 3 bps",
+   "display": "Normal light, 3 bps",
    "method": "Hamming",
    "k": 3,
    "n": 3,
@@ -537,6 +618,7 @@
   },
   {
    "env": "Facing screen, 3 bps",
+   "display": "Normal light, 3 bps",
    "method": "2-D parity",
    "k": 2,
    "n": 3,
@@ -545,6 +627,7 @@
   },
   {
    "env": "Facing screen, 3 bps",
+   "display": "Normal light, 3 bps",
    "method": "Ham-interl.",
    "k": 2,
    "n": 3,
@@ -553,6 +636,7 @@
   },
   {
    "env": "Facing screen, 8 bps",
+   "display": "Normal light, 8 bps",
    "method": "none",
    "k": 0,
    "n": 3,
@@ -561,6 +645,7 @@
   },
   {
    "env": "Facing screen, 8 bps",
+   "display": "Normal light, 8 bps",
    "method": "rep-3",
    "k": 2,
    "n": 3,
@@ -569,6 +654,7 @@
   },
   {
    "env": "Facing screen, 8 bps",
+   "display": "Normal light, 8 bps",
    "method": "rep-5",
    "k": 2,
    "n": 3,
@@ -577,6 +663,7 @@
   },
   {
    "env": "Facing screen, 8 bps",
+   "display": "Normal light, 8 bps",
    "method": "rep-7",
    "k": 3,
    "n": 3,
@@ -585,6 +672,7 @@
   },
   {
    "env": "Facing screen, 8 bps",
+   "display": "Normal light, 8 bps",
    "method": "Hamming",
    "k": 0,
    "n": 3,
@@ -593,6 +681,7 @@
   },
   {
    "env": "Facing screen, 8 bps",
+   "display": "Normal light, 8 bps",
    "method": "2-D parity",
    "k": 1,
    "n": 3,
@@ -601,6 +690,7 @@
   },
   {
    "env": "Facing screen, 8 bps",
+   "display": "Normal light, 8 bps",
    "method": "Ham-interl.",
    "k": 1,
    "n": 3,
@@ -609,6 +699,7 @@
   },
   {
    "env": "Reflection, 4 bps",
+   "display": "Normal light, 4 bps",
    "method": "none",
    "k": 3,
    "n": 3,
@@ -617,6 +708,7 @@
   },
   {
    "env": "Reflection, 4 bps",
+   "display": "Normal light, 4 bps",
    "method": "rep-3",
    "k": 3,
    "n": 3,
@@ -625,6 +717,7 @@
   },
   {
    "env": "Reflection, 4 bps",
+   "display": "Normal light, 4 bps",
    "method": "rep-5",
    "k": 3,
    "n": 3,
@@ -633,6 +726,7 @@
   },
   {
    "env": "Reflection, 4 bps",
+   "display": "Normal light, 4 bps",
    "method": "rep-7",
    "k": 3,
    "n": 3,
@@ -641,6 +735,7 @@
   },
   {
    "env": "Reflection, 4 bps",
+   "display": "Normal light, 4 bps",
    "method": "Hamming",
    "k": 2,
    "n": 3,
@@ -649,6 +744,7 @@
   },
   {
    "env": "Reflection, 4 bps",
+   "display": "Normal light, 4 bps",
    "method": "2-D parity",
    "k": 3,
    "n": 3,
@@ -657,6 +753,7 @@
   },
   {
    "env": "Reflection, 4 bps",
+   "display": "Normal light, 4 bps",
    "method": "Ham-interl.",
    "k": 3,
    "n": 3,
@@ -676,6 +773,7 @@
  "tradeoff": [
   {
    "env": "Reflection, 4 bps",
+   "display": "Normal light, 4 bps",
    "method": "rep-5",
    "code_rate": 0.2,
    "throughput": 0.16,
@@ -683,6 +781,7 @@
   },
   {
    "env": "Reflection, 4 bps",
+   "display": "Normal light, 4 bps",
    "method": "rep-3",
    "code_rate": 0.333,
    "throughput": 0.19,
@@ -690,6 +789,7 @@
   },
   {
    "env": "Reflection, 4 bps",
+   "display": "Normal light, 4 bps",
    "method": "none",
    "code_rate": 1.0,
    "throughput": 0.235,
@@ -697,6 +797,7 @@
   },
   {
    "env": "Reflection, 4 bps",
+   "display": "Normal light, 4 bps",
    "method": "rep-7",
    "code_rate": 0.143,
    "throughput": 0.138,
@@ -704,6 +805,7 @@
   },
   {
    "env": "Reflection, 4 bps",
+   "display": "Normal light, 4 bps",
    "method": "Hamming",
    "code_rate": 0.571,
    "throughput": 0.144,
@@ -711,6 +813,7 @@
   },
   {
    "env": "Reflection, 4 bps",
+   "display": "Normal light, 4 bps",
    "method": "Ham-interl.",
    "code_rate": 0.571,
    "throughput": 0.216,
@@ -718,6 +821,7 @@
   },
   {
    "env": "Reflection, 4 bps",
+   "display": "Normal light, 4 bps",
    "method": "2-D parity",
    "code_rate": 0.64,
    "throughput": 0.221,
@@ -725,6 +829,7 @@
   },
   {
    "env": "Facing screen, 8 bps",
+   "display": "Normal light, 8 bps",
    "method": "Ham-interl.",
    "code_rate": 0.571,
    "throughput": 0.144,
@@ -732,6 +837,7 @@
   },
   {
    "env": "Facing screen, 8 bps",
+   "display": "Normal light, 8 bps",
    "method": "rep-3",
    "code_rate": 0.333,
    "throughput": 0.254,
@@ -739,6 +845,7 @@
   },
   {
    "env": "Facing screen, 8 bps",
+   "display": "Normal light, 8 bps",
    "method": "2-D parity",
    "code_rate": 0.64,
    "throughput": 0.147,
@@ -746,6 +853,7 @@
   },
   {
    "env": "Facing screen, 8 bps",
+   "display": "Normal light, 8 bps",
    "method": "rep-7",
    "code_rate": 0.143,
    "throughput": 0.276,
@@ -753,6 +861,7 @@
   },
   {
    "env": "Facing screen, 8 bps",
+   "display": "Normal light, 8 bps",
    "method": "Hamming",
    "code_rate": 0.571,
    "throughput": 0.0,
@@ -760,6 +869,7 @@
   },
   {
    "env": "Facing screen, 8 bps",
+   "display": "Normal light, 8 bps",
    "method": "none",
    "code_rate": 1.0,
    "throughput": 0.0,
@@ -767,6 +877,7 @@
   },
   {
    "env": "Facing screen, 8 bps",
+   "display": "Normal light, 8 bps",
    "method": "rep-5",
    "code_rate": 0.2,
    "throughput": 0.213,
@@ -793,7 +904,8 @@
    "runs_test_expected": 516.2,
    "runs_test_z": -2.18,
    "p_err_after_err": 0.073,
-   "p_err_after_ok": 0.0355
+   "p_err_after_ok": 0.0355,
+   "display": "Normal light, 8 bps"
   },
   "Reflection with glare, 4 bps": {
    "bits": 4992,
@@ -809,7 +921,8 @@
    "runs_test_expected": 1024.6,
    "runs_test_z": -37.97,
    "p_err_after_err": 0.723,
-   "p_err_after_ok": 0.0412
+   "p_err_after_ok": 0.0412,
+   "display": "Dim with glare, 4 bps"
   }
  },
  "repetition": [
@@ -935,108 +1048,139 @@
  ],
  "sessions": [
   {
-   "lane": "Glare, 4 bps",
+   "lane": "Dim with glare, 4 bps",
+   "display": "Dim with glare, 4 bps",
    "start": "2026-10-26T16:33:04",
    "planned": 15,
    "filmed": 13,
    "valid": 2,
    "kind": "lost",
    "label": "2 of 15",
-   "x": 0.32131849315068495
+   "side": "right",
+   "place": "",
+   "x": 0.30976027397260275
   },
   {
-   "lane": "Glare, 2 bps",
+   "lane": "Dim with glare, 2 bps",
+   "display": "Dim with glare, 2 bps",
    "start": "2026-10-26T17:24:10",
    "planned": 3,
    "filmed": 3,
    "valid": 2,
    "kind": "delivered",
    "label": "2 of 3",
-   "x": 0.9639554794520548
+   "side": "right",
+   "place": "",
+   "x": 0.9292808219178083
   },
   {
    "lane": "Pipeline test",
+   "display": "Pipeline test",
    "start": "2026-10-27T16:22:04",
    "planned": 0,
    "filmed": 0,
    "valid": 0,
    "kind": "unusable",
    "label": "pipeline test",
-   "x": 1.5566095890410958
+   "side": "right",
+   "place": "",
+   "x": 1.5006164383561644
   },
   {
-   "lane": "Reflection, 4 bps",
+   "lane": "Normal light, 4 bps",
+   "display": "Normal light, 4 bps",
    "start": "2026-10-27T16:39:16",
    "planned": 3,
    "filmed": 3,
    "valid": 3,
    "kind": "delivered",
    "label": "3 of 3",
-   "x": 2.0992808219178083
+   "side": "right",
+   "place": "",
+   "x": 2.023767123287671
   },
   {
-   "lane": "Outside the lab, 2 bps",
+   "lane": "Dim with glare, 2 bps",
+   "display": "Dim with glare, 2 bps",
    "start": "2026-10-27T17:07:08",
    "planned": 21,
    "filmed": 3,
    "valid": 1,
    "kind": "unusable",
-   "label": "1 of 21, only 3 filmed",
-   "x": 2.6419520547945208
+   "label": "a different place: 1 of 21, only 3 filmed",
+   "side": "right",
+   "place": "a different place",
+   "x": 2.5469178082191783
   },
   {
-   "lane": "Facing, 4 bps",
+   "lane": "Normal light, 4 bps",
+   "display": "Normal light, 4 bps",
    "start": "2026-10-27T17:32:12",
    "planned": 2,
    "filmed": 2,
    "valid": 1,
    "kind": "delivered",
    "label": "1 of 2",
-   "x": 3.184623287671233
+   "side": "above",
+   "place": "",
+   "x": 3.0700684931506848
   },
   {
-   "lane": "Reflection, 4 bps",
+   "lane": "Normal light, 4 bps",
+   "display": "Normal light, 4 bps",
    "start": "2026-10-27T17:44:08",
    "planned": 21,
    "filmed": 21,
    "valid": 20,
    "kind": "delivered",
    "label": "20 of 21",
-   "x": 3.7272945205479453
+   "side": "right",
+   "place": "",
+   "x": 3.5932191780821916
   },
   {
-   "lane": "Facing, 3 bps",
+   "lane": "Normal light, 3 bps",
+   "display": "Normal light, 3 bps",
    "start": "2026-10-30T18:03:12",
    "planned": 21,
    "filmed": 0,
    "valid": 0,
    "kind": "unusable",
    "label": "stopped at 16.7 s",
-   "x": 5.176797945205479
+   "side": "left",
+   "place": "",
+   "x": 4.990582191780822
   },
   {
-   "lane": "Facing, 3 bps",
+   "lane": "Normal light, 3 bps",
+   "display": "Normal light, 3 bps",
    "start": "2026-10-30T18:04:41",
    "planned": 21,
    "filmed": 21,
    "valid": 14,
    "kind": "delivered",
    "label": "14 of 21",
-   "x": 5.81943493150685
+   "side": "right",
+   "place": "",
+   "x": 5.6101027397260275
   },
   {
-   "lane": "Facing, 8 bps",
+   "lane": "Normal light, 8 bps",
+   "display": "Normal light, 8 bps",
    "start": "2026-10-31T15:03:50",
    "planned": 21,
    "filmed": 21,
    "valid": 9,
    "kind": "lost",
    "label": "9 of 21",
-   "x": 6.545376712328767
+   "side": "left",
+   "place": "",
+   "x": 6.309931506849316
   }
  ],
  "changes": {
-  "speed-facing": {
+  "speed-normal": {
+   "display": "Normal light, 3 bps to 8 bps",
    "a": {
     "label": "3 bps",
     "groups": [
@@ -1094,55 +1238,8 @@
     "median_channel_ber_pct": 4.5
    }
   },
-  "path": {
-   "a": {
-    "label": "Reflection",
-    "groups": [
-     "G15",
-     "G16",
-     "G17",
-     "G18",
-     "G19",
-     "G20",
-     "G21",
-     "G29"
-    ],
-    "frames": 23,
-    "trials": 24,
-    "wilson": [
-     0.798,
-     0.993
-    ],
-    "channel_ber_pct": [
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.338
-    ],
-    "median_channel_ber_pct": 0.0
-   },
-   "b": {
-    "label": "Facing",
-    "groups": [
-     "G28"
-    ],
-    "frames": 1,
-    "trials": 2,
-    "wilson": [
-     0.095,
-     0.905
-    ],
-    "channel_ber_pct": [
-     0.0
-    ],
-    "median_channel_ber_pct": 0.0
-   }
-  },
   "lighting": {
+   "display": "Normal light to Dim with glare, 4 bps",
    "a": {
     "label": "Normal light",
     "groups": [
@@ -1172,7 +1269,7 @@
     "median_channel_ber_pct": 0.0
    },
    "b": {
-    "label": "Dim, glare",
+    "label": "Dim with glare",
     "groups": [
      "G22",
      "G23",
@@ -1197,6 +1294,7 @@
    }
   },
   "speed-glare": {
+   "display": "Dim with glare, 4 bps to 2 bps",
    "a": {
     "label": "4 bps",
     "groups": [
@@ -1241,6 +1339,8 @@
  },
  "levels": {
   "reflect4": {
+   "display": "Normal light, 4 bps",
+   "groups": "G15 to G21",
    "threshold": 59.0,
    "n_black": 4590,
    "n_white": 2472,
@@ -1250,6 +1350,8 @@
    "overlap_band": null
   },
   "glare_c": {
+   "display": "Dim with glare, 4 bps",
+   "groups": "G24",
    "threshold": 187.7,
    "n_black": 732,
    "n_white": 420,
@@ -1265,6 +1367,7 @@
  "sampling": [
   {
    "bps": 8,
+   "display": "Normal light, 8 bps",
    "frames_per_bit": 3.8,
    "frames_in_window": [
     3,
@@ -1277,6 +1380,7 @@
   },
   {
    "bps": 4,
+   "display": "Normal light, 4 bps",
    "frames_per_bit": 7.5,
    "frames_in_window": [
     8,
@@ -1289,6 +1393,7 @@
   },
   {
    "bps": 2,
+   "display": "Dim with glare, 2 bps",
    "frames_per_bit": 14.0,
    "frames_in_window": [
     15,
@@ -1302,42 +1407,40 @@
  ],
  "raster": [
   {
-   "setup": "Facing, 4 bps",
-   "trials": 2,
-   "errors": 0,
-   "observed_bits": 336,
-   "channel_ber": 0.0
-  },
-  {
-   "setup": "Reflection, 4 bps",
-   "trials": 24,
+   "setup": "Normal light, 4 bps",
+   "display": "Normal light, 4 bps",
+   "trials": 26,
    "errors": 3,
-   "observed_bits": 8070,
-   "channel_ber": 0.00037
+   "observed_bits": 8406,
+   "channel_ber": 0.00036
   },
   {
-   "setup": "Glare, 2 bps",
+   "setup": "Dim with glare, 2 bps",
+   "display": "Dim with glare, 2 bps",
    "trials": 3,
    "errors": 5,
    "observed_bits": 1152,
    "channel_ber": 0.00434
   },
   {
-   "setup": "Facing, 3 bps",
+   "setup": "Normal light, 3 bps",
+   "display": "Normal light, 3 bps",
    "trials": 21,
    "errors": 45,
    "observed_bits": 5987,
    "channel_ber": 0.00752
   },
   {
-   "setup": "Facing, 8 bps",
+   "setup": "Normal light, 8 bps",
+   "display": "Normal light, 8 bps",
    "trials": 21,
    "errors": 260,
    "observed_bits": 7062,
    "channel_ber": 0.03682
   },
   {
-   "setup": "Glare, 4 bps",
+   "setup": "Dim with glare, 4 bps",
+   "display": "Dim with glare, 4 bps",
    "trials": 15,
    "errors": 638,
    "observed_bits": 4992,
@@ -1354,5 +1457,45 @@
   "memoryless_flip": 0.1278,
   "real_frame": "quiet1-000",
   "real_errors": 44
+ },
+ "crops_display": {
+  "reflect4": "Normal light, 4 bps",
+  "glare_b": "Dim with glare, 4 bps",
+  "glare_c": "Dim with glare, 4 bps"
+ },
+ "display": {
+  "Facing screen, 3 bps": "Normal light, 3 bps",
+  "Facing screen, 8 bps": "Normal light, 8 bps",
+  "Reflection, 4 bps": "Normal light, 4 bps",
+  "Facing screen, 4 bps": "Normal light, 4 bps, rep-3 check",
+  "Reflection with glare, 4 bps": "Dim with glare, 4 bps",
+  "Reflection with glare, 2 bps": "Dim with glare, 2 bps",
+  "facing3": "Normal light, 3 bps",
+  "facing3_abort": "Normal light, 3 bps",
+  "facing8": "Normal light, 8 bps",
+  "reflect4": "Normal light, 4 bps",
+  "reflect4b": "Normal light, 4 bps, rep-3 check",
+  "facing4": "Normal light, 4 bps, rep-3 check",
+  "outside": "Dim with glare, 2 bps, a different place",
+  "glare2": "Dim with glare, 2 bps",
+  "glare_a": "Dim with glare, 4 bps",
+  "glare_b": "Dim with glare, 4 bps",
+  "glare_c": "Dim with glare, 4 bps",
+  "glare_d": "Dim with glare, 4 bps",
+  "glare_e": "Dim with glare, 4 bps",
+  "depth_facing8": "Normal light, 8 bps",
+  "flips_facing8": "Normal light, 8 bps",
+  "quarters_facing8": "Normal light, 8 bps",
+  "depth_glare4": "Dim with glare, 4 bps",
+  "flips_glare4": "Dim with glare, 4 bps",
+  "quarters_glare4": "Dim with glare, 4 bps",
+  "G01 to G07": "Normal light, 3 bps",
+  "G08 to G14": "Normal light, 8 bps",
+  "G15 to G21": "Normal light, 4 bps",
+  "G22 to G26": "Dim with glare, 4 bps",
+  "G27": "Dim with glare, 2 bps",
+  "G28": "Normal light, 4 bps, rep-3 check",
+  "G29": "Normal light, 4 bps, rep-3 check",
+  "physical session": "Dim with glare (mild), six layouts"
  }
 }

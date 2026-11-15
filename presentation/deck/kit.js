@@ -12,8 +12,12 @@ const STATS = require(path.join(PLOTS, "stats.json"));
 const RSTATS = require(path.join(ROOT, "..", "report", "generated", "stats.json"));
 const DATA = require("./data");
 
-const TOTAL = 52; // slides in the whole deck, appendix included. finish() checks the count.
-const MAIN_END = 47; // last slide of the talk, the Questions slide. The appendix follows it.
+// An optional demonstration clip. The slide after "How one run goes" exists only when this file does, so the counts follow it.
+// DECK_DEMO points at another file, which is how the slide is tried out without putting a clip in the repository.
+const DEMO = process.env.DECK_DEMO || path.join(ROOT, "media", "demo.mp4");
+const HAS_DEMO = fs.existsSync(DEMO);
+const TOTAL = 54 + (HAS_DEMO ? 1 : 0); // slides in the whole deck, appendix included. finish() checks the count.
+const MAIN_END = 49 + (HAS_DEMO ? 1 : 0); // last slide of the talk, the Questions slide. The appendix follows it.
 
 // Black, white and one vermilion. Greys carry neutral data, the accent only marks errors, glare, bursts,
 // the new layouts or the single emphasis on a slide. Slots keep one meaning each so slide code can use them by name.
@@ -44,6 +48,27 @@ const M = 0.6; // slide margin
 const WHITE = "FFFFFF";
 
 const state = { speaker: "Maaz", section: "Opening", count: 0, secs: [] };
+
+
+// Display names of the setups, chosen by the user. The stats files may still carry older names, so every
+// name that can appear for a setup is listed and a lookup by key works for either.
+const SETUPS = {
+  n3: { label: "Normal light, 3 bps", groups: "G01 to G07", names: ["Facing screen, 3 bps", "Facing, 3 bps", "Normal light, 3 bps"] },
+  n8: { label: "Normal light, 8 bps", groups: "G08 to G14", names: ["Facing screen, 8 bps", "Facing, 8 bps", "Normal light, 8 bps"] },
+  n4: { label: "Normal light, 4 bps", groups: "G15 to G21", names: ["Reflection, 4 bps", "Normal light, 4 bps"] },
+  chk: { label: "Normal light, 4 bps, rep-3 check", groups: "G28 and G29", names: ["Facing screen, 4 bps", "Facing, 4 bps", "Normal light, 4 bps, rep-3 check"] },
+  g4: { label: "Dim with glare, 4 bps", groups: "G22 to G26", names: ["Reflection with glare, 4 bps", "Glare, 4 bps", "Dim with glare, 4 bps"] },
+  g2: { label: "Dim with glare, 2 bps", groups: "G27", names: ["Reflection with glare, 2 bps", "Glare, 2 bps", "Dim with glare, 2 bps"] },
+};
+function setupKey(name) { return Object.keys(SETUPS).find((key) => SETUPS[key].names.includes(name)) ?? null; }
+function setupLabel(row) {
+  if (typeof row === "string") { const key = setupKey(row); return key ? SETUPS[key].label : row; }
+  return row.display ?? row.label ?? setupLabel(row.env ?? row.setup);
+}
+// the key of a stats object that belongs to a bit rate, with or without glare, whatever the stats file calls it
+function findKey(obj, rate, glare) { return Object.keys(obj).find((key) => key.startsWith(`${rate} bps`) && /glare/i.test(key) === glare); }
+// the row of a stats list that belongs to one setup, whatever name the stats file gave it
+function setupRow(rows, key, field = "env") { return rows.find((r) => setupKey(r[field]) === key); }
 
 // ---------- layouts ----------
 const pageNo = (dark) => ({ x: 8.35, y: 5.2, w: 0.65, h: 0.28, fontSize: 12, color: dark ? C.accent4 : C.text2, align: "right", valign: "middle", margin: 0 });
@@ -253,7 +278,8 @@ async function finish(file) {
 }
 
 module.exports = {
-  pres, C, SH, THEME, HEX, X, FONT, M, WHITE, TOTAL, MAIN_END, STATS, RSTATS, DATA, PLOTS, state,
+  pres, C, SH, THEME, HEX, X, FONT, M, WHITE, TOTAL, MAIN_END, DEMO, HAS_DEMO, STATS, RSTATS, DATA, PLOTS, state,
+  SETUPS, setupKey, setupLabel, setupRow, findKey,
   text, hline, vline, arrow, cell, circle, plot, photo, chartFrame, axes,
   section, speaker, note, count, content, divider, progress, lineStyle, finish,
 };

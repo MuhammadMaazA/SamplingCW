@@ -1,28 +1,31 @@
 "use strict";
-// Slides 15 to 24, how the experiments were run, every session, the four changes, the failures.
+// Slides 17 to 25, how the experiments were run, every session, the three changes and the failures.
 const k = require("./kit");
-const { pres, C, SH, HEX, X, FONT, M, WHITE, STATS, RSTATS, DATA, text, hline, vline, arrow, cell, plot, content, divider, chartFrame, axes } = k;
+const { pres, C, SH, HEX, X, FONT, M, WHITE, STATS, RSTATS, DATA, text, hline, vline, arrow, cell, plot, content, divider, chartFrame, axes, setupKey, setupLabel, setupRow } = k;
+
+const SHORT = { none: "U", "rep-3": "r3", "rep-5": "r5", "rep-7": "r7", Ham: "H", "2-D": "2D", "H-int": "HI" };
 
 function plan() {
   const P = DATA.plan, n = P.labels.length, codes = new Set(P.labels).size, bps = Math.round(1 / P.symbol_duration);
-  const SHORT = { none: "U", "rep-3": "r3", "rep-5": "r5", "rep-7": "r7", Ham: "H", "2-D": "2D", "H-int": "HI" };
   const { s, top } = content({
-    title: "One plan, two laptops",
-    take: "One seed shuffles the same order on both laptops, so no return channel is needed.",
-    notes: `Every session starts from a plan file that fixes the codes, payloads, repeats, bit rate and a random seed. The order is shuffled, so slow drift in light is spread over every code. The same seed rebuilds the same order on laptop 2, so we need no return channel. This is the real order of the ${n} trials in the 31 October session.`,
-    secs: 35,
+    title: "How the plan works",
+    take: "Both laptops make the same shuffled order from one seed, so nothing is sent back.",
+    notes: `A plan fixes the codes, the payloads, the repeats, the bit rate and a random seed. Laptop 2, which records, saves the plan. Laptop 1, which sends, builds the same shuffled order from the same seed and settings, so nothing is sent back. Laptop 2 can then match every recording to what laptop 1 sent. The strips show the ${n} trials of the 31 October session.`,
   });
-  const w = 0.39, gap = 0.03, pitch = w + gap, y1 = top + 0.7, y2 = top + 1.75;
-  const strip = (y, name) => P.labels.forEach((l, i) => cell(s, M + i * pitch, y, w, 0.5, SHORT[l], { fs: 14, bold: true, name: `${name} trial ${i + 1}` }));
-  text(s, "Laptop 1 sends", { x: M, y: y1 - 0.4, w: 4, h: 0.32, fontSize: 17, fontFace: FONT.semi, objectName: "laptop 1 strip label" });
-  text(s, "Laptop 2 rebuilds the same order from the seed", { x: M, y: y2 + 0.6, w: 8, h: 0.32, fontSize: 17, fontFace: FONT.semi, objectName: "laptop 2 strip label" });
-  P.labels.forEach((l, i) => vline(s, M + i * pitch + w / 2, y1 + 0.5, y2 - y1 - 0.5, { name: `link ${i + 1}` }));
-  strip(y1, "sent");
-  strip(y2, "rebuilt");
-  cell(s, 4.1, (y1 + 0.5 + y2) / 2 - 0.17, 1.6, 0.34, "", { fill: HEX.lt1, line: HEX.lt1, name: "seed backing" });
-  text(s, [{ text: "seed ", options: {} }, { text: String(P.seed), options: { fontFace: FONT.mono } }], { x: 4.1, y: (y1 + 0.5 + y2) / 2 - 0.17, w: 1.6, h: 0.34, fontSize: 15, color: C.text2, align: "center", valign: "middle", objectName: "seed label" });
-  text(s, "U uncoded.  r3, r5, r7 repetition 3, 5, 7.  H Hamming.  2D 2-D parity.  HI Hamming interleaved.", { x: M, y: y2 + 1.05, w: 8.8, h: 0.28, fontSize: 14, color: C.text2, objectName: "plan key" });
-  text(s, `${n} trials, 3 for each of ${codes} codes, ${P.payload_bits} bit payloads, ${bps} bps, ${P.gap} s between trials`, { x: M, y: y2 + 1.37, w: 8.8, h: 0.28, fontSize: 14, color: C.text2, objectName: "plan facts" });
+  const w = 0.39, gap = 0.03, pitch = w + gap, sh = 0.45;
+  const yA = top + 0.42, yBox = yA + sh + 0.45, yB = yBox + 0.6 + 0.43;
+  const strip = (y, name) => P.labels.forEach((l, i) => cell(s, M + i * pitch, y, w, sh, SHORT[l], { fs: 14, bold: true, name: `${name} trial ${i + 1}` }));
+  text(s, "Laptop 2 records and saves the plan", { x: M, y: yA - 0.37, w: 8, h: 0.32, fontSize: 17, fontFace: FONT.semi, objectName: "laptop 2 strip label" });
+  strip(yA, "laptop 2");
+  const cx = M + 4.4;
+  arrow(s, cx, yBox - 0.02, cx, yA + sh + 0.06, { color: C.text2, w: 1.5, name: "seed to laptop 2" });
+  cell(s, M + 1.7, yBox, 5.4, 0.6, "", { fill: WHITE, line: C.text1, lw: 1.25, name: "seed box" });
+  text(s, `Seed ${P.seed} and the same settings`, { x: M + 1.7, y: yBox + 0.05, w: 5.4, h: 0.28, fontSize: 17, fontFace: FONT.semi, align: "center", objectName: "seed box head" });
+  text(s, `${n} trials, 3 for each of ${codes} codes, ${P.payload_bits} bit payloads, ${bps} bps`, { x: M + 1.7, y: yBox + 0.32, w: 5.4, h: 0.26, fontSize: 14, color: C.text2, align: "center", objectName: "seed box facts" });
+  arrow(s, cx, yBox + 0.6 + 0.02, cx, yB - 0.06, { color: C.text2, w: 1.5, name: "seed to laptop 1" });
+  strip(yB, "laptop 1");
+  text(s, "Laptop 1 builds the same order and sends it", { x: M, y: yB + sh + 0.07, w: 8, h: 0.32, fontSize: 17, fontFace: FONT.semi, objectName: "laptop 1 strip label" });
+  text(s, "U uncoded.  r3, r5, r7 repetition with 3, 5, 7 copies.  H Hamming.  2D 2-D parity.  HI Hamming with interleaving.", { x: M, y: yB + sh + 0.5, w: 8.8, h: 0.26, fontSize: 13, color: C.text2, objectName: "plan key" });
 }
 
 function metrics() {
@@ -32,10 +35,9 @@ function metrics() {
   const wrongChannel = got.flat().filter((b, i) => b !== sent.flat()[i]).length;
   const wrongDecoded = vote.filter((v, i) => v !== sent[i][0]).length;
   const { s, top } = content({
-    title: "Four numbers per trial",
-    take: "A trial can show channel errors and still decode perfectly, so we report both.",
-    notes: `Four numbers for every trial. Channel BER counts wrong bits as received. Decoded BER counts wrong message bits after decoding. Throughput is delivered message bits per second of airtime. Frame success is frames fully decoded out of frames planned. In the example ${wrongChannel} of 12 bits were wrong on the channel, yet repetition decoded all four message bits, so we report both.`,
-    secs: 40,
+    title: "Four numbers for every trial",
+    take: `In this example ${wrongChannel} of 12 bits arrive wrong, but all 4 message bits decode correctly.`,
+    notes: `We record four numbers for every trial. Channel BER is the share of bits that arrive wrong, where BER means bit error rate. Decoded BER is the share of message bits that are wrong after decoding. Throughput is the message bits delivered per second. Frame success is the share of frames that decode correctly. In the example ${wrongChannel} of 12 bits arrive wrong, but repetition fixes both, so the decoded BER is zero.`,
   });
   const size = 0.4, gap = 0.06, gg = 0.14, pitch = size + gap, x0 = 1.95, y = top + 0.2;
   const gx = (g, j) => x0 + g * (3 * pitch + gg) + j * pitch;
@@ -54,91 +56,85 @@ function metrics() {
   });
   text(s, `${wrongChannel} of 12 wrong`, { x: gx(3, 2) + size + 0.25, y: y + 0.62, w: 1.7, h: size, fontSize: 18, color: C.accent2, fontFace: FONT.semi, valign: "middle", objectName: "channel result" });
   text(s, `${wrongDecoded} of 4 wrong`, { x: gx(3, 2) + size + 0.25, y: y + 1.5, w: 1.7, h: size, fontSize: 18, color: C.accent3, fontFace: FONT.semi, valign: "middle", objectName: "decoded result" });
-  const defs = [["Channel BER", "wrong bits received"], ["Decoded BER", "wrong bits after decoding"], ["Throughput", "message bits delivered per second"], ["Frame success", "frames fully decoded"]];
+  const defs = [["Channel BER", "share of bits that arrive wrong"], ["Decoded BER", "share of message bits wrong after decoding"], ["Throughput", "message bits delivered per second"], ["Frame success", "share of frames that decode correctly"]];
   defs.forEach(([h, d], i) => {
     const x = M + i * 2.2;
     hline(s, x, y + 2.35, 2.0, { color: C.text2, w: 0.75, name: `definition ${i + 1} rule` });
     text(s, h, { x, y: y + 2.45, w: 2.0, h: 0.32, fontSize: 18, fontFace: FONT.semi, objectName: `definition ${i + 1} name` });
-    text(s, d, { x, y: y + 2.82, w: 2.0, h: 0.55, fontSize: 14, color: C.text2, objectName: `definition ${i + 1} text` });
+    text(s, d, { x, y: y + 2.82, w: 2.0, h: 0.62, fontSize: 14, color: C.text2, objectName: `definition ${i + 1} text` });
   });
 }
 
 async function timeline() {
   const { s, top } = content({
-    title: "Every recording session",
-    take: "Ten recordings in six days, failures and abandoned runs included.",
-    notes: "This is every recording we made, in date order, taken from each session log. Marker area is the number of planned trials. Black is mostly delivered, red mostly lost, grey unusable. On 26 October we ran the glare runs, on 27 October the pipeline test, the reflection runs and the outside lab session, then the facing runs on 30 and 31 October.",
-    secs: 40,
+    title: "The recording sessions",
+    take: "Every session from 26 to 31 October, in order. Grey dots gave nothing we could use.",
+    notes: "Every session from 26 to 31 October, in the order we recorded them. The size of a dot is the number of trials we planned. Black dots delivered most of their frames, red dots lost most of theirs, and grey dots gave us nothing we could use. The 6 November test comes later.",
   });
-  await plot(s, "fig-sessions-timeline.png", { y: top, maxW: 8.8, maxH: 5.12 - top, ar: 2.5, name: "all recording sessions", alt: "Every recording session by date and setup, with frames delivered and the sessions that could not be used" });
+  await plot(s, "fig-sessions-timeline.png", { y: top, maxW: 9.4, maxH: 5.15 - top, ar: 2.5, name: "all recording sessions", alt: "Every session from 26 to 31 October by date and setup, with frames delivered and the sessions that gave nothing usable" });
 }
 
-// one slide for each change, the figure on the left and three short lines on the right
+// one slide for each change, the picture on the left and three short lines on the right
 async function change(i, c) {
-  const { s, top } = content({ title: c.title, notes: c.notes, secs: 35 });
-  await plot(s, c.fig, { x: M, y: top + 0.25, h: Math.min(3.2, 5.1 - top - 0.25), ar: 4.3 / 3.2, name: `change ${i} figure`, alt: c.alt });
-  text(s, `Change ${i} of 4`, { x: 5.45, y: top + 0.25, w: 3.9, h: 0.28, fontSize: 14, color: C.text2, objectName: "change counter" });
-  [["What changed", c.changed], ["What we saw", c.saw], ["Why we think so", c.why]].forEach(([h, t], j) => {
-    const y = top + 0.75 + j * 1.05;
-    hline(s, 5.45, y - 0.08, 3.95, { name: `change line ${j + 1}` });
-    text(s, h, { x: 5.45, y, w: 3.9, h: 0.26, fontSize: 14, color: C.text2, objectName: `change label ${j + 1}` });
-    text(s, t, { x: 5.45, y: y + 0.3, w: 3.95, h: 0.66, fontSize: 18, objectName: `change text ${j + 1}` });
+  const { s, top } = content({ title: c.title, notes: c.notes });
+  const p = await plot(s, c.fig, { x: M, y: top - 0.05, h: Math.min(3.65, 5.15 - top + 0.05), ar: 4.3 / 3.2, name: `change ${i} picture`, alt: c.alt });
+  const x = M + p.w + 0.3, w = 9.4 - x;
+  text(s, `Change ${i} of 3`, { x, y: top - 0.05, w, h: 0.28, fontSize: 14, color: C.text2, objectName: "change counter" });
+  [["What changed", c.changed], ["What we saw", c.saw], ["Likely reason", c.why]].forEach(([h, t], j) => {
+    const y = top + 0.3 + j * 1.15;
+    hline(s, x, y - 0.08, w, { name: `change line ${j + 1}` });
+    text(s, h, { x, y, w, h: 0.26, fontSize: 14, color: C.text2, objectName: `change label ${j + 1}` });
+    text(s, t, { x, y: y + 0.28, w, h: 0.82, fontSize: 15, objectName: `change text ${j + 1}` });
   });
 }
 
 async function changes() {
   const CH = STATS.changes, fr = (o) => `${o.frames} of ${o.trials}`;
-  const sf = CH["speed-facing"], pa = CH.path, li = CH.lighting, sg = CH["speed-glare"];
+  const sf = CH["speed-normal"] ?? CH["speed-facing"] ?? CH.speed, li = CH.lighting, sg = CH["speed-glare"];
   const glare = li.b.channel_ber_pct, lo = Math.min(...glare).toFixed(1), hi = Math.max(...glare).toFixed(1);
   const g27 = sg.b.channel_ber_pct[0].toFixed(1);
+  const r3 = STATS.tradeoff.find((r) => setupKey(r.env) === "n4" && r.method === "rep-3");
+  const r3ok = r3 ? r3.ok.replace("/", " of ") : "3 of 3";
   await change(1, {
-    title: "Speed, facing the screen", fig: "fig-change-speed-facing.png", alt: "Frames delivered and channel error rate at 3 and 8 bps facing the screen",
-    changed: "Speed, 3 then 8 bps, facing the screen", saw: `Frames delivered fell from ${fr(sf.a)} to ${fr(sf.b)}`, why: "At 8 bps white smears into the next bit",
-    notes: `Change one is speed, facing the screen. At 3 bits per second we delivered ${fr(sf.a)} frames, at 8 bits per second ${fr(sf.b)}. At 8 bits per second the camera gets only about 4 samples per bit, so white smears into the next symbol. The two days also differ in room, so speed is not the only change.`,
+    title: "Changing the speed from 3 to 8 bps", fig: "fig-change-speed-normal.png", alt: "Frames delivered and channel BER at 3 bps and at 8 bps in normal light",
+    changed: "The speed went from 3 to 8 bps, in normal light.", saw: `Frames delivered fell from ${fr(sf.a)} to ${fr(sf.b)}.`, why: "At 8 bps the camera gets about 4 samples per bit, so a white flash carries over into the next bit.",
+    notes: `Change one is the speed in normal light. At 3 bits per second we delivered ${fr(sf.a)} frames, at 8 bits per second ${fr(sf.b)}. With only about 4 samples per bit at 8 bits per second, a white flash carries into the next bit. The sessions were on different days, so speed may not be the only difference.`,
   });
   await change(2, {
-    title: "Camera path at 4 bps", fig: "fig-change-path.png", alt: "Frames delivered and channel error rate for the reflection and the facing path at 4 bps",
-    changed: "Camera path, reflection or facing", saw: `Both clean, ${fr(pa.a)} against ${fr(pa.b)}`, why: "Facing has only 2 trials, so we make no claim",
-    notes: `Change two is the camera path in the lab at 4 bits per second. Reflection delivered ${fr(pa.a)} frames and facing ${fr(pa.b)}, both with no meaningful bit errors. The facing run has only 2 trials, so we make no claim from it.`,
+    title: "Dimming the room", fig: "fig-change-lighting.png", alt: "Frames delivered and channel BER of each group in normal light and in dim light with glare, both at 4 bps",
+    changed: "The room went from normal light to dim with glare, at 4 bps.", saw: `Channel BER rose to between ${lo} and ${hi} percent. Frames delivered fell from ${fr(li.a)} to ${fr(li.b)}.`, why: "Glare raises the black level after each white flash.",
+    notes: `Change two is the light. In normal light at 4 bits per second we delivered ${fr(li.a)} frames. With the room dim and glare on, channel BER rose to between ${lo} and ${hi} percent and ${fr(li.b)} frames were delivered. The dim runs only used repetition-3, so the fair comparison is repetition-3 in normal light, ${r3ok}, against ${fr(li.b)}.`,
   });
   await change(3, {
-    title: "Dimming the lab", fig: "fig-change-lighting.png", alt: "Channel error rate of each reflection group in normal light and in the dimmed lab with glare",
-    changed: "Lighting, normal then dim with glare", saw: `BER rose to ${lo} to ${hi} percent, frames fell to ${fr(li.b)}`, why: "Glare lifts the black level after each flash",
-    notes: `Change three is dimming the lab. With normal light the reflection delivered ${fr(li.a)} frames. With the lights down and glare, channel BER rose to between ${lo} and ${hi} percent and ${fr(li.b)} frames got through. The dim runs used only repetition-3, so compare repetition-3 with repetition-3.`,
-  });
-  await change(4, {
-    title: "Speed in glare", fig: "fig-change-speed-glare.png", alt: "Frames delivered and channel error rate in glare at 4 bps and at 2 bps",
-    changed: "Speed in glare, 4 then 2 bps", saw: `Frames delivered rose to ${fr(sg.b)}, channel BER fell to ${g27} percent`, why: "More samples per bit, or milder glare",
-    notes: `Change four is halving the speed in glare. At 4 bits per second we delivered ${fr(sg.a)} frames, at 2 bits per second ${fr(sg.b)}, with channel BER down to ${g27} percent. Halving the rate doubles the samples per bit, but the glare that session may simply have been milder. One session cannot separate the two, so it is a confound, not a result.`,
+    title: "Halving the speed in glare", fig: "fig-change-speed-glare.png", alt: "Frames delivered and channel BER in dim light with glare at 4 bps and at 2 bps",
+    changed: "The speed went from 4 to 2 bps, in dim light with glare.", saw: `Frames delivered rose from ${fr(sg.a)} to ${fr(sg.b)}, and channel BER fell to ${g27} percent.`, why: "More samples per bit may have helped, or the glare may have been milder that day.",
+    notes: `Change three is halving the speed in glare. At 4 bits per second we delivered ${fr(sg.a)} frames, at 2 bits per second ${fr(sg.b)}, with channel BER down to ${g27} percent. More samples per bit may have helped, or the glare may have been milder that day. One session cannot tell which, so we do not claim it.`,
   });
 }
 
 function frameLoss() {
-  const F = STATS.failures;
-  const SHORT = { "Facing screen, 3 bps": "Facing, 3 bps", "Facing screen, 8 bps": "Facing, 8 bps", "Facing screen, 4 bps": "Facing, 4 bps",
-    "Reflection, 4 bps": "Reflection, 4 bps", "Reflection with glare, 4 bps": "Glare, 4 bps", "Reflection with glare, 2 bps": "Glare, 2 bps" };
+  const F = DATA.failures;
   const total = F.reduce((t, r) => t + r.trials, 0);
+  const glare = setupRow(F, "g4", "display"), fast = setupRow(F, "n8", "display"), slow = setupRow(F, "n3", "display");
   const { s, top } = content({
-    title: "Where whole frames were lost",
-    take: "Glare kills frames at the header CRC, speed at the payload CRC.",
-    notes: `Bit error rate hides the worst failure, losing the whole frame, so this counts all ${total} planned trials. Black is delivered. At 8 bits per second frames arrive but fail the payload CRC, which the codes can fight. In the dim lab with glare, 9 of 15 frames die at the header CRC, so the payload code never gets a chance. At 3 bits per second, 6 frames were cut short.`,
-    secs: 40,
+    title: "Where the frames were lost",
+    take: `In glare ${glare.header_crc_failures} of ${glare.trials} frames fail the header CRC. At 8 bps ${fast.payload_crc_failures} of ${fast.trials} fail the payload CRC.`,
+    notes: `This counts what happened to each of the ${total} planned trials. Black is a frame that decoded correctly. In the dim room with glare, ${glare.header_crc_failures} of ${glare.trials} frames failed the header CRC, so the payload code never got used. At 8 bits per second the frames arrived, but ${fast.payload_crc_failures} of ${fast.trials} failed the payload CRC. At 3 bits per second, ${slow.truncated} frames were cut short because the recording ended.`,
   });
-  const labels = F.map((r) => SHORT[r.env]);
-  // name, key, fill, label colour on that fill
+  const labels = F.map((r) => r.display), maxTrials = Math.max(...F.map((r) => r.trials));
   const series = [
     ["Delivered", "valid_frames", X.ink, X.white], ["Payload CRC failed", "payload_crc_failures", X.accent, X.white],
     ["Header CRC failed", "header_crc_failures", X.tint2, X.ink], ["Uncorrectable", "uncorrectable", X.g1, X.white],
-    ["Cut short", "truncated", X.g2, X.ink], ["Sync not found", "sync_failures", X.g3, X.ink],
+    ["Cut short", "truncated", X.g2, X.ink], ["Sync word not found", "sync_failures", X.g3, X.ink],
   ];
   const cx = M, cy = top, cw = 8.8, ch = 5.15 - top - 0.62;
-  const lay = { x: 0.18, y: 0.04, w: 0.8, h: 0.92 };
+  const lay = { x: 0.2, y: 0.04, w: 0.78, h: 0.92 };
   s.addChart(pres.charts.BAR, series.map(([name, key]) => ({ name, labels, values: F.map((r) => r[key]) })), {
     x: cx, y: cy, w: cw, h: ch, barDir: "bar", barGrouping: "stacked", barGapWidthPct: 45, chartColors: series.map((x) => x[2]),
-    showLegend: false, catAxisOrientation: "maxMin", valAxisMinVal: 0, valAxisMaxVal: 24, valAxisMajorUnit: 4, valAxisHidden: true,
+    showLegend: false, catAxisOrientation: "maxMin", valAxisMinVal: 0, valAxisMaxVal: maxTrials, valAxisMajorUnit: 3, valAxisHidden: true,
     layout: lay, ...chartFrame, objectName: "frame loss chart",
   });
-  const px = cx + lay.x * cw, pw = lay.w * cw, py = cy + lay.y * ch, band = (lay.h * ch) / F.length, unit = pw / 24;
+  const px = cx + lay.x * cw, pw = lay.w * cw, py = cy + lay.y * ch, band = (lay.h * ch) / F.length, unit = pw / maxTrials;
   F.forEach((r, i) => {
     let cum = 0;
     series.forEach(([name, key, , ink]) => {
@@ -162,42 +158,38 @@ function frameLoss() {
 function failures() {
   const O = DATA.outside_lab, B = DATA.ordering_bug, n = B.expected.length;
   const { s, top } = content({
-    title: "Runs that did not work",
-    take: "The failures were ours, a plan too long and a printed command in the wrong order.",
-    notes: `Every failed recording and what it taught us. Outside the lab the plan needed ${(O.planned_s / 60).toFixed(0)} minutes of airtime and recording stopped after ${(O.recorded_s / 60).toFixed(0)}, so only 3 of ${O.trials} trials were filmed, a planning failure. On the right, a bug in how the transmit command was printed reordered the codes, so ${B.differ} of ${n} trials were in a different place and the first analysis decoded nothing. A third run stopped when the camera repeated timestamps.`,
-    secs: 45,
+    title: "Runs that failed",
+    take: "Two of these failures were our own mistakes, and a third came from the camera.",
+    notes: `On 27 October we recorded in a different place at ${O.bit_rate} bits per second. The plan needed ${(O.planned_s / 60).toFixed(0)} minutes but the recording stopped after ${(O.recorded_s / 60).toFixed(0)}, so only 3 of ${O.trials} trials were filmed. Separately, the command that started laptop 1 listed the codes in a different order from the plan on laptop 2, so ${B.differ} of ${n} trials did not match. We fixed that by analysing against what laptop 1 sent. A third run stopped when the camera repeated timestamps.`,
   });
-  // left, planned against recorded airtime
-  text(s, `Outside the lab, ${O.bit_rate} bps`, { x: M, y: top + 0.05, w: 4.0, h: 0.34, fontSize: 18, fontFace: FONT.semi, objectName: "airtime head" });
+  text(s, `A different place, ${O.bit_rate} bps`, { x: M, y: top + 0.05, w: 4.0, h: 0.34, fontSize: 18, fontFace: FONT.semi, objectName: "airtime head" });
   s.addChart(pres.charts.BAR, [{ name: "Minutes", labels: ["Planned", "Recorded"], values: [O.planned_s / 60, O.recorded_s / 60] }], {
-    x: M, y: top + 0.4, w: 4.0, h: 2.2, barDir: "bar", barGapWidthPct: 50, chartColors: [HEX.accent4, HEX.accent2], catAxisOrientation: "maxMin",
+    x: M, y: top + 0.4, w: 4.0, h: 2.2, barDir: "bar", barGapWidthPct: 50, chartColors: [X.g2, X.accent], catAxisOrientation: "maxMin",
     showLegend: false, showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0", valAxisMinVal: 0, valAxisMaxVal: 70, valAxisMajorUnit: 20,
-    ...chartFrame, ...axes("Minutes of airtime"), objectName: "airtime chart",
+    ...chartFrame, ...axes("Minutes of recording"), objectName: "airtime chart",
   });
   text(s, "Only 3 of 21 trials were filmed", { x: M, y: top + 2.7, w: 4.0, h: 0.32, fontSize: 17, color: C.accent2, fontFace: FONT.semi, objectName: "airtime verdict" });
-  // right, red marks the trials that sat in a different place on laptop 1 than laptop 2 expected
   vline(s, 4.95, top + 0.1, 2.95, { name: "failure divider" });
   text(s, "A command in the wrong order", { x: 5.25, y: top + 0.05, w: 4.15, h: 0.34, fontSize: 18, fontFace: FONT.semi, objectName: "order head" });
   const cw = 0.17, cg = 0.025, cp = cw + cg, rx = 5.25;
-  text(s, "Trial order laptop 2 expected", { x: rx, y: top + 0.62, w: 4.15, h: 0.28, fontSize: 14, color: C.text2, objectName: "order strip label" });
+  text(s, "The trial order laptop 2 expected", { x: rx, y: top + 0.62, w: 4.15, h: 0.28, fontSize: 14, color: C.text2, objectName: "order strip label" });
   B.expected.forEach((l, i) => {
     const bad = B.expected[i] !== B.sent[i];
     cell(s, rx + i * cp, top + 1.0, cw, 0.6, "", { fill: bad ? HEX.accent2 : WHITE, line: bad ? HEX.accent2 : C.text2, name: `planned trial ${i + 1}` });
   });
-  text(s, `${B.differ} of ${n} trials, in red, were sent in a different place`, { x: rx, y: top + 1.8, w: 4.15, h: 0.6, fontSize: 17, color: C.accent2, fontFace: FONT.semi, objectName: "order verdict" });
+  text(s, `${B.differ} of ${n} trials, in red, were sent at a different position.`, { x: rx, y: top + 1.8, w: 4.15, h: 0.6, fontSize: 17, color: C.accent2, fontFace: FONT.semi, objectName: "order verdict" });
   hline(s, M, top + 3.3, 8.8, { name: "failure footer rule" });
-  text(s, `A third run stopped after 16.7 s when the camera repeated timestamps`, { x: M, y: top + 3.4, w: 8.8, h: 0.3, fontSize: 15, color: C.text2, objectName: "timestamp note" });
+  text(s, "A third run stopped after 16.7 s when the camera repeated timestamps.", { x: M, y: top + 3.4, w: 8.8, h: 0.3, fontSize: 15, color: C.text2, objectName: "timestamp note" });
 }
 
 async function build() {
   k.speaker("Maaz");
-  divider({ index: 2, title: "Experiments", sub: "How we ran them, what changed, and what failed",
-    notes: "Now how every session worked and what we changed. Kanav then covers the frames we lost and the runs that failed." });
+  divider({ index: 2, title: "Experiments", sub: "How we ran the experiments, what we changed and which runs failed.",
+    notes: "Now how we ran the sessions and what we changed." });
   plan();
   metrics();
   await timeline();
   await changes();
-  k.speaker("Kanav");
   frameLoss();
   failures();
 }

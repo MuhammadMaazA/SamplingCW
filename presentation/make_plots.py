@@ -59,6 +59,19 @@ SESS = {
     "glare2": "quiet2bps-lab-repetition-3-20261026-172410-806159Z",
 }
 PHYSICAL = "glare-layouts-room-comparison-20261106-021921-294106Z"
+NORMAL, GLARE_LIGHT = "Normal light", "Dim with glare"
+# internal env names stay as they are in stats.json, each gets a display label next to it
+ENV_DISPLAY = {
+    "Facing screen, 3 bps": f"{NORMAL}, 3 bps", "Facing screen, 8 bps": f"{NORMAL}, 8 bps",
+    "Reflection, 4 bps": f"{NORMAL}, 4 bps", "Facing screen, 4 bps": f"{NORMAL}, 4 bps, rep-3 check",
+    "Reflection with glare, 4 bps": f"{GLARE_LIGHT}, 4 bps", "Reflection with glare, 2 bps": f"{GLARE_LIGHT}, 2 bps",
+}
+KEY_DISPLAY = {
+    "facing3": f"{NORMAL}, 3 bps", "facing3_abort": f"{NORMAL}, 3 bps", "facing8": f"{NORMAL}, 8 bps",
+    "reflect4": f"{NORMAL}, 4 bps", "reflect4b": f"{NORMAL}, 4 bps, rep-3 check", "facing4": f"{NORMAL}, 4 bps, rep-3 check",
+    "outside": f"{GLARE_LIGHT}, 2 bps, a different place", "glare2": f"{GLARE_LIGHT}, 2 bps",
+    **{k: f"{GLARE_LIGHT}, 4 bps" for k in ("glare_a", "glare_b", "glare_c", "glare_d", "glare_e")},
+}
 GLARE4 = ["glare_a", "glare_b", "glare_c", "glare_d", "glare_e"]
 RESULTS_FILE = {"facing3": "results-t114.csv", "reflect4": "results-corrected.csv"}
 stats: dict = {}
@@ -171,7 +184,7 @@ def setup_numbers():
             w, h = roi_line.strip().split("=")[1].split(",")[2:]
             roi.append((int(w) * int(h), f"{w} by {h}")); rates.add(sj["bit_rate"])
         rows.append({
-            "env": env, "bit_rates": sorted(rates),
+            "env": env, "display": ENV_DISPLAY[env], "bit_rates": sorted(rates),
             "fps_min": round(min(fps), 1), "fps_max": round(max(fps), 1),
             "thr_min": round(min(thr), 1), "thr_max": round(max(thr), 1),
             "white_med": round(float(np.median(white))), "black_med": round(float(np.median(black))),
@@ -195,6 +208,7 @@ def failures():
         d["trials"] = sum(int(summary[g]["trials"]) for g in gs)
         assert d["trials"] == sum(d[c] for c in cols), name
         d["env"] = name
+        d["display"] = ENV_DISPLAY[name]
         rows.append(d)
     stats["failures"] = rows
 
@@ -211,8 +225,8 @@ def spread(ys, gap):
 
 # ---------------------------------------------------------------- 1. raw brightness traces
 def fig_traces():
-    cases = [("reflect4", "full1b-000", "(a)", "Reflection, 4 bps, repetition-5"),
-             ("glare_b", "quiet1-001", "(b)", "Reflection with glare, 4 bps, repetition-3")]
+    cases = [("reflect4", "full1b-000", "(a)", f"{NORMAL}, 4 bps, repetition-5"),
+             ("glare_b", "quiet1-001", "(b)", f"{GLARE_LIGHT}, 4 bps, repetition-3")]
     W, H, ax_l, ax_w, ax_h = 9.0, 3.95, 0.95, 6.55, 1.3
     fig = new_fig(W, H)
     ov = overlay(fig)
@@ -236,7 +250,7 @@ def fig_traces():
         errs = [(i + 0.5) * dur for i in err_idx if t0 <= (i + 0.5) * dur <= t1]
         ax.plot(errs, [262] * len(errs), "|", color=ACCENT, ms=8, mew=1.5, zorder=4)
         ax.set_ylim(0, 280); ax.set_xlim(t0, t1); ax.set_yticks([0, 100, 200])
-        ax.set_ylabel("Brightness\n(0 to 255)", fontsize=11)
+        ax.set_ylabel("Brightness\n(0 to 255)", fontsize=13)
         if n_case == 0:
             ax.tick_params(labelbottom=False)
         else:
@@ -249,12 +263,12 @@ def fig_traces():
             labels.append(("bit errors", ACCENT, 262))
         heights = spread([y_in(val) for _, _, val in labels], 0.2)
         for (text, col, _), yy in zip(labels, heights):
-            ov.text(ax_l + ax_w + 0.12, yy, text, color=col, fontsize=11, va="center", ha="left")
+            ov.text(ax_l + ax_w + 0.12, yy, text, color=col, fontsize=13, va="center", ha="left")
         if n_case == 0:
             ov.add_patch(Rectangle((ax_l + ax_w + 0.12, y_in(255) - 0.06), 0.2, 0.12, fc=GREY4, ec="none"))
-            ov.text(ax_l + ax_w + 0.4, y_in(255), "white sent", color=GREY1, fontsize=11, va="center", ha="left")
-        info.append({"run": rid, "threshold": thr, "errors_in_window": len(errs), "errors_in_frame": len(err_idx)})
-    put(fig, "raw-traces.png", "Camera brightness over 30 s for a clean reflection frame and a glare frame, threshold and bit errors marked")
+            ov.text(ax_l + ax_w + 0.4, y_in(255), "white sent", color=GREY1, fontsize=13, va="center", ha="left")
+        info.append({"run": rid, "display": KEY_DISPLAY[key], "threshold": thr, "errors_in_window": len(errs), "errors_in_frame": len(err_idx)})
+    put(fig, "raw-traces.png", "Camera brightness over 30 s for a normal light frame and a dim with glare frame, threshold and bit errors marked")
     stats["traces"] = info
     for key, name in [("reflect4", "crop-clean.png"), ("glare_b", "crop-glare.png"), ("glare_c", "crop-glare-c.png")]:
         if not (OUT / name).exists():
@@ -292,13 +306,14 @@ def outcome_key(ov, x, y):
     for name in ("all", "some", "none"):
         col, mk, text = OUTCOME[name]
         ov.plot(x, y, mk, color=col, ms=8 if mk != "D" else 7, mec="none")
-        ov.text(x + 0.15, y, text, va="center", ha="left", fontsize=11, color=GREY1)
+        ov.text(x + 0.15, y, text, va="center", ha="left", fontsize=13, color=GREY1)
         x += 0.35 + 0.085 * len(text)
 
 
 def fig_wilson():
-    panels = [("Facing screen, 3 bps", "Facing, 3 bps", range(1, 8)), ("Facing screen, 8 bps", "Facing, 8 bps", range(8, 15)),
-              ("Reflection, 4 bps", "Reflection, 4 bps", range(15, 22))]
+    panels = [("Facing screen, 3 bps", ENV_DISPLAY["Facing screen, 3 bps"], range(1, 8)),
+              ("Facing screen, 8 bps", ENV_DISPLAY["Facing screen, 8 bps"], range(8, 15)),
+              ("Reflection, 4 bps", ENV_DISPLAY["Reflection, 4 bps"], range(15, 22))]
     W, H = 9.0, 3.95
     fig = new_fig(W, H); ov = overlay(fig)
     lw, gap, left0, top, ph = 2.05, 0.62, 1.15, 0.5, 2.5
@@ -312,8 +327,8 @@ def fig_wilson():
             col, mk, _ = OUTCOME[outcome(k, n)]
             ax.plot([lo, hi], [y, y], color=col, lw=2.0, solid_capstyle="round", zorder=2)
             ax.plot(k / n, y, mk, color=col, ms=8 if mk != "D" else 7, mec="none", zorder=3)
-            ax.text(1.12, y, f"{k}/{n}", ha="left", va="center", fontsize=11, color=GREY1, clip_on=False)
-            out.append({"env": name, "method": m, "k": k, "n": n, "lo": round(lo, 2), "hi": round(hi, 2)})
+            ax.text(1.12, y, f"{k}/{n}", ha="left", va="center", fontsize=13, color=GREY1, clip_on=False)
+            out.append({"env": name, "display": ENV_DISPLAY[name], "method": m, "k": k, "n": n, "lo": round(lo, 2), "hi": round(hi, 2)})
         panel(ax, f"({'abc'[j]})", short)
         ax.set_xlim(-0.04, 1.04); ax.set_xticks([0, 0.5, 1]); ax.set_xticklabels(["0", "0.5", "1"])
         ax.set_ylim(len(ORDER) - 0.5, -0.5)
@@ -324,9 +339,9 @@ def fig_wilson():
         else:
             ax.set_yticklabels(ORDER)
     ov.text(left0 + (3 * lw + 2 * gap) / 2, 0.52, "Fraction of frames delivered, with 95% Wilson intervals",
-            ha="center", va="center", fontsize=12, color=INK)
+            ha="center", va="center", fontsize=14, color=INK)
     outcome_key(ov, left0 + 0.9, 0.17)
-    put(fig, "wilson.png", "Frames delivered per method with Wilson 95 percent intervals for the three seven-method sessions")
+    put(fig, "wilson.png", "Frames delivered per method with Wilson 95 percent intervals for the three seven-method sessions, all in normal light")
     stats["wilson"] = out
     stats["wilson_3of3"] = [round(x, 2) for x in wilson(3, 3)]
     stats["wilson_0of3"] = [round(x, 2) for x in wilson(0, 3)]
@@ -345,7 +360,7 @@ OFFS = {
 
 
 def fig_tradeoff():
-    panels = [("Reflection, 4 bps", range(15, 22)), ("Facing screen, 8 bps", range(8, 15))]
+    panels = [("Reflection, 4 bps", range(15, 22)), ("Facing screen, 8 bps", range(8, 15))]  # env names, shown with display labels
     W, H = 9.0, 3.95
     fig = new_fig(W, H); ov = overlay(fig)
     lw, gap, left0, top, ph = 3.5, 0.6, 1.0, 0.5, 2.5
@@ -359,9 +374,9 @@ def fig_tradeoff():
             col, mk, _ = OUTCOME[outcome(k, n)]
             ax.plot(x, y, mk, color=col, ms=9 if mk != "D" else 8, mec="none", zorder=3)
             dx, dy, ha = OFFS[(j, m)]
-            ax.annotate(f"{m} {k}/{n}", (x, y), xytext=(dx, dy), textcoords="offset points", ha=ha, va="center", fontsize=11, color=INK)
-            out.append({"env": name, "method": m, "code_rate": round(x, 3), "throughput": round(y, 3), "ok": f"{k}/{n}"})
-        panel(ax, f"({'ab'[j]})", name)
+            ax.annotate(f"{m} {k}/{n}", (x, y), xytext=(dx, dy), textcoords="offset points", ha=ha, va="center", fontsize=13, color=INK)
+            out.append({"env": name, "display": ENV_DISPLAY[name], "method": m, "code_rate": round(x, 3), "throughput": round(y, 3), "ok": f"{k}/{n}"})
+        panel(ax, f"({'ab'[j]})", ENV_DISPLAY[name])
         ax.set_xlim(0, 1.1); ax.set_ylim(-0.02, 0.31)
         ax.set_xticks([1 / 7, 1 / 3, 4 / 7, 1]); ax.set_xticklabels(["1/7", "1/3", "4/7", "1"])
         ax.set_yticks([0, 0.1, 0.2, 0.3]); ax.set_yticklabels(["0", "0.1", "0.2", "0.3"])
@@ -370,7 +385,7 @@ def fig_tradeoff():
             ax.set_yticklabels([]); ax.tick_params(left=False)
         else:
             ax.set_ylabel("Useful throughput (bps)")
-    ov.text(left0 + (2 * lw + gap) / 2, 0.52, "Code rate, information bits per bit sent", ha="center", va="center", fontsize=12)
+    ov.text(left0 + (2 * lw + gap) / 2, 0.52, "Code rate, information bits per bit sent", ha="center", va="center", fontsize=14)
     outcome_key(ov, left0 + 0.9, 0.17)
     put(fig, "tradeoff.png", "Useful throughput against code rate for every method, labelled with frames delivered of 3, two setups")
     stats["tradeoff"] = out
@@ -404,7 +419,7 @@ def fig_noise_regimes():
     ri, rb = runs(iso), runs(bur)
     W, H = 9.0, 3.6
     fig = new_fig(W, H); ov = overlay(fig)
-    ax0 = box(fig, 1.55, 0.5, 4.3, 2.55)
+    ax0 = box(fig, 2.1, 0.5, 3.85, 2.55)
     y, centres = 0, {}
     for name, trials, col in [("iso", iso, INK), ("bur", bur, ACCENT)]:
         first = y
@@ -420,20 +435,20 @@ def fig_noise_regimes():
     ax0.set_xlabel("Position in the transmitted frame (bit)")
     panel(ax0, "(a)", "One row per trial, one tick per wrong bit")
     h_in = lambda yy: H - 0.5 - 2.55 + (ax0.get_ylim()[0] - yy) / (ax0.get_ylim()[0] - ax0.get_ylim()[1]) * 2.55
-    ov.text(1.45, h_in(centres["iso"]), "Facing, 8 bps\nisolated flips", color=INK, ha="right", va="center", fontsize=11)
-    ov.text(1.45, h_in(centres["bur"]), "Glare, 4 bps\nbursts", color=ACCENT, ha="right", va="center", fontsize=11)
-    ax1 = box(fig, 6.5, 0.5, 2.4, 2.55)
+    ov.text(2.0, h_in(centres["iso"]), f"{NORMAL}, 8 bps" + chr(10) + "isolated flips", color=INK, ha="right", va="center", fontsize=13)
+    ov.text(2.0, h_in(centres["bur"]), f"{GLARE_LIGHT}, 4 bps" + chr(10) + "bursts", color=ACCENT, ha="right", va="center", fontsize=13)
+    ax1 = box(fig, 6.55, 0.5, 2.35, 2.55)
     x = np.arange(len(names)); w = 0.4
     ax1.bar(x - w / 2, frac(ri), w, color=INK)
     ax1.bar(x + w / 2, frac(rb), w, color=ACCENT)
-    ax1.set_xticks(x); ax1.set_xticklabels(names, fontsize=11)
+    ax1.set_xticks(x); ax1.set_xticklabels(names, fontsize=13)
     ax1.set_xlabel("Error run length (bits)"); ax1.set_ylim(0, 1.05)
     ax1.set_yticks([0, 0.5, 1]); ax1.set_yticklabels(["0", "50%", "100%"])
     ax1.grid(axis="y"); ax1.set_axisbelow(True)
     panel(ax1, "(b)", "Share of runs")
-    ax1.text(5.4, 0.93, "isolated", color=INK, ha="right", fontsize=11)
-    ax1.text(5.4, 0.8, "glare", color=ACCENT, ha="right", fontsize=11)
-    put(fig, "noise-regimes.png", "Error positions and run length shares for isolated flips against bursts")
+    ax1.text(5.4, 0.93, "normal light", color=INK, ha="right", fontsize=13)
+    ax1.text(5.4, 0.8, "dim with glare", color=ACCENT, ha="right", fontsize=13)
+    put(fig, "noise-regimes.png", "Error positions and run length shares for isolated flips in normal light against bursts in dim with glare")
     stats["noise_regimes"] = {"isolated_single_share": round(float((ri == 1).mean()), 3),
                               "burst_errors_in_runs_ge3": round(float(rb[rb >= 3].sum() / rb.sum()), 3),
                               "longest_burst": int(rb.max())}
@@ -541,8 +556,8 @@ def pct(v, _pos=None):
 
 
 def fig_run_lengths():
-    regs = [("Facing screen, 8 bps", ["facing8"], INK, "Facing, 8 bps"),
-            ("Reflection with glare, 4 bps", GLARE4, ACCENT, "Glare, 4 bps")]
+    regs = [("Facing screen, 8 bps", ["facing8"], INK, f"{NORMAL}, 8 bps"),
+            ("Reflection with glare, 4 bps", GLARE4, ACCENT, f"{GLARE_LIGHT}, 4 bps")]
     W, H = 4.6, 3.4
     fig = new_fig(W, H)
     ax = box(fig, 0.95, 0.2, 3.5, 2.55)
@@ -555,16 +570,17 @@ def fig_run_lengths():
         ax.bar(ks + (j - 0.5) * 0.4, np.where(obs > 0, obs, np.nan), 0.4, color=col, zorder=3)
         ax.plot(ks, geo, "--", color=col, lw=1.4, zorder=4)
         ax.plot(ks, geo, "o", color=col, ms=3.5, mfc="white", zorder=4)
+        r["display"] = short
         res[name] = r
     ax.set_yscale("log"); ax.set_ylim(3e-4, 1.6)
     ax.set_yticks([1e-3, 1e-2, 1e-1, 1]); ax.yaxis.set_major_formatter(plt.FuncFormatter(pct)); ax.minorticks_off()
     ax.set_xlim(0.3, 16.7); ax.set_xticks([1, 4, 8, 12, 16])
     ax.set_xlabel("Error run length (bits)"); ax.set_ylabel("Share of error runs")
     ax.grid(axis="y"); ax.set_axisbelow(True)
-    ax.text(16.4, 0.62, "Facing, 8 bps", color=INK, ha="right", va="center", fontsize=11)
-    ax.text(16.4, 0.27, "Glare, 4 bps", color=ACCENT, ha="right", va="center", fontsize=11)
-    ax.text(16.4, 0.09, "dashed: independent flips", color=GREY1, ha="right", va="center", fontsize=11)
-    put(fig, "fig-run-lengths.png", "Share of error runs by length for facing 8 bps and glare against the independent flip expectation")
+    ax.text(16.4, 0.62, f"{NORMAL}, 8 bps", color=INK, ha="right", va="center", fontsize=13)
+    ax.text(16.4, 0.27, f"{GLARE_LIGHT}, 4 bps", color=ACCENT, ha="right", va="center", fontsize=13)
+    ax.text(16.4, 0.09, "dashed: independent flips", color=GREY1, ha="right", va="center", fontsize=13)
+    put(fig, "fig-run-lengths.png", "Share of error runs by length for normal light 8 bps and dim with glare 4 bps against the independent flip expectation")
     stats["model"] = res
 
 
@@ -580,7 +596,7 @@ def fig_repetition():
             continue
         pts.append({"group": g, "n": int(r["repetitions"]), "channel": float(r["channel_ber"]),
                     "decoded": float(r["decoded_ber"]), "theory": maj(float(r["channel_ber"]), int(r["repetitions"]))})
-    W, H, ax_l, ax_w, top, ph = 6.6, 4.2, 0.95, 4.35, 0.2, 3.3
+    W, H, ax_l, ax_w, top, ph = 7.1, 4.2, 1.0, 4.4, 0.2, 3.3
     fig = new_fig(W, H); ov = overlay(fig)
     ax = box(fig, ax_l, top, ax_w, ph)
     p = np.linspace(0, 0.33, 200)
@@ -600,8 +616,8 @@ def fig_repetition():
             ax.plot(pt["channel"], pt["decoded"], mk, color=INK, ms=6, mec="white", mew=0.6, zorder=3)
     g25 = [q for q in pts if q["group"] == "G25"][0]
     ax.plot([g25["channel"]] * 2, [g25["theory"], g25["decoded"]], color=ACCENT, lw=1.2, ls=":", zorder=2)
-    ax.annotate(f"G25 in glare, measured {g25['decoded']:.3f}\ntheory predicts {g25['theory']:.3f}",
-                (g25["channel"], g25["decoded"]), xytext=(0.095, 0.246), textcoords="data", color=ACCENT, fontsize=11, va="center",
+    ax.annotate(f"G25, dim with glare: measured {g25['decoded']:.3f}" + chr(10) + f"theory predicts {g25['theory']:.3f}",
+                (g25["channel"], g25["decoded"]), xytext=(0.095, 0.246), textcoords="data", color=ACCENT, fontsize=13, va="center",
                 arrowprops=dict(arrowstyle="-", color=ACCENT, lw=0.9, shrinkA=2, shrinkB=4))
     ax.set_xlim(0, 0.33); ax.set_ylim(-0.005, 0.31); ax.set_xticks(np.arange(0, 0.31, 0.05))
     ax.set_xlabel("Channel BER, whole frame (errors per bit)")
@@ -609,11 +625,11 @@ def fig_repetition():
     ax.grid(True); ax.set_axisbelow(True)
     ys = spread([H - top - ph + (v + 0.005) / 0.315 * ph for _, _, v in ends], 0.22)
     for (text, col, _), yy in zip(ends, ys):
-        ov.text(ax_l + ax_w + 0.1, yy, text, color=col, fontsize=11, va="center", ha="left")
+        ov.text(ax_l + ax_w + 0.1, yy, text, color=col, fontsize=13, va="center", ha="left")
     ov.plot(ax_l + ax_w + 0.16, 0.62, "o", color=ACCENT, ms=7, mec="none")
-    ov.text(ax_l + ax_w + 0.3, 0.62, "glare runs", color=ACCENT, fontsize=11, va="center")
+    ov.text(ax_l + ax_w + 0.3, 0.62, "dim with glare", color=ACCENT, fontsize=13, va="center")
     ov.plot(ax_l + ax_w + 0.16, 0.38, "o", color=INK, ms=6, mec="none")
-    ov.text(ax_l + ax_w + 0.3, 0.38, "other runs", color=INK, fontsize=11, va="center")
+    ov.text(ax_l + ax_w + 0.3, 0.38, "normal light", color=INK, fontsize=13, va="center")
     put(fig, "repetition-theory.png", "Majority vote theory curves for repetition 3, 5 and 7 with every measured repetition run overlaid")
     for pt in pts:
         pt["theory"] = round(pt["theory"], 4)
@@ -631,10 +647,10 @@ def session_start(key):
 
 
 def recordings():
-    """Every recording with its lane, planned trials, frames delivered and outcome, all read from the saved files."""
+    """Every recording with its lane (light and speed), planned trials, frames delivered and outcome, read from the saved files."""
     out = []
 
-    def add(lane, start, planned, filmed, valid, note=""):
+    def add(lane, start, planned, filmed, valid, note="", side="right", place=""):
         if planned == 0 or filmed < planned / 2:
             kind = "unusable"
         else:
@@ -647,30 +663,31 @@ def recordings():
             text = note
         else:
             text = f"{valid} of {planned}, only {filmed} filmed"
-        out.append({"lane": lane, "start": start.isoformat(), "planned": planned, "filmed": filmed, "valid": valid,
-                    "kind": kind, "label": text})
+        if place:
+            text = f"{place}: {text}"
+        out.append({"lane": lane, "display": lane, "start": start.isoformat(), "planned": planned, "filmed": filmed,
+                    "valid": valid, "kind": kind, "label": text, "side": side, "place": place})
 
+    glare4, glare2, norm4 = f"{GLARE_LIGHT}, 4 bps", f"{GLARE_LIGHT}, 2 bps", f"{NORMAL}, 4 bps"
     total = [results_counts(RES / SESS[k] / "results.csv") for k in GLARE4]
-    add("Glare, 4 bps", session_start("glare_a"), sum(t[0] for t in total), sum(t[1] for t in total), sum(t[2] for t in total))
-    c = results_counts(RES / SESS["glare2"] / "results.csv")
-    add("Glare, 2 bps", session_start("glare2"), *c)
+    add(glare4, session_start("glare_a"), sum(t[0] for t in total), sum(t[1] for t in total), sum(t[2] for t in total))
+    add(glare2, session_start("glare2"), *results_counts(RES / SESS["glare2"] / "results.csv"))
     log = open(BACKUP / "debug1.log").readline().split()[0]
     add("Pipeline test", datetime.fromisoformat(log[:19]), 0, 0, 0)
-    add("Reflection, 4 bps", session_start("reflect4b"), *results_counts(RES / SESS["reflect4b"] / "results.csv"))
+    add(norm4, session_start("reflect4b"), *results_counts(RES / SESS["reflect4b"] / "results.csv"))
     outside = results_counts(REPO / "experiments" / "extra-analysis" / "full1-A-thr93-results.csv")
-    add("Outside the lab, 2 bps", session_start("outside"), *outside)
-    add("Facing, 4 bps", session_start("facing4"), *results_counts(RES / SESS["facing4"] / "results.csv"))
-    add("Reflection, 4 bps", session_start("reflect4"), *results_counts(RES / SESS["reflect4"] / RESULTS_FILE["reflect4"]))
+    add(glare2, session_start("outside"), *outside, place="a different place")
+    add(norm4, session_start("facing4"), *results_counts(RES / SESS["facing4"] / "results.csv"), side="above")
+    add(norm4, session_start("reflect4"), *results_counts(RES / SESS["reflect4"] / RESULTS_FILE["reflect4"]))
     elapsed = re.search(r"elapsed=([\d.]+)s", open(RES / SESS["facing3_abort"] / "capture.log").read()).group(1)
     planned = json.load(open(RES / SESS["facing3_abort"] / "session.json"))["trials"]
-    add("Facing, 3 bps", session_start("facing3_abort"), planned, 0, 0, note=f"stopped at {float(elapsed):.1f} s")
-    add("Facing, 3 bps", session_start("facing3"), *results_counts(RES / SESS["facing3"] / RESULTS_FILE["facing3"]))
-    add("Facing, 8 bps", session_start("facing8"), *results_counts(RES / SESS["facing8"] / "results.csv"))
+    add(f"{NORMAL}, 3 bps", session_start("facing3_abort"), planned, 0, 0, note=f"stopped at {float(elapsed):.1f} s", side="left")
+    add(f"{NORMAL}, 3 bps", session_start("facing3"), *results_counts(RES / SESS["facing3"] / RESULTS_FILE["facing3"]))
+    add(f"{NORMAL}, 8 bps", session_start("facing8"), *results_counts(RES / SESS["facing8"] / "results.csv"), side="left")
     return sorted(out, key=lambda r: r["start"])
 
 
 KIND_COLOUR = {"delivered": INK, "lost": ACCENT, "unusable": GREY2}
-LABEL_LEFT = {("Outside the lab, 2 bps", "unusable"), ("Facing, 3 bps", "unusable"), ("Facing, 8 bps", "lost")}
 
 
 def fig_sessions_timeline():
@@ -687,29 +704,29 @@ def fig_sessions_timeline():
         cols.append(d); d = datetime.fromordinal(d.toordinal() + 1).date()
     per_day = {c: [r for r in recs if r["start"][:10] == c.isoformat()] for c in cols}
     weight = {c: (len(v) + 0.7 if v else 0.9) for c, v in per_day.items()}
-    L, TOP, AW, AH = 1.95, 0.5, 6.95, 2.4
+    W, H, L, TOP, AW, AH = 9.0, 3.6, 2.2, 0.5, 6.7, 2.3
     unit = AW / sum(weight.values())
-    fig = new_fig(9.0, 3.6); ov = overlay(fig)
+    fig = new_fig(W, H); ov = overlay(fig)
     ax = box(fig, L, TOP, AW, AH)
     ax.set_xlim(0, AW); ax.set_ylim(len(lanes) - 0.5, -0.5)
     for i in range(len(lanes)):
         ax.axhline(i, color=GREY3, lw=0.6, zorder=0)
-    x0, xs, labels = 0.0, [], []
+    x0, xs, labels, empty = 0.0, [], [], []
     for c in cols:
         w = weight[c] * unit
         ax.axvline(x0, color=GREY3, lw=0.8, zorder=0)
         recs_day = per_day[c]
         name = c.strftime("%d %b").lstrip("0") if recs_day else str(c.day)
-        ax.text(x0 + w / 2, -0.62, name, ha="center", va="bottom", fontsize=11, color=GREY1 if recs_day else GREY2, clip_on=False)
+        ax.text(x0 + w / 2, -0.6, name, ha="center", va="bottom", fontsize=13, color=GREY1 if recs_day else GREY2, clip_on=False)
         if not recs_day:
             ax.axvspan(x0, x0 + w, color=GREY4, alpha=0.3, lw=0)
+            empty.append((x0, x0 + w))
         for i, r in enumerate(recs_day):
             r["x"] = x0 + (i + 0.5) * w / len(recs_day)
             xs.append(r["x"]); labels.append(r["start"][11:16])
         x0 += w
     ax.axvline(x0, color=GREY3, lw=0.8, zorder=0)
-    ax.text((weight[cols[2]] * unit + weight[cols[1]] * unit + weight[cols[0]] * unit) + weight[cols[3]] * unit, 3.5,
-            "no\nrecordings", ha="center", va="center", fontsize=11, color=GREY2)
+    ax.text((empty[0][0] + empty[-1][1]) / 2, 2.0, "no" + chr(10) + "recordings", ha="center", va="center", fontsize=13, color=GREY2)
     for r in recs:
         y = lanes.index(r["lane"])
         col = KIND_COLOUR[r["kind"]]
@@ -717,24 +734,23 @@ def fig_sessions_timeline():
             ax.scatter(r["x"], y, s=44, facecolors="none", edgecolors=col, linewidths=1.6, zorder=3)
             rad = 4
         else:
-            area = 14 * r["planned"]
+            area = 12 * r["planned"]
             ax.scatter(r["x"], y, s=area, color=col, edgecolors="none", zorder=3)
             rad = math.sqrt(area / math.pi)
-        left = (r["lane"], r["kind"]) in LABEL_LEFT
-        ax.annotate(r["label"], (r["x"], y), xytext=(-(rad + 5) if left else rad + 5, 0), textcoords="offset points",
-                    ha="right" if left else "left", va="center", fontsize=11,
+        dx, dy, ha, va = {"right": (rad + 5, 0, "left", "center"), "left": (-(rad + 5), 0, "right", "center"),
+                          "above": (0, rad + 4, "center", "bottom")}[r["side"]]
+        ax.annotate(r["label"], (r["x"], y), xytext=(dx, dy), textcoords="offset points", ha=ha, va=va, fontsize=13,
                     color=INK if r["kind"] != "unusable" else GREY1, fontweight="bold" if r["kind"] != "unusable" else "normal")
     ax.set_yticks(range(len(lanes))); ax.set_yticklabels(lanes); ax.tick_params(axis="y", length=0)
     ax.spines["left"].set_visible(False)
-    ax.set_xticks(xs); ax.set_xticklabels(labels, fontsize=11)
-    ov.text(L, 0.18, "time of day (UTC), in order within each day", ha="left", va="center", fontsize=11, color=GREY1)
-    ov.text(0.1, 3.3, "marker area =\nplanned trials", ha="left", va="center", fontsize=11, color=GREY1)
-    x = 5.75
+    ax.set_xticks(xs); ax.set_xticklabels(labels, fontsize=13)
+    ov.text(L, 0.34, "time of day (UTC), in order within each day, marker area is planned trials", ha="left", va="center", fontsize=13, color=GREY1)
+    x = L
     for kind, text in (("delivered", "mostly delivered"), ("lost", "mostly lost"), ("unusable", "not usable")):
-        ov.plot(x, 0.18, "o", color=KIND_COLOUR[kind], ms=8, mec="none")
-        ov.text(x + 0.12, 0.18, text, ha="left", va="center", fontsize=11, color=GREY1)
-        x += 0.28 + 0.068 * len(text)
-    put(fig, "fig-sessions-timeline.png", "Every recording on a date axis, by setup, marker area is planned trials, colour is outcome")
+        ov.plot(x + 0.06, 0.1, "o", color=KIND_COLOUR[kind], ms=8, mec="none")
+        ov.text(x + 0.2, 0.1, text, ha="left", va="center", fontsize=13, color=GREY1)
+        x += 0.45 + 0.085 * len(text)
+    put(fig, "fig-sessions-timeline.png", "Every recording on a date axis, lanes by light and speed, marker area is planned trials, colour is outcome")
 
 
 # ---------------------------------------------------------------- 8. the four one-variable changes
@@ -743,62 +759,63 @@ def grp(a, b):
 
 
 CHANGES = [
-    ("fig-change-speed-facing.png", ("3 bps", grp(1, 7)), ("8 bps", grp(8, 14)), "speed, facing the screen"),
-    ("fig-change-path.png", ("Reflection", grp(15, 21) + ["G29"]), ("Facing", ["G28"]), "camera path at 4 bps"),
-    ("fig-change-lighting.png", ("Normal" + chr(10) + "light", grp(15, 21)), ("Dim," + chr(10) + "glare", grp(22, 26)), "lighting, reflection, 4 bps"),
-    ("fig-change-speed-glare.png", ("4 bps", grp(22, 26)), ("2 bps", ["G27"]), "speed in glare"),
+    ("fig-change-speed-normal.png", "speed-normal", ("3 bps", grp(1, 7)), ("8 bps", grp(8, 14)),
+     f"speed in normal light, 3 bps to 8 bps", f"{NORMAL}, 3 bps to 8 bps"),
+    ("fig-change-lighting.png", "lighting", (NORMAL.replace(" ", chr(10)), grp(15, 21)), (GLARE_LIGHT.replace(" with ", " with" + chr(10)), grp(22, 26)),
+     "lighting at 4 bps, normal light to dim with glare", f"{NORMAL} to {GLARE_LIGHT}, 4 bps"),
+    ("fig-change-speed-glare.png", "speed-glare", ("4 bps", grp(22, 26)), ("2 bps", ["G27"]),
+     "speed in dim with glare, 4 bps to 2 bps", f"{GLARE_LIGHT}, 4 bps to 2 bps"),
 ]
 
 
 def fig_changes():
     stats["changes"] = {}
-    for fname, (name_a, ga), (name_b, gb), what in CHANGES:
+    for fname, key, (name_a, ga), (name_b, gb), what, display in CHANGES:
         W, H = 4.3, 3.2
         fig = new_fig(W, H)
-        axl = box(fig, 0.55, 0.55, 1.45, 1.9)
-        axr = box(fig, 2.55, 0.55, 1.6, 1.9)
-        entry = {}
+        axl = box(fig, 0.72, 0.6, 1.5, 1.85)
+        axr = box(fig, 2.72, 0.6, 1.4, 1.85)
+        entry = {"display": display}
         top_ber = 0.0
         for x, (name, groups, col) in enumerate([(name_a, ga, INK), (name_b, gb, ACCENT)]):
             k, n, bers = pooled(groups)
             lo, hi = wilson(k, n)
-            axl.plot([x, x], [lo, hi], color=col, lw=2.6, solid_capstyle="round", zorder=2)
-            axl.plot(x, k / n, "o", color=col, ms=9, mec="none", zorder=3)
-            axl.text(x, hi + 0.05, f"{k} of {n}", ha="center", va="bottom", fontsize=11, color=INK, fontweight="bold")
+            axl.plot([x, x], [lo, hi], color=col, lw=2.8, solid_capstyle="round", zorder=2)
+            axl.plot(x, k / n, "o", color=col, ms=10, mec="none", zorder=3)
+            axl.text(x, hi + 0.05, f"{k} of {n}", ha="center", va="bottom", fontsize=13, color=INK, fontweight="bold")
             jit = np.linspace(-0.14, 0.14, len(bers)) if len(bers) > 1 else [0.0]
-            order = np.argsort(bers)
-            vals = [bers[i] * 100 for i in order]
-            axr.plot(np.array(jit) + x, vals, "o", color=col, ms=7, mec="none", alpha=0.9, zorder=3)
+            vals = [bers[i] * 100 for i in np.argsort(bers)]
+            axr.plot(np.array(jit) + x, vals, "o", color=col, ms=8, mec="none", alpha=0.9, zorder=3)
             med = float(np.median(vals))
-            axr.plot([x - 0.3, x + 0.3], [med, med], color=INK, lw=1.8, zorder=4)
+            axr.plot([x - 0.3, x + 0.3], [med, med], color=INK, lw=2.0, zorder=4)
             top_ber = max(top_ber, max(vals))
             entry["ab"[x]] = {"label": name.replace(chr(10), " "), "groups": groups, "frames": k, "trials": n,
                               "wilson": [round(lo, 3), round(hi, 3)], "channel_ber_pct": [round(v, 3) for v in vals],
                               "median_channel_ber_pct": round(med, 3)}
-        axl.set_xlim(-0.6, 1.6); axl.set_ylim(-0.04, 1.28)
-        axl.set_yticks([0, 0.5, 1]); axl.set_yticklabels(["0%", "50%", "100%"]); axl.grid(axis="y"); axl.set_axisbelow(True)
-        axr.set_xlim(-0.6, 1.6); axr.set_ylim(-0.06 * top_ber, top_ber * 1.15)
-        axr.yaxis.set_major_locator(mpl.ticker.MaxNLocator(4, min_n_ticks=3)); axr.yaxis.set_major_formatter(mpl.ticker.FormatStrFormatter("%g"))
+        axl.set_xlim(-0.65, 1.6); axl.set_ylim(-0.04, 1.3)
+        axl.set_yticks([0, 0.5, 1]); axl.set_yticklabels(["0%", "50%", "100%"])
+        axr.set_xlim(-0.55, 1.55); axr.set_ylim(-0.06 * top_ber, top_ber * 1.15)
+        axr.yaxis.set_major_locator(mpl.ticker.MaxNLocator(4, min_n_ticks=3)); axr.yaxis.set_major_formatter(mpl.ticker.FormatStrFormatter("%g%%"))
         axr.grid(axis="y"); axr.set_axisbelow(True)
         for ax in (axl, axr):
-            ax.set_xticks([0, 1]); ax.set_xticklabels([name_a, name_b])
+            ax.set_xticks([0, 1]); ax.set_xticklabels([name_a, name_b], fontsize=13)
             ax.get_xticklabels()[0].set_color(INK); ax.get_xticklabels()[1].set_color(ACCENT)
             ax.tick_params(axis="x", length=0, pad=6)
-        panel(axl, "(a)", "Frames delivered")
-        panel(axr, "(b)", "Channel BER (%)")
+        panel(axl, "(a)", "Frames delivered", size=13)
+        panel(axr, "(b)", "Channel BER", size=13)
         put(fig, fname, f"{what}: condition A against condition B, frames delivered with Wilson intervals and channel BER per group")
-        stats["changes"][fname.replace("fig-change-", "").replace(".png", "")] = entry
+        stats["changes"][key] = entry
 
 
 # ---------------------------------------------------------------- 9. brightness levels of sent black and white symbols
 def fig_levels():
-    cases = [("reflect4", "Reflection, no glare, G15 to G21"), ("glare_c", "Reflection with glare, G24")]
+    cases = [("reflect4", f"{NORMAL}, 4 bps", "G15 to G21"), ("glare_c", f"{GLARE_LIGHT}, 4 bps", "G24")]
     W, H = 9.0, 3.3
     fig = new_fig(W, H); ov = overlay(fig)
     bins = np.arange(0, 260, 4)
     centres = bins[:-1] + 2
     stats["levels"] = {}
-    for j, (key, desc) in enumerate(cases):
+    for j, (key, desc, tag) in enumerate(cases):
         ones, zeros, _ = symbol_levels(key)
         thr = float(load_results(key)[0]["threshold"])
         ax = box(fig, 1.05 + j * 4.0, 0.5, 3.55, 1.95)
@@ -815,24 +832,24 @@ def fig_levels():
         top = max(sz.max(), so.max())
         ax.set_ylim(0, top * 1.38); ax.set_xlim(0, 258); ax.set_xticks([0, 50, 100, 150, 200, 250])
         right = thr > 128
-        ax.text(thr + (-3 if right else 3), top * 1.3, f"threshold {thr:.0f}", color=GREY1, fontsize=11, va="center", ha="right" if right else "left")
-        ax.text(centres[sz.argmax()], sz.max() + top * 0.04, "sent black", color=INK, fontsize=11, ha="center", va="bottom")
+        ax.text(thr + (-3 if right else 3), top * 1.3, f"threshold {thr:.0f}", color=GREY1, fontsize=13, va="center", ha="right" if right else "left")
+        ax.text(centres[sz.argmax()], sz.max() + top * 0.04, "sent black", color=INK, fontsize=13, ha="center", va="bottom")
         if right:
-            ax.text(256, top * 1.05, "sent white", color=GREY1, fontsize=11, ha="right", va="bottom")
+            ax.text(256, top * 1.05, "sent white", color=GREY1, fontsize=13, ha="right", va="bottom")
         else:
-            ax.text(centres[so.argmax()], so.max() + top * 0.04, "sent white", color=GREY1, fontsize=11, ha="center", va="bottom")
+            ax.text(centres[so.argmax()], so.max() + top * 0.04, "sent white", color=GREY1, fontsize=13, ha="center", va="bottom")
         ax.text(6 if right else 256, top * (0.93 if right else 0.62), (f"{wrong * 100:.1f}%" if wrong >= 0.001 else f"{wrong * 100:.2f}%") + " of symbols" + chr(10) + "on the wrong side",
-                color=ACCENT, fontsize=11, ha="left" if right else "right", va="center", fontweight="bold")
+                color=ACCENT, fontsize=13, ha="left" if right else "right", va="center", fontweight="bold")
         ax.yaxis.set_major_formatter(mpl.ticker.FormatStrFormatter("%g%%"))
         ax.grid(axis="y"); ax.set_axisbelow(True)
         if j == 0:
-            ax.set_ylabel("Share of symbols of that colour")
+            ax.set_ylabel("Share of each colour")
         panel(ax, f"({'ab'[j]})", desc)
-        stats["levels"][key] = {"threshold": thr, "n_black": int(len(zeros)), "n_white": int(len(ones)),
+        stats["levels"][key] = {"display": desc, "groups": tag, "threshold": thr, "n_black": int(len(zeros)), "n_white": int(len(ones)),
                                 "median_black": round(float(np.median(zeros)), 1), "median_white": round(float(np.median(ones)), 1),
                                 "wrong_side_share": round(wrong, 4), "overlap_band": [round(float(lo), 1), round(float(hi), 1)] if lo < hi else None}
-    ov.text(1.05 + (4.0 + 3.55) / 2, 0.18, "Camera brightness at the centre of each symbol (0 to 255)", ha="center", va="center", fontsize=12)
-    put(fig, "fig-levels.png", "Brightness at symbol centres for sent black and sent white, clean reflection against glare, with the threshold and the overlap")
+    ov.text(1.05 + (4.0 + 3.55) / 2, 0.18, "Camera brightness at the centre of each symbol (0 to 255)", ha="center", va="center", fontsize=14)
+    put(fig, "fig-levels.png", "Brightness at symbol centres for sent black and sent white, normal light against dim with glare, with the threshold and the overlap")
 
 
 # ---------------------------------------------------------------- 10. camera frames against symbol boundaries
@@ -841,7 +858,7 @@ def fig_sampling():
     n_sym = 6
     W, H = 9.0, 2.8
     fig = new_fig(W, H); ov = overlay(fig)
-    left, wd, row_h, gap, top0 = 2.0, 6.8, 0.56, 0.14, 0.08
+    left, wd, row_h, gap, top0 = 2.3, 6.5, 0.56, 0.14, 0.08
     stats["sampling"] = []
     for r, (key, bps) in enumerate(cases):
         x0 = [x for x in load_results(key) if x["frame_start"]][0]
@@ -871,26 +888,26 @@ def fig_sampling():
         per_bit = (len(ts_all) - 1) / (ts_all[-1] - ts_all[0]) * dur
         in_window = [int(((xpos >= i) & (xpos < i + 1)).sum()) for i in range(n_sym)]
         yc = H - (top0 + r * (row_h + gap) + row_h / 2)
-        ov.text(0.1, yc + 0.1, f"{bps} bps", fontsize=13, fontweight="bold", color=INK, va="center", ha="left")
-        ov.text(0.1, yc - 0.14, f"{per_bit:.1f} camera frames per bit", fontsize=11, color=GREY1, va="center", ha="left")
-        stats["sampling"].append({"bps": bps, "frames_per_bit": round(float(per_bit), 1), "frames_in_window": in_window})
-    ov.text(0.1, 0.4, "shaded: white sent", ha="left", va="center", fontsize=11, color=GREY1)
-    ov.text(0.1, 0.18, "unshaded: black sent", ha="left", va="center", fontsize=11, color=GREY1)
+        ov.text(0.1, yc + 0.1, f"{bps} bps", fontsize=15, fontweight="bold", color=INK, va="center", ha="left")
+        ov.text(0.1, yc - 0.14, f"{per_bit:.1f} camera frames per bit", fontsize=13, color=GREY1, va="center", ha="left")
+        stats["sampling"].append({"bps": bps, "display": KEY_DISPLAY[key], "frames_per_bit": round(float(per_bit), 1), "frames_in_window": in_window})
+    ov.text(0.1, 0.4, "shaded: white sent", ha="left", va="center", fontsize=13, color=GREY1)
+    ov.text(0.1, 0.18, "unshaded: black sent", ha="left", va="center", fontsize=13, color=GREY1)
     put(fig, "fig-sampling.png", "Real camera frame timestamps against symbol boundaries at 8, 4 and 2 bps with the sampled frame highlighted")
 
 
 # ---------------------------------------------------------------- 11. every analysed trial, error positions by setup
 def fig_error_raster():
-    setups = [("Facing, 4 bps", ["facing4"], INK), ("Reflection, 4 bps", ["reflect4", "reflect4b"], INK),
-              ("Glare, 2 bps", ["glare2"], ACCENT), ("Facing, 3 bps", ["facing3"], INK),
-              ("Facing, 8 bps", ["facing8"], INK), ("Glare, 4 bps", GLARE4, ACCENT)]
+    setups = [(f"{NORMAL}, 4 bps", ["reflect4", "reflect4b", "facing4"], INK), (f"{GLARE_LIGHT}, 2 bps", ["glare2"], ACCENT),
+              (f"{NORMAL}, 3 bps", ["facing3"], INK), (f"{NORMAL}, 8 bps", ["facing8"], INK),
+              (f"{GLARE_LIGHT}, 4 bps", GLARE4, ACCENT)]
     data = []
     for name, keys, col in setups:
         trials = [t for k in keys for t in TR[k]]
         errors, bits = sum(len(t["pos"]) for t in trials), sum(t["obs"] for t in trials)
         data.append((errors / bits, name, trials, col, errors, bits))
     data.sort(key=lambda d: d[0])
-    W, H, ax_l, ax_w, top, ah = 9.0, 4.2, 1.85, 6.3, 0.4, 3.2
+    W, H, ax_l, ax_w, top, ah = 9.0, 4.2, 2.15, 6.1, 0.5, 3.05
     fig = new_fig(W, H); ov = overlay(fig)
     ax = box(fig, ax_l, top, ax_w, ah)
     gap = 2.2
@@ -908,15 +925,16 @@ def fig_error_raster():
             y += 1
         mid = (start + y) / 2
         yy = H - top - (mid / total) * ah if False else H - top - ah + (1 - mid / total) * ah
-        ov.text(ax_l - 0.12, yy, f"{name}" + chr(10) + f"{len(trials)} trials", ha="right", va="center", fontsize=11, color=col)
-        ov.text(ax_l + ax_w + 0.08, yy, ("0%" if rate == 0 else f"{rate * 100:.1f}%" if rate >= 0.01 else f"{rate * 100:.2f}%"), ha="left", va="center", fontsize=11, color=GREY1)
-        stats["raster"].append({"setup": name, "trials": len(trials), "errors": errors, "observed_bits": bits, "channel_ber": round(rate, 5)})
+        ov.text(ax_l - 0.12, yy, f"{name}" + chr(10) + f"{len(trials)} trials", ha="right", va="center", fontsize=13, color=col)
+        ov.text(ax_l + ax_w + 0.08, yy, ("0%" if rate == 0 else f"{rate * 100:.1f}%" if rate >= 0.01 else f"{rate * 100:.2f}%"), ha="left", va="center", fontsize=13, color=GREY1)
+        stats["raster"].append({"setup": name, "display": name, "trials": len(trials), "errors": errors, "observed_bits": bits, "channel_ber": round(rate, 5)})
         y += gap
     ax.set_xlim(0, 470); ax.set_ylim(total, -0.3); ax.set_yticks([]); ax.spines["left"].set_visible(False)
     ax.set_xticks(range(0, 451, 50))
     ax.set_xlabel("Position in the transmitted frame (bit)")
-    ov.text(ax_l + ax_w + 0.08, H - 0.2, "channel BER", ha="left", va="center", fontsize=11, color=GREY1)
-    put(fig, "fig-error-raster.png", "Error positions in every trial of every analysed group, one row per trial, grouped by setup and ordered by channel BER")
+    ov.text(ax_l + ax_w + 0.08, H - 0.12, "channel", ha="left", va="center", fontsize=13, color=GREY1)
+    ov.text(ax_l + ax_w + 0.08, H - 0.32, "BER", ha="left", va="center", fontsize=13, color=GREY1)
+    put(fig, "fig-error-raster.png", "Error positions in every trial of every analysed group, one row per trial, grouped by light and speed and ordered by channel BER")
 
 
 # ---------------------------------------------------------------- 12. the fitted burst model against a real glare frame
@@ -943,13 +961,13 @@ def fig_ge_fit():
         if len(pos):
             ax.broken_barh([(p - 0.5, 1.0) for p in pos], (y, rh), facecolors=col, alpha=0.7 if i in (1, 2, 3) else 1.0, zorder=2)
         yy = H - top - (y + rh / 2)
-        ov.text(ax_l - 0.12, yy, name, ha="right", va="center", fontsize=11, color=col if i in (0, 4) else INK, fontweight="bold" if bold else "normal")
-        ov.text(ax_l + ax_w + 0.06, yy, f"{len(pos)} errors", ha="left", va="center", fontsize=11, color=GREY1)
+        ov.text(ax_l - 0.12, yy, name, ha="right", va="center", fontsize=13, color=col if i in (0, 4) else INK, fontweight="bold" if bold else "normal")
+        ov.text(ax_l + ax_w + 0.06, yy, f"{len(pos)} errors", ha="left", va="center", fontsize=13, color=GREY1)
     ax.set_xlim(0, n); ax.set_ylim(len(rows) * (rh + gap) - gap, 0); ax.set_yticks([]); ax.spines["left"].set_visible(False)
     ax.set_xticks(range(0, n + 1, 50)); ax.set_xlabel("Position in the frame (bit)")
-    ov.text(ax_l, 0.1, f"Fitted to all glare frames: bad spells last {ge.mean_bad_length:.1f} bits on average and cover {ge.bad_fraction * 100:.0f}% of bits",
-            ha="left", va="center", fontsize=11, color=GREY1)
-    put(fig, "fig-ge-fit.png", "One real glare frame, three frames drawn from the fitted two-state model, and one memoryless draw at the same average rate")
+    ov.text(0.1, 0.1, f"Fitted to all {GLARE_LIGHT.lower()} frames at 4 bps: bad spells last {ge.mean_bad_length:.1f} bits on average and cover {ge.bad_fraction * 100:.0f}% of bits",
+            ha="left", va="center", fontsize=13, color=GREY1)
+    put(fig, "fig-ge-fit.png", "One real dim with glare frame, three frames drawn from the fitted two-state model, and one memoryless draw at the same average rate")
     stats["ge_fit"] = {"p_good_to_bad": round(ge.p_good_to_bad, 4), "p_bad_to_good": round(ge.p_bad_to_good, 4),
                        "error_good": round(ge.error_good[0], 4), "error_bad": round(ge.error_bad[0], 4),
                        "mean_bad_length": round(ge.mean_bad_length, 2), "bad_fraction": round(ge.bad_fraction, 4),
@@ -987,7 +1005,7 @@ def physical():
     glare = [float(summary[g]["channel_ber"]) for g in grp(22, 26)]
     ps_ = [e["fisher_p_vs_baseline"] for e in out if e["fisher_p_vs_baseline"] is not None]
     stats["physical"] = {
-        "session": PHYSICAL, "layouts": out,
+        "session": PHYSICAL, "display": f"{GLARE_LIGHT} (mild), six layouts", "layouts": out,
         "frames_range": [min(e["frames"] for e in out), max(e["frames"] for e in out)],
         "channel_ber_range_pct": [round(min(e["channel_ber"] for e in out) * 100, 2), round(max(e["channel_ber"] for e in out) * 100, 2)],
         "original_glare_channel_ber_range_pct": [round(min(glare) * 100, 1), round(max(glare) * 100, 1)],
@@ -997,7 +1015,7 @@ def physical():
 
 def fig_physical_frames():
     L = stats["physical"]["layouts"]
-    W, H, ax_l, ax_w, top, ah = 5.6, 3.5, 1.85, 2.45, 0.45, 2.05
+    W, H, ax_l, ax_w, top, ah = 5.6, 3.5, 2.0, 2.1, 0.5, 2.0
     fig = new_fig(W, H); ov = overlay(fig)
     ax = box(fig, ax_l, top, ax_w, ah)
     for i, e in enumerate(L):
@@ -1006,23 +1024,23 @@ def fig_physical_frames():
         ax.plot([e["wilson_lo"], e["wilson_hi"]], [i, i], color=col, lw=2.4, solid_capstyle="round", zorder=2)
         ax.plot(e["frames"] / e["n"], i, mk, color=col, ms=9 if base else 8, mec="none", zorder=3, clip_on=False)
         yy = H - top - (i + 0.5) / len(L) * ah
-        ov.text(ax_l + ax_w + 0.1, yy, f"{e['frames']}/{e['n']}", ha="left", va="center", fontsize=11, color=GREY1)
+        ov.text(ax_l + ax_w + 0.1, yy, f"{e['frames']}/{e['n']}", ha="left", va="center", fontsize=13, color=GREY1)
         if e["fisher_p_vs_baseline"] is not None:
-            ov.text(ax_l + ax_w + 0.62, yy, f"{e['fisher_p_vs_baseline']:.2f}", ha="left", va="center", fontsize=11, color=INK)
+            ov.text(ax_l + ax_w + 0.72, yy, f"{e['fisher_p_vs_baseline']:.2f}", ha="left", va="center", fontsize=13, color=INK)
     ax.set_xlim(0, 1.04); ax.set_ylim(len(L) - 0.5, -0.5); ax.set_xticks([0, 0.5, 1]); ax.set_xticklabels(["0", "0.5", "1"])
     ax.set_yticks(range(len(L))); ax.set_yticklabels([e["label"] for e in L]); ax.tick_params(axis="y", length=0)
     ax.grid(axis="x"); ax.set_axisbelow(True); ax.spines["left"].set_visible(False)
-    ov.text(ax_l + ax_w + 0.62, H - 0.12, "Fisher p", ha="left", va="center", fontsize=11, color=GREY1)
-    ov.text(ax_l + ax_w + 0.62, H - 0.3, "vs as built", ha="left", va="center", fontsize=11, color=GREY1)
-    ov.text(ax_l + ax_w / 2, 0.55, "Fraction of 12 frames delivered, with 95% Wilson intervals", ha="center", va="center", fontsize=12)
-    ov.text(ax_l + ax_w / 2, 0.2, "+sh means the three header copies are spread", ha="center", va="center", fontsize=11, color=GREY1)
-    put(fig, "fig-physical-frames.png", "Frames delivered of 12 for the six layouts of the physical glare layouts session with Wilson intervals and Fisher p against the as built layout")
+    ov.text(ax_l + ax_w + 0.72, H - 0.12, "Fisher p", ha="left", va="center", fontsize=13, color=GREY1)
+    ov.text(ax_l + ax_w + 0.72, H - 0.32, "vs as built", ha="left", va="center", fontsize=13, color=GREY1)
+    ov.text(ax_l + ax_w / 2, 0.58, "Fraction of 12 frames delivered, with 95% Wilson intervals", ha="center", va="center", fontsize=14)
+    ov.text(ax_l + ax_w / 2, 0.2, "+sh means the three header copies are spread", ha="center", va="center", fontsize=13, color=GREY1)
+    put(fig, "fig-physical-frames.png", "Frames delivered of 12 for the six layouts of the mild dim with glare session with Wilson intervals and Fisher p against the as built layout")
 
 
 def fig_physical_ber():
     L = stats["physical"]["layouts"]
     lo, hi = stats["physical"]["original_glare_channel_ber_range_pct"]
-    W, H, ax_l, ax_w, top, ah = 3.6, 3.5, 1.2, 1.65, 0.45, 2.05
+    W, H, ax_l, ax_w, top, ah = 3.6, 3.5, 1.5, 1.4, 0.5, 2.0
     fig = new_fig(W, H); ov = overlay(fig)
     ax = box(fig, ax_l, top, ax_w, ah)
     ax.axvspan(lo, hi, color=ACCENT, alpha=0.11, lw=0, zorder=0)
@@ -1030,21 +1048,76 @@ def fig_physical_ber():
         col = INK if e["baseline"] is None else ACCENT
         v = e["channel_ber"] * 100
         ax.barh(i, v, height=0.55, color=col, zorder=2)
-        ov.text(ax_l + ax_w + 0.1, H - top - (i + 0.5) / len(L) * ah, f"{v:.2f}%", va="center", ha="left", fontsize=11, color=INK)
-    ax.text((lo + hi) / 2, 2.5, "original" + chr(10) + "glare runs" + chr(10) + f"{lo:g}% to {hi:g}%", color=ACCENT, ha="center",
-            va="center", fontsize=11, fontweight="bold", linespacing=1.2)
+        ov.text(ax_l + ax_w + 0.1, H - top - (i + 0.5) / len(L) * ah, f"{v:.2f}%", va="center", ha="left", fontsize=13, color=INK)
+    cx = ax_l + ax_w * (lo + hi) / 2 / 35
+    ov.text(cx, H - 0.14, "original dim with glare runs", color=ACCENT, ha="center", va="center", fontsize=13, fontweight="bold")
+    ov.text(cx, H - 0.34, f"{lo:g}% to {hi:g}%", color=ACCENT, ha="center", va="center", fontsize=13, fontweight="bold")
     ax.set_xlim(0, 35); ax.set_ylim(len(L) - 0.5, -0.5); ax.set_xticks([0, 10, 20, 30])
     ax.set_yticks(range(len(L))); ax.set_yticklabels([e["short"] for e in L]); ax.tick_params(axis="y", length=0)
     ax.grid(axis="x"); ax.set_axisbelow(True); ax.spines["left"].set_visible(False)
-    ov.text(ax_l + ax_w / 2, 0.55, "Channel BER (%)", ha="center", va="center", fontsize=12)
-    put(fig, "fig-physical-ber.png", "Channel BER of each layout in the physical session against the range of the original glare runs, rows align with fig-physical-frames.png")
+    ov.text(ax_l + ax_w / 2, 0.58, "Channel BER (%)", ha="center", va="center", fontsize=14)
+    put(fig, "fig-physical-ber.png", "Channel BER of each layout in the mild dim with glare session against the range of the original dim with glare runs, rows align with fig-physical-frames.png")
+
+
+def header_failures():
+    """Header CRC failures per layout in the physical session, read from results.csv (failure_reason and spread_header)."""
+    rows = list(csv.DictReader(open(RES / PHYSICAL / "results.csv", newline="")))
+    counts = {}
+    for r in rows:
+        key = (r["coding_scheme"], r["repetition_factor"] or "1", r["spread_header"])
+        d = counts.setdefault(key, {"frames": 0, "header_crc_failures": 0, "payload_crc_failures": 0})
+        d["frames"] += 1
+        reason = r["failure_reason"].lower()
+        d["header_crc_failures"] += "header" in reason
+        d["payload_crc_failures"] += bool(reason) and "header" not in reason
+    layouts = []
+    for coding, reps, sh, name, short, base in LAYOUTS:
+        d = counts[(coding, reps, sh)]
+        layouts.append({"label": name, "short": short, "spread_header": sh == "True", **d})
+    built = [e for e in layouts if not e["spread_header"]]
+    spread_ = [e for e in layouts if e["spread_header"]]
+    fb, nb = sum(e["header_crc_failures"] for e in built), sum(e["frames"] for e in built)
+    fs, ns = sum(e["header_crc_failures"] for e in spread_), sum(e["frames"] for e in spread_)
+    stats["physical"]["header"] = {
+        "display": "Dim with glare (mild), header CRC failures by layout", "layouts": layouts,
+        "as_built": {"failures": fb, "frames": nb}, "spread": {"failures": fs, "frames": ns},
+        "fisher_p": round(fisher_exact(fs, ns - fs, fb, nb - fb), 4),
+    }
+
+
+def fig_physical_header():
+    h = stats["physical"]["header"]
+    order = [e for e in h["layouts"] if not e["spread_header"]] + [e for e in h["layouts"] if e["spread_header"]]
+    ys = [0, 1, 2, 3, 4.6, 5.6]
+    W, H, ax_l, ax_w, top, ah = 5.0, 3.2, 1.85, 1.6, 0.25, 2.0
+    fig = new_fig(W, H); ov = overlay(fig)
+    ax = box(fig, ax_l, top, ax_w, ah)
+    for y, e in zip(ys, order):
+        col = ACCENT if e["spread_header"] else INK
+        v = e["header_crc_failures"]
+        if v:
+            ax.barh(y, v, height=0.62, color=col, zorder=2)
+        else:
+            ax.plot([0, 0], [y - 0.31, y + 0.31], color=col, lw=2.4, zorder=2, solid_capstyle="butt")
+        ax.text(v + (0.35 if v else 0.7), y, f"{v} of {e['frames']}", va="center", ha="left", fontsize=13, color=col, fontweight="bold" if v else "normal")
+    for (a, b), key, col, name in (((0, 3), "as_built", INK, "header as built"), ((4.6, 5.6), "spread", ACCENT, "header spread")):
+        g = h[key]
+        ax.plot([13.0, 13.0], [a - 0.38, b + 0.38], color=GREY2, lw=1.2, clip_on=False)
+        ax.text(13.7, (a + b) / 2 - 0.22, f"{g['failures']} of {g['frames']}", va="center", ha="left", fontsize=14, color=col, fontweight="bold", clip_on=False)
+        ax.text(13.7, (a + b) / 2 + 0.28, name, va="center", ha="left", fontsize=13, color=GREY1, clip_on=False)
+    ax.set_xlim(0, 12); ax.set_ylim(ys[-1] + 0.5, -0.5); ax.set_xticks([0, 4, 8, 12])
+    ax.set_yticks(ys); ax.set_yticklabels([e["short"] for e in order]); ax.tick_params(axis="y", length=0)
+    ax.grid(axis="x"); ax.set_axisbelow(True); ax.spines["left"].set_visible(False)
+    ov.text(ax_l + ax_w / 2 + 0.2, 0.5, "Header CRC failures, out of 12 frames", ha="center", va="center", fontsize=14)
+    ov.text(ax_l + ax_w / 2 + 0.2, 0.15, f"Fisher exact p = {h['fisher_p']:.3f}", ha="center", va="center", fontsize=14, fontweight="bold")
+    put(fig, "fig-physical-header.png", "Header CRC failures out of 12 frames for each layout of the mild dim with glare session, spread header against header as built")
 
 
 FIGURES = {
     "traces": fig_traces, "wilson": fig_wilson, "tradeoff": fig_tradeoff, "noise": fig_noise_regimes, "runlengths": fig_run_lengths,
     "repetition": fig_repetition, "timeline": fig_sessions_timeline, "changes": fig_changes, "levels": fig_levels,
     "sampling": fig_sampling, "raster": fig_error_raster, "gefit": fig_ge_fit, "physical_frames": fig_physical_frames,
-    "physical_ber": fig_physical_ber,
+    "physical_ber": fig_physical_ber, "physical_header": fig_physical_header,
 }
 
 
@@ -1057,6 +1130,18 @@ def write_stats():
         if isinstance(o, np.ndarray):
             return o.tolist()
         raise TypeError(type(o))
+    stats["crops_display"] = {k: KEY_DISPLAY[k] for k in ("reflect4", "glare_b", "glare_c")}
+    stats["display"] = {
+        **ENV_DISPLAY, **KEY_DISPLAY,
+        "depth_facing8": f"{NORMAL}, 8 bps", "flips_facing8": f"{NORMAL}, 8 bps", "quarters_facing8": f"{NORMAL}, 8 bps",
+        "depth_glare4": f"{GLARE_LIGHT}, 4 bps", "flips_glare4": f"{GLARE_LIGHT}, 4 bps", "quarters_glare4": f"{GLARE_LIGHT}, 4 bps",
+        "G01 to G07": f"{NORMAL}, 3 bps", "G08 to G14": f"{NORMAL}, 8 bps", "G15 to G21": f"{NORMAL}, 4 bps",
+        "G22 to G26": f"{GLARE_LIGHT}, 4 bps", "G27": f"{GLARE_LIGHT}, 2 bps",
+        "G28": f"{NORMAL}, 4 bps, rep-3 check", "G29": f"{NORMAL}, 4 bps, rep-3 check",
+        "physical session": f"{GLARE_LIGHT} (mild), six layouts",
+    }
+    manifest["_removed"] = ["fig-change-path.png", "fig-change-speed-facing.png", "run-lengths.png"]
+    manifest["_renamed"] = {"fig-change-speed-facing.png": "fig-change-speed-normal.png"}
     for name, data in (("stats.json", stats), ("manifest.json", manifest)):
         tmp = OUT / (name + ".tmp")
         tmp.write_text(json.dumps(data, indent=1, default=clean))
@@ -1068,6 +1153,7 @@ if __name__ == "__main__":
     if not wanted:
         setup_numbers(); failures(); pattern()
     physical()
+    header_failures()
     for name, fn in FIGURES.items():
         if not wanted or name in wanted:
             print("drawing", name)

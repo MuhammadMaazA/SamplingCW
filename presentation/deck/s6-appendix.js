@@ -1,7 +1,7 @@
 "use strict";
-// Slides 48 to 52, the appendix after the Questions slide, kept for the question time.
+// Slides 50 to 54, the appendix after the Questions slide, kept for question time.
 const k = require("./kit");
-const { pres, C, SH, HEX, X, FONT, M, WHITE, STATS, RSTATS, DATA, text, hline, vline, arrow, cell, content, chartFrame, axes } = k;
+const { pres, C, SH, HEX, X, FONT, M, WHITE, STATS, RSTATS, DATA, text, hline, vline, arrow, cell, content, chartFrame, axes, setupRow } = k;
 
 // a simple table in the deck style, dark header row and hairline rules
 function table(s, head, rows, colW, y, rowH, fs = 13) {
@@ -14,103 +14,73 @@ function table(s, head, rows, colW, y, rowH, fs = 13) {
 }
 
 function sessions() {
-  // every recording in date order, from session.json, plan.json and capture.log of each session folder, and the analysed groups in the report appendix
+  // one row for each session, facts from the session folders (DATA.sessions) and the delivered counts from the timeline stats (STATS.sessions)
+  const MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const when = (iso) => `${Number(iso.slice(8, 10))} ${MONTH[Number(iso.slice(5, 7)) - 1]} ${iso.slice(11, 16)}`;
+  const place = (v) => (v === "lab" || v === "room" ? "Room" : v === "laboutside" ? "A different place" : "Not logged");
+  const num = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
+  const thr = (d) => (d.threshold == null ? "None" : d.threshold_hi !== d.threshold ? `${Math.round(d.threshold)} to ${Math.round(d.threshold_hi)}` : num(d.threshold));
+  const codes = (d) => (d.methods === 1 ? "rep-3" : d.methods === 7 ? "All 7" : `${d.methods} layouts`);
+  const rows = [];
+  STATS.sessions.forEach((r) => {
+    const d = DATA.sessions.find((x) => x.start === r.start);
+    if (!d) { rows.push([when(r.start), "Not logged", "Not logged", "n/a", "None", "0", "None", "Pipeline test only"]); return; }
+    const light = d.glare ? "Dim with glare" : "Normal light";
+    let got = `${r.valid} of ${r.planned}`;
+    if (r.filmed > 0 && r.filmed * 2 < r.planned) got += `, ${r.filmed} filmed`;
+    if (r.filmed === 0) got = r.label.charAt(0).toUpperCase() + r.label.slice(1);
+    rows.push([when(r.start), place(d.venue), light, num(d.bit_rate), codes(d), String(d.trials), d.threshold == null ? (r.filmed === 0 ? "None" : num(setupRow(STATS.setup, "n3").thr_min)) : thr(d), got]);
+  });
   const PH = DATA.physical, got = PH.layouts.reduce((t, l) => t + l.valid.filter(Boolean).length, 0);
-  const rows = [
-    ["26 Oct 16:33", "Lab, reflection", "Dim, glare", "4", "rep-3", "15", "143 to 188", "2 of 15, G22 to G26"],
-    ["26 Oct 17:24", "Lab, reflection", "Dim, glare", "2", "rep-3", "3", "182", "2 of 3, G27"],
-    ["27 Oct 16:22", "Pipeline test", "Not logged", "n/a", "None", "0", "n/a", "Not a result"],
-    ["27 Oct 16:39", "Lab, reflection", "No glare", "4", "rep-3", "3", "95", "3 of 3, G29"],
-    ["27 Oct 17:07", "Outside lab", "Dim, glare", "2", "All 7", "21", "93", "1 of 21, only 3 filmed"],
-    ["27 Oct 17:32", "Lab, facing", "No glare", "4", "rep-3", "2", "65", "1 of 2, G28"],
-    ["27 Oct 17:44", "Lab, reflection", "No glare", "4", "All 7", "21", "59", "20 of 21, G15 to G21"],
-    ["30 Oct 18:03", "Room, facing", "No glare", "3", "All 7", "21", "n/a", "None, stopped at 16.7 s"],
-    ["30 Oct 18:04", "Room, facing", "No glare", "3", "All 7", "21", "114", "14 of 21, G01 to G07"],
-    ["31 Oct 15:03", "Facing", "No glare", "8", "All 7", "21", "142", "9 of 21, G08 to G14"],
-    ["6 Nov 02:19", "Room, reflection", "Dim, glare", String(PH.bit_rate), "6 layouts", String(PH.trials), String(PH.threshold), `${got} of ${PH.trials}, physical test`],
-  ];
+  DATA.sessions.filter((d) => d.start >= "2026-11-01").forEach((d) => {
+    const last = d.folder.endsWith("294106Z");
+    rows.push([when(d.start), place(d.venue), last ? "Dim with glare, mild" : "Dim with glare", num(d.bit_rate), codes(d), String(d.trials), num(d.threshold), last ? `${got} of ${PH.trials}` : `Stopped at ${Math.round(d.elapsed)} s`]);
+  });
   const { s, top } = content({
-    title: "Every recording, in full",
-    notes: "Backup for question time. Every recording we made in date order, with where it was, the light, the bit rate, the codes, the number of trials, the calibrated threshold on a 0 to 255 scale and how many frames were delivered. Laptop 1 sends and laptop 2 records. The payload was 16 bits, or 32 on 26 October and in the physical test. The last row is the physical test of the new layouts.",
+    title: "All recordings in a table",
+    notes: "Backup for questions. Every recording in date order, with the place, the light, the bit rate, the codes, the number of trials, the calibrated threshold on a scale of 0 to 255, and how many frames were delivered. Laptop 1 sends and laptop 2 records. The payload was 16 bits, or 32 on 26 October and in the physical test. The last three rows are the physical test of the new layouts, and the first two were stopped by hand.",
     secs: 0,
   });
-  table(s, ["When", "Where", "Light", "bps", "Codes", "Trials", "Threshold", "Frames delivered"], rows, [1.55, 1.4, 1.0, 0.45, 0.9, 0.6, 1.0, 1.9], top, 0.3, 12);
+  table(s, ["When (UTC)", "Place", "Light", "bps", "Codes", "Trials", "Threshold", "Frames delivered"], rows, [1.3, 1.4, 1.65, 0.5, 0.85, 0.6, 1.0, 1.5], top - 0.05, 0.27, 12);
 }
 
-function setupNumbers() {
-  const SHORT = { "Facing screen, 3 bps": "Facing, 3 bps", "Facing screen, 8 bps": "Facing, 8 bps", "Reflection, 4 bps": "Reflection, 4 bps",
-    "Reflection with glare, 4 bps": "Glare, 4 bps", "Reflection with glare, 2 bps": "Glare, 2 bps" };
-  const range = (a, b, d = 1) => (a === b ? a.toFixed(d) : `${a.toFixed(d)} to ${b.toFixed(d)}`);
+function physicalNumbers() {
+  const R = RSTATS.physical, L = R.layouts, H = R.header;
+  const names = { "rep-3 adjacent": "rep-3 side by side", "rep-3 spread": "rep-3 spread apart", "rep-3 spread + header": "rep-3 spread apart and spread header", "Ham-int depth 8": "Hamming depth 8", "Ham-int depth 16": "Hamming depth 16", "Ham-int depth 16 + header": "Hamming depth 16 and spread header" };
+  const rows = Object.keys(L).map((key) => {
+    const l = L[key];
+    return [names[key] ?? key, `${l.ok} of ${l.trials}`, String(l.header_failures), `${(l.channel_ber * 100).toFixed(2)} percent`, `${(l.decoded_ber * 100).toFixed(2)} percent`, l.fisher_p === undefined ? "baseline" : l.fisher_p.toFixed(2)];
+  });
   const { s, top } = content({
-    title: "The setup in numbers",
-    take: "At 8 bps the camera gave about 4 samples per bit, at 2 bps about 14.",
-    notes: "Backup. The measured conditions per setup, from the saved camera logs. The camera ran at 22 to 30 frames per second, so 8 bits per second gives about 4 samples per bit, 3 and 4 bits per second about 7, and 2 bits per second about 14. That is why we chose those rates. White and black are medians at symbol centres, not thrown off by a few odd frames, with thresholds fixed at calibration. The glare runs in the dim lab had bright blacks of 100 to 126, and their box covered the whole iPad, so room reflections were averaged in.",
+    title: "Numbers from the physical test",
+    take: `Each layout had ${L[Object.keys(L)[0]].trials} trials. The p values compare with the baseline of its family.`,
+    notes: "Backup for questions. Every number of the physical test. Each layout had 12 trials. The last column is the Fisher exact p against the baseline of its family, which is repetition-3 side by side or Hamming with depth 8. The header failures column counts frames that failed the header CRC. The two spread header layouts failed it 3 and 2 times, the four others never.",
     secs: 0,
   });
-  s.addChart(pres.charts.BAR, [{ name: "Camera samples per bit", labels: STATS.setup.map((r) => SHORT[r.env]), values: STATS.setup.map((r) => (r.spb_min + r.spb_max) / 2) }], {
-    x: M, y: top, w: 4.4, h: 5.12 - top, barDir: "col", barGapWidthPct: 45, chartColors: [X.ink], showLegend: false,
-    showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.0", valAxisMinVal: 0, valAxisMajorUnit: 4,
-    ...chartFrame, ...axes("Camera samples per bit"), objectName: "samples per bit chart",
-  });
-  const rows = STATS.setup.map((r) => [SHORT[r.env], range(r.fps_min, r.fps_max), range(r.thr_min, r.thr_max, 0), `${r.white_med} and ${r.black_med}`]);
-  s.addTable([
-    ["Setup", "fps", "Threshold", "White, black"].map((t) => ({ text: t, options: { bold: true, color: C.background1, fill: { color: C.text1 } } })),
-    ...rows.map((r) => r.map((c, j) => ({ text: c, options: { bold: j === 0 } }))),
-  ], {
-    x: 5.2, y: top + 0.1, w: 4.2, colW: [1.3, 0.75, 1.0, 1.15], fontFace: "Gill Sans MT", fontSize: 12, color: C.text1, valign: "middle",
-    border: { type: "solid", pt: 0.5, color: X.g3 }, rowH: 0.46, margin: [0.02, 0.06, 0.02, 0.06], objectName: "setup table",
-  });
-}
-
-function headerBits() {
-  const fields = [["Version", 8], ["Coding id", 8], ["Repeats", 8], ["Sequence", 8], ["Payload length", 16], ["CRC-16", 16]];
-  const total = fields.reduce((t, f) => t + f[1], 0), scale = 8.8 / total;
-  const { s, top } = content({
-    title: "Header bits and the CRC",
-    take: "The header is 64 bits that check themselves, then sent three times.",
-    notes: "Backup. The header is six bytes plus a two byte CRC, 64 bits in all. It names the version, the coding scheme, the repeat factor, the sequence number and the payload length, then a CRC-16 over those six bytes. The whole 64 bits are sent as repetition-3, so 192 bits, and with the spread header option the three copies are sent a whole header apart. The payload carries its own CRC-16 as well. Both use polynomial 0x1021 with a start value of 0xFFFF. The coding ids are the numbers in the small table.",
-    secs: 0,
-  });
-  let x = M;
-  fields.forEach(([name, bits], i) => {
-    const w = bits * scale, last = name === "CRC-16";
-    cell(s, x, top + 0.2, w, 0.7, name, { fill: last ? HEX.dk1 : i % 2 ? HEX.accent5 : HEX.lt2, line: HEX.lt1, lw: 1.5, color: last ? C.background1 : C.text1, fs: 16, bold: true, name: `header field ${i + 1}` });
-    text(s, `${bits} bits`, { x, y: top + 0.96, w, h: 0.28, fontSize: 14, color: C.text2, align: "center", objectName: `header field ${i + 1} bits` });
-    x += w;
-  });
-  arrow(s, M + 4.4, top + 1.35, M + 4.4, top + 1.7, { color: C.text2, w: 1.5, name: "sent three times arrow" });
-  text(s, "sent three times, 192 bits", { x: M + 4.6, y: top + 1.36, w: 3.5, h: 0.3, fontSize: 15, color: C.text2, objectName: "sent three times" });
-  for (let i = 0; i < 3; i++) cell(s, M + i * (8.8 / 3), top + 1.8, 8.8 / 3 - 0.06, 0.45, `copy ${i + 1}`, { fill: HEX.accent5, line: HEX.lt2, color: C.text1, fs: 14, name: `header copy ${i + 1}` });
-  const ids = [["0", "none"], ["1", "repetition"], ["2", "hamming"], ["3", "hamming-interleaved"], ["4", "parity2d"], ["5", "repetition-spread"], ["6", "hamming-interleaved-16"]];
-  text(s, "Coding ids", { x: M, y: top + 2.5, w: 3, h: 0.3, fontSize: 15, bold: true, objectName: "coding ids heading" });
-  [ids.slice(0, 4), ids.slice(4)].forEach((col, ci) => {
-    text(s, col.map(([i, n], j) => ({ text: `${i}  ${n}`, options: { breakLine: j < col.length - 1, fontFace: FONT.mono } })), { x: M + ci * 2.5, y: top + 2.85, w: 2.5, h: 1.0, fontSize: 12, color: C.text1, objectName: `coding ids ${ci + 1}` });
-  });
-  text(s, "CRC-16", { x: 6.4, y: top + 2.5, w: 3, h: 0.3, fontSize: 15, bold: true, objectName: "crc heading" });
-  text(s, "Polynomial 0x1021, start value 0xFFFF. One CRC covers the header, another the payload.", { x: 6.4, y: top + 2.85, w: 3.0, h: 1.2, fontSize: 15, objectName: "crc text" });
+  table(s, ["Layout", "Frames delivered", "Header CRC failures", "Channel BER", "Decoded BER", "p against baseline"], rows, [3.0, 1.2, 1.2, 1.2, 1.1, 1.1], top + 0.1, 0.45, 13);
 }
 
 function statistics() {
   const rows = [
-    ["Wilson interval", "How sure is a frame success rate at 0 of 3 or 3 of 3", "Frame success figures"],
-    ["Fisher exact test", "Do two methods or two conditions differ, exact at small counts", "Method comparisons, the physical test"],
-    ["Permutation test", "Are errors in runs more than chance, 5000 shuffles of each trial", "Burst share, p below 0.001 in glare"],
-    ["BIC", "Flips with no memory against a two-state model, penalising parameters", "Choosing the noise model"],
-    ["Trial bootstrap", "BER intervals that resample whole trials, errors in a frame are correlated", "The report tables"],
+    ["Wilson interval", "A 95 percent range for a proportion, for example 2 frames out of 3.", "Frames delivered"],
+    ["Fisher exact test", "Tests whether two groups differ, and stays exact with small counts.", "Comparing codes, conditions and layouts"],
+    ["Permutation test", "Shuffles the errors of each trial 5000 times to see how often runs of 3 or more appear by chance.", "Burst share in glare"],
+    ["BIC", "A score for comparing models. Lower is better, and extra parameters are charged for.", "No memory against the two-state model"],
+    ["Trial bootstrap", "Resamples whole trials to get BER intervals, because errors inside one frame depend on each other.", "The report tables"],
   ];
   const { s, top } = content({
-    title: "Statistics we used",
-    notes: "Backup. Wilson intervals for frame success, because the normal interval collapses to a point at 0 of 3 and 3 of 3. Fisher exact tests for comparing methods and conditions, because they stay exact at counts this small. A permutation test for burstiness, scattering each trial's errors uniformly 5000 times and asking how often errors sit in runs of 3 or more by chance. BIC to choose between flips with no memory and the two state Gilbert Elliott model, because it penalises the extra parameters. And a trial level bootstrap for BER intervals, because errors within one frame are correlated, so resampling bits would be too optimistic.",
+    title: "The statistics we used",
+    notes: "Backup for questions. Wilson intervals for frames delivered, because the usual interval fails at 0 of 3 and 3 of 3. Fisher exact tests for comparing methods, conditions and layouts, because they stay exact at small counts. A permutation test for bursts, which shuffles each trial's errors 5000 times and counts how often runs of 3 or more appear by chance. BIC to choose between the model with no memory and the two-state model. And a bootstrap over whole trials for BER intervals, because the errors in one frame are not independent.",
     secs: 0,
   });
-  table(s, ["Method", "What it answers", "Where we used it"], rows, [2.0, 4.4, 2.4], top + 0.1, 0.62, 15);
+  table(s, ["Method", "What it does", "Where we used it"], rows, [2.0, 4.6, 2.2], top, 0.6, 14);
 }
 
 function codeMap() {
   const { s, top } = content({
     title: "Map of the code",
     take: "A screen side, a camera side, and one shared protocol and coding layer.",
-    notes: "Backup, for the code walkthrough. cli.py holds the commands. The transmitter draws the patch on the screen, the receiver reads the camera, and both use protocol.py for the frame, the CRC and the sync word. The coding package holds repetition, Hamming, 2-D parity, interleaving and spreading behind one pipeline. The optical package holds calibration, detection and the timing recovery. The experiments package holds the plan, the recording, the analysis, the statistics, the burst model and the simulation, and report slash design sim rebuilds every figure and number from the saved results.",
+    notes: "Backup for the code walkthrough. cli.py holds the commands. The transmitter draws the patch on the screen, the receiver reads the camera, and both use protocol.py for the frame, the CRC and the sync word. The coding package holds repetition, Hamming, 2-D parity, interleaving and spreading behind one pipeline. The optical package holds calibration, detection and the timing recovery. The experiments package holds the plan, the recording, the analysis, the statistics, the burst model and the simulation. The report folder rebuilds every figure and number from the saved results.",
     secs: 0,
   });
   const box = (x, y, w, h, title, lines) => {
@@ -129,14 +99,27 @@ function codeMap() {
   arrow(s, M + 4.4, y2, M + 4.4, y1 + h1, { color: C.text1, w: 1.5, name: "experiments to shared" });
 }
 
+function codingIds() {
+  const ids = [["0", "none"], ["1", "repetition"], ["2", "hamming"], ["3", "hamming-interleaved"], ["4", "parity2d"], ["5", "repetition-spread"], ["6", "hamming-interleaved-16"]];
+  const { s, top } = content({
+    title: "Coding ids and the CRC",
+    notes: "Backup for questions. The header stores the coding scheme as a number, and these are the numbers. The CRC is 16 bits long. It uses the polynomial 0x1021 and starts from 0xFFFF. One CRC covers the six header bytes and another covers the payload. The receiver recomputes it and compares, so it detects damage but cannot repair it.",
+    secs: 0,
+  });
+  text(s, "Coding ids in the header", { x: M, y: top + 0.1, w: 4, h: 0.34, fontSize: 18, bold: true, objectName: "coding ids heading" });
+  text(s, ids.map(([i, n], j) => ({ text: `${i}   ${n}`, options: { breakLine: j < ids.length - 1, fontFace: FONT.mono } })), { x: M, y: top + 0.6, w: 4.2, h: 2.2, fontSize: 15, color: C.text1, objectName: "coding ids" });
+  text(s, "The CRC", { x: 5.4, y: top + 0.1, w: 4, h: 0.34, fontSize: 18, bold: true, objectName: "crc heading" });
+  text(s, "A 16 bit check value computed from the data. Polynomial 0x1021, start value 0xFFFF. One CRC covers the header and another covers the payload. A CRC detects damage, it cannot repair it.", { x: 5.4, y: top + 0.6, w: 4.0, h: 2.4, fontSize: 16, objectName: "crc text" });
+}
+
 async function build() {
   k.speaker("Both");
   k.section("Appendix");
   sessions();
-  setupNumbers();
-  headerBits();
+  physicalNumbers();
   statistics();
   codeMap();
+  codingIds();
 }
 
 module.exports = { build };
