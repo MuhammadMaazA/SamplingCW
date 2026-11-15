@@ -29,9 +29,9 @@ higher decoded error rate than no coding, although the intervals overlap. At 8\,
 isolated, while in glare, which is room light on the iPad glass, 87\% of them lie in runs of three
 or more, and a two-state Gilbert-Elliott model fits them far better than independent flips. We built three layouts that place the redundancy away
 from bursts, namely spread copies, a deeper interleaver and a spread header, and a simulation favoured
-them. A \physTrials-trial physical test of six layouts was mild,
-with a bit error rate of only \physChLo{} to \physChHi\% before decoding, against \earlyChLo{} to
-\earlyChHi\% in the earlier glare runs, so it tested no heavy burst. Each layout delivered
+them. We then ran a \physTrials-trial layout test of all six layouts on the link. It was mild, with a bit error
+rate of only \physChLo{} to \physChHi\% before decoding, against \earlyChLo{} to \earlyChHi\% in the
+earlier glare runs, so it contained no heavy burst. Each layout delivered
 \physFramesLo{} to \physFramesHi{} of \physPerLayout{} frames and none differed significantly from
 the original layout (Fisher $p$ from \physPLo{}). Spreading the header did cost frames, since
 \hdrFailSh{} of \hdrFailShN{} frames with a spread header failed the header check, against
@@ -50,15 +50,15 @@ shows laptop 1 live. The built-in webcam of laptop 2 films the iPad screen and o
 that picture through OpenCV (Fig.~\ref{fig:system}). Every run used this one chain, and the
 sessions differ only in placement and lighting. We used the iPad because it is cheap. The setup is two laptops and an iPad with no extra hardware. The glossy iPad screen reflects room light
 and its camera sets its own exposure, so the link has glare, exposure drift and an extra camera
-stage between the two laptops. The noise is therefore physical and not simulated, and it arrives in
-bursts, which is the hard case for error correcting codes. We call room light reflecting off the iPad glass
+stage between the two laptops. The noise
+therefore comes from the equipment instead of a simulation, and it arrives in bursts, which is the hard case for error correcting codes. We call room light reflecting off the iPad glass
 glare. Sessions in a dim room with strong glare, which we call dim with glare, were our main source
 of bursty noise.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/system.pdf}
-\caption{The physical link and the frame. Laptop 1 flashes a patch in front of an iPad whose front
+\caption{The link and the frame. Laptop 1 flashes a patch in front of an iPad whose front
 camera is open, so the iPad screen shows laptop 1, and the built-in webcam of laptop 2 films that
 screen. Glare and exposure drift, in red, mark where we think the bursty errors enter. The frame
 strip is not to scale.}
@@ -230,7 +230,7 @@ range 0.75 to 0.85), close to the observed 0.87, while a memoryless channel with
 0.05 (Fig.~\ref{fig:noise}b). At 3\,bps BIC also prefers the two-state model, but its bad state
 lasts 923 bits, longer than a frame, so some trials were simply noisier than others.
 
-\textbf{Two physical mechanisms.} Splitting the errors by what we sent separates the two kinds
+\textbf{Two mechanisms.} Splitting the errors by what we sent separates the two kinds
 (Fig.~\ref{fig:noise}c). At 8\,bps, 256 of 260 errors are a black symbol read as white, and a black
 symbol fails 15.3\% of the time (130/850) right after a white one, against 3.3\% (126/3794) after
 another black (Fisher $p<10^{-10}$). The camera takes only about four frames per symbol, so an
@@ -259,7 +259,7 @@ changes colour less often.
 \textbf{Hamming interleaving.} Our first extension follows from the burst finding. It sends up to
 eight (7,4) codewords column by column, so a burst of $b\le8$ consecutive bits hits each codeword at
 most once. It adds no bits. It is the same idea as the cross-interleaved Reed-Solomon coding that
-lets a compact disc play through scratches~\cite{reed,immink}. On the physical link in normal light,
+lets a compact disc play through scratches~\cite{reed,immink}. On the link in normal light,
 interleaving did as well as Hamming at 4\,bps (3/3 frames against 2/3) and at 8\,bps delivered 1/3
 against 0/3 with a decoded BER of 0.042 against 0.073. The intervals overlap, so we claim no
 difference. The noise analysis predicts this, because the errors at 8\,bps are mostly isolated and
@@ -320,7 +320,7 @@ copies. (b) The interleaver, in which one column of the grid is one burst.}
 \label{fig:layouts}
 \end{figure}
 
-\textbf{Physical test.} We ran all six layouts on the physical link in one session of
+\textbf{Layout test.} We ran all six layouts on the link in one session of
 \physTrials{} trials, \physPerLayout{} per layout in shuffled order, over \physMinutes{} minutes at
 4\,bps with a 32-bit payload and one threshold of \physThreshold{}. Two earlier starts, stopped by
 hand after 106 s and 14 s, are kept but not counted. The layouts delivered \physFramesLo{} to
@@ -355,7 +355,7 @@ Layout & Frames [95\% CI] & Hdr & Ch. & Dec. & $p$ \\
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/physical-test.pdf}
-\caption{Physical test of the six layouts, with original layouts in black, new layouts in red and
+\caption{Results of the layout test, with original layouts in black, new layouts in red and
 the earlier glare runs G22 to G26 in grey. (a) Frames delivered with Wilson 95\% intervals. (b)
 Channel BER with bootstrap 95\% intervals. (c) Channel errors in each frame in the order recorded.}
 \label{fig:physical}
@@ -392,7 +392,7 @@ Run & bps & light & code & ChBER & DecBER & thr & ok \\
 \end{tabular}
 \end{table*}
 
-\textbf{What the spread layouts showed.} Below the frame level the test found one clear difference.
+\textbf{What the spread layouts showed.} Below the frame level the layout test found one clear difference.
 Every header CRC failure in the session, \hdrFailSh{} in all, was in a frame with a spread header.
 That is \hdrFailSh{} of \hdrFailShN{} frames against \hdrFailOt{} of \hdrFailOtN{} for the other
 layouts (Fisher $p=\hdrFisher$), so spreading the header cost frames. The simulation predicted the
@@ -411,7 +411,7 @@ no pattern dependence, so it could not show this. Spreading is meant to help
 against bursts in time, which this session did not test, and it seems to hurt when errors depend on
 the transmitted pattern.
 
-\textbf{Reading the test.} All six layouts decode on the physical link, including the receiver's
+\textbf{Reading the layout test.} All six layouts decode on the link, including the receiver's
 fallback to the spread header. The session was mild with no heavy burst, so the test does not show
 that any layout improves the results under heavy bursts, and that claim rests on the simulation in
 Fig.~\ref{fig:ext}b alone. For the spread header the test points the other way. The glare strength
@@ -422,8 +422,7 @@ earlier runs.
 \textbf{Trade-offs.} On a clean channel, coding only costs rate. When the noise rises, the best choice depends on the kind of noise. When the flips are isolated and the rate is high, heavy repetition or two-dimensional parity,
 which rejects what it cannot correct, does better than (7,4) Hamming, which miscorrects. Glare produces bursts that follow long runs of one
 colour, and there the position of the redundancy matters more than the amount. Interleaving and
-spreading copies give large gains in the simulation without adding bits, but the mild physical test
-did not confirm them, and spreading the header cost frames. Both error mechanisms also point beyond
+spreading copies give large gains in the simulation without adding bits, but the mild layout test did not confirm them, and spreading the header cost frames. Both error mechanisms also point beyond
 error correction. A run-length-limited, DC-balanced line code such as 8b/10b~\cite{widmer}, or
 Manchester coding, limits how long a colour is held, and an adaptive threshold would follow the
 drift. 
@@ -446,7 +445,7 @@ pattern, so codes face slightly different channels. (iii) The design study uses 
 that misses the switching between frames and the dependence on the pattern, so we trust its ranking
 of designs but not its absolute values, and the spread header shows where it fails. (iv) Offline
 alignment can fail in the worst recordings, so some errors counted there may come from
-misalignment. (v) The layouts session has 12 trials per layout and was far milder than the runs that
+misalignment. (v) The layout test has 12 trials per layout and was far milder than the runs that
 motivated the layouts, so it cannot separate layouts that all deliver 9 to 12 frames. Next we would
 repeat it under stronger glare and refit the model to the pattern dependence seen here.
 

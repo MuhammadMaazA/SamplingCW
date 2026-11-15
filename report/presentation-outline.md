@@ -20,7 +20,7 @@ Target running total is shown in brackets after each slide.
   front camera is open, so the iPad screen shows laptop 1 live, and the built-in webcam of
   laptop 2 films that iPad screen. Glare, room light reflecting off the glossy iPad glass, is a
   main source of the bursty noise.
-- Why this channel: cheap, no special hardware, and it shows several physical noise sources
+- Why this channel: cheap, no special hardware, and it shows several noise sources
   (sampling jitter, auto exposure, ambient light and glare on the iPad glass, slow drift), so the
   kind of noise is interesting, not just the amount.
 
@@ -78,7 +78,7 @@ Target running total is shown in brackets after each slide.
   Interleaving holds zero decoded BER up to a burst of 8, its depth, while plain Hamming and
   repetition fail from a burst of 2.
 - Honest limit: beyond about 13 bits interleaving is slightly worse, because each word then
-  takes two hits. Also mention the physical finding that simply slowing from 4 to 2 bps rescued
+  takes two hits. Also mention the recorded finding that simply slowing from 4 to 2 bps rescued
   a run that had collapsed, so speed is a lever too.
 
 ### 12. The error against rate trade-off (K), 1.5 min  [23]  *(brief point 9)*
@@ -89,7 +89,7 @@ Target running total is shown in brackets after each slide.
 ### 13. Reflections, strengths and limits (M), 1 min  [24]  *(brief point 9)*
 - Strengths: scripted seeded pipeline, four metrics with failure counts, noise analysis drove the
   extension choice.
-- Limits: only 2 to 3 physical repeats, the burst sweep is simulated, alignment can fail under
+- Limits: only 2 to 3 repeats on the link, the burst sweep is simulated, alignment can fail under
   severe noise. Say what we would do next.
 
 ### 14. Questions  [remainder]
@@ -109,7 +109,7 @@ Target running total is shown in brackets after each slide.
   of up to 8 consecutive transmitted bits lands at most one bit per codeword.
 - Why 2-D parity and not something else? It was the researched code, rate 16/25, and it rejects
   rather than miscorrects, which we show matters when a wrong accepted message is costly.
-- Are the numbers significant? The physical ones are descriptive with few repeats. The burst
+- Are the numbers significant? The recorded ones are descriptive with few repeats. The burst
   sweep uses 400 trials per point, which is why we trust that curve.
 - Can you explain any line of the code? Expect this. Each member should be able to walk through
   the files they did not write as well as their own.
