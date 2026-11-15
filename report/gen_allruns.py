@@ -23,22 +23,13 @@ def code_label(scheme, reps):
     return CODE.get((scheme, reps), scheme)
 
 
-# Camera path per run. The physical_notes text in summary.csv came from default prompt
-# text and does not describe the setup, so the path is assigned by group instead.
-FACING = {*range(1, 15), 28}
-REFLECTION = {*range(15, 22), 29}
+# Every run used the same physical chain, so the table shows the light only. The
+# physical_notes text in summary.csv came from default prompt text and is not used.
 
 
 def env_label(row):
-    """F facing the screen, R reflection in an iPad screen, Rg reflection with glare."""
-    if row["glare"].strip().lower() == "true":
-        return "Rg"
-    group = int(row["group"].lstrip("G"))
-    if group in FACING:
-        return "F"
-    if group in REFLECTION:
-        return "R"
-    return (row["venue"] or "lab").strip()[:7]
+    """N for normal light, D for dim with glare."""
+    return "D" if row["glare"].strip().lower() == "true" else "N"
 
 
 def bps(symbol_duration):

@@ -8,6 +8,8 @@
   pdfauthor={Muhammad Maaz, Kanav Mehta}]{hyperref}
 
 \makeatletter\newcommand\tablerows[1]{\@@input #1 }\makeatother
+\setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{12pt plus 2pt minus 2pt}
 \input{generated/physical.tex}
 \input{generated/contrasts.tex}
 
@@ -19,141 +21,148 @@
 \maketitle
 
 \begin{abstract}
-We built a one-way optical link in which laptop 1 flashes black and white symbols on its screen and
-the built-in webcam of laptop 2 reads them, directly or through a reflection in an iPad screen. We
-compared repetition, Hamming (7,4) and two-dimensional parity codes with sending nothing. On a clean
-channel coding only costs rate, and at 8\,bps Hamming decoded worse than no coding, although the
-intervals overlap. Errors show two regimes. At 8\,bps they are isolated and come from white smearing
-into the next black symbol, whereas under glare 87\% sit in runs of three or more, which a
-two-state Gilbert-Elliott model fits far better than independent flips. We built three layouts that
-place redundancy away from bursts, namely copies a whole message apart, a deeper interleaver and a
-spread header, and simulation on the fitted glare channel favoured them. A \physTrials-trial
-physical test of six layouts delivered \physFramesLo{} to \physFramesHi{} of \physPerLayout{}
-frames with no significant difference, because its channel BER was only \physChLo{} to
-\physChHi\%, against \earlyChLo{} to \earlyChHi\% in the original glare runs. The spread header did
-worse, failing its header CRC in \hdrFailSh{} of \hdrFailShN{} frames against \hdrFailOt{} of
-\hdrFailOtN{}, which fits errors that depend on the transmitted pattern, something the simulation
-lacks. Any benefit under heavy bursts therefore rests on the simulation alone.
+We built a one-way optical link in which laptop 1 flashes a patch of black and white symbols in front
+of an iPad, whose front camera shows the patch live, and the built-in webcam of laptop 2 films the
+iPad screen. We compared repetition, Hamming (7,4) and two-dimensional parity
+codes with no coding. On a clean channel the codes only cost rate, and at 8\,bps Hamming had a
+higher decoded error rate than no coding, although the intervals overlap. At 8\,bps the errors are
+isolated, while in glare, which is room light on the iPad glass, 87\% of them lie in runs of three
+or more, and a two-state Gilbert-Elliott model fits them far better than independent flips. We built three layouts that place the redundancy away
+from bursts, namely spread copies, a deeper interleaver and a spread header, and a simulation favoured
+them. A \physTrials-trial physical test of six layouts was mild,
+with a bit error rate of only \physChLo{} to \physChHi\% before decoding, against \earlyChLo{} to
+\earlyChHi\% in the earlier glare runs, so it tested no heavy burst. Each layout delivered
+\physFramesLo{} to \physFramesHi{} of \physPerLayout{} frames and none differed significantly from
+the original layout (Fisher $p$ from \physPLo{}). Spreading the header did cost frames, since
+\hdrFailSh{} of \hdrFailShN{} frames with a spread header failed the header check, against
+\hdrFailOt{} of \hdrFailOtN{} for the other layouts. The simulation predicted the opposite, and the
+failures fit errors that depend on the transmitted pattern. Any benefit under heavy bursts therefore
+rests on the simulation alone.
 \end{abstract}
 
 \section{The Channel and the Frame}
 \textbf{Channel.} We built a one-way optical link that sends binary messages from a laptop screen
-to a camera, one of the brief's suggested channels and a small-scale relative of visible-light
-communication and screen-camera links such as PixNet and COBRA~\cite{haas,pixnet,cobra}. Laptop 1,
-the transmitter, fills a screen patch with a solid colour per symbol, white for 1 and black for 0
-(Fig.~\ref{fig:system}). The receiver is the built-in webcam of laptop 2, read through OpenCV, and
-it films that patch in one of two ways. Facing the screen, it looks straight at laptop 1. Through a
-reflection, it films laptop 1's screen as reflected in a glossy iPad screen, which also throws room
-light back as glare. The reflection sessions in a dim room with strong glare, which we call
-reflection with glare, turned out to be our main source of bursty noise. The path is recorded with
-each run. The channel is cheap, needs no extra hardware, and mixes several physical noise sources
-(sampling jitter, auto-exposure, ambient light and glare, drift), so the kind of noise, not just its
-amount, can be studied.
+to a camera. The brief suggests this kind of channel, and it is a small version of visible-light
+communication and of screen-camera links such as PixNet and COBRA~\cite{haas,pixnet,cobra}. Laptop
+1 is the transmitter. It fills a patch of its screen with one colour per symbol, white for 1 and
+black for 0. The patch sits in front of an iPad whose front camera is open, so the iPad screen
+shows laptop 1 live. The built-in webcam of laptop 2 films the iPad screen and our software reads
+that picture through OpenCV (Fig.~\ref{fig:system}). Every run used this one chain, and the
+sessions differ only in placement and lighting. We used the iPad because it is cheap. The setup is two laptops and an iPad with no extra hardware. The glossy iPad screen reflects room light
+and its camera sets its own exposure, so the link has glare, exposure drift and an extra camera
+stage between the two laptops. The noise is therefore physical and not simulated, and it arrives in
+bursts, which is the hard case for error correcting codes. We call room light reflecting off the iPad glass
+glare. Sessions in a dim room with strong glare, which we call dim with glare, were our main source
+of bursty noise.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/system.pdf}
-\caption{The channel and the frame. Laptop 1 flashes a patch and the built-in webcam of laptop 2
-films it directly or through its reflection in an iPad screen, where lamp glare is added. The frame
+\caption{The physical link and the frame. Laptop 1 flashes a patch in front of an iPad whose front
+camera is open, so the iPad screen shows laptop 1, and the built-in webcam of laptop 2 films that
+screen. Glare and exposure drift, in red, mark where we think the bursty errors enter. The frame
 strip is not to scale.}
 \label{fig:system}
 \end{figure}
 
-\textbf{Receiver.} The receiver measures the median brightness inside a calibrated region and
-thresholds it at the midpoint of reference black and white levels, and low contrast is flagged at
-calibration. The camera and screen clocks are independent and the camera delivers only 22.6 to 30
-frames per second in our captures, so the channel is a sampling problem in the sense of this
-module. At 8\,bps there are about four camera samples per symbol, at 2\,bps about fourteen. The
-receiver timestamps every frame and takes the sample nearest each symbol centre by binary search
-over sorted timestamps. Missing observations stop decoding rather than silently becoming bits.
+\textbf{Receiver.} The software measures the median brightness inside a marked region of the iPad
+screen and compares it with a threshold halfway between a reference black and a reference white. It
+warns at calibration if the contrast is too low. The webcam and the screen run on separate clocks,
+and the webcam delivers only 22.6 to 30 frames per second in our recordings, so reading the picture is a
+sampling problem of the kind this module covers. At 8\,bps there are about four camera
+samples per symbol, and at 2\,bps about fourteen. The software timestamps every camera frame and
+picks the one nearest the centre of each symbol by binary search over the sorted timestamps. If the
+observations run out, decoding stops, so missing data never becomes bits.
 
-\textbf{Frame.} Each message is a self-describing frame made of a 48-bit sync word (alternating
-preamble plus magic bytes), a 6-byte header (version, code, repetition factor, sequence, length)
-with its own CRC-16~\cite{peterson}, and the coded payload with a payload CRC-16. The header is
-always sent with repetition-3, so there are 240 bits of fixed overhead. The receiver finds the sync
-word allowing up to 9 flipped bits, decodes the header, then the payload, and checks the CRC. The
-CRC detects but cannot repair residual damage, which is what would enable retransmission (ARQ) in a
-two-way link, so we always report failure counts alongside bit-error rates.
+\textbf{Frame.} Each message is a frame that describes itself. It starts with a 48-bit sync word,
+an alternating preamble followed by fixed magic bytes. Next comes a 6-byte header with the version,
+code, repetition factor, sequence number and length, followed by its own CRC-16~\cite{peterson}. A CRC
+is a short checksum that detects damage. The coded payload comes last, with its own CRC-16. The header is
+always sent with repetition-3, so every frame has 240 bits of fixed overhead. The receiver finds the
+sync word even if up to 9 of its bits are flipped, decodes the header and then the payload, and
+checks both CRCs. A CRC detects damage but cannot repair it, so we report the number of failed frames next to every
+bit error rate.
 
 \section{Error-Correcting Codes}
-All codes are pluggable encoders and decoders covered by an automated suite of 84 tests, including
-an exhaustive check that Hamming corrects every single error in every codeword and miscorrects
-every double error. Each code trades rate for reliability. Shannon's theorem says reliable
-communication is possible at any rate below capacity~\cite{shannon}, and these simple codes sit far
-from that bound, which is why the trade-off is so visible here.
+All the codes share one encoder and decoder interface, and an automated suite of 84 tests covers
+them, including an exhaustive check that Hamming corrects every single error in every codeword and
+miscorrects every double error. Each code trades rate for reliability. Shannon's theorem says that reliable communication is
+possible at any rate below the channel capacity~\cite{shannon}, and our simple codes sit far below
+that limit.
 
-\textbf{Repetition, N = 3, 5, 7.} Each bit is sent N times in a row and majority-voted, rate 1/N,
-correcting up to $\lfloor N/2\rfloor$ flips per bit if they are not concentrated in one group.
+\textbf{Repetition.} Repetition with N = 3, 5 or 7 sends each bit N times in a row and takes a
+majority vote at the receiver. The rate is 1/N. It corrects up to $\lfloor N/2\rfloor$ flips per
+bit, provided they do not all fall in the same group.
 
-\textbf{Hamming (7,4)}~\cite{hamming}\textbf{.} Four data bits and three parity bits give rate 4/7.
-The 3-bit syndrome names the flipped position, so one error per codeword is corrected and two
-errors are always miscorrected into three.
+\textbf{Hamming (7,4).} Hamming's code~\cite{hamming} adds three parity bits to every four data
+bits, so the rate is 4/7. The 3-bit syndrome gives the position of a flipped bit, so one error per
+codeword is corrected. Two errors in one codeword are always miscorrected into three.
 
-\textbf{Two-dimensional parity, our third code.} This is the simplest case of the product codes
-introduced by Elias~\cite{elias}. Sixteen bits form a $4\times4$ grid with even row and column
-parities ($5\times5$, rate 16/25). A single error is located by its failing row and column, and any
-other failing pattern is rejected rather than guessed. It therefore never miscorrects single or
-double errors, since every double error is rejected. Larger patterns can still fool it. An L of
-three errors leaves one bad row and one bad column and is miscorrected, and a rectangle of four
-passes every check, leaving it to the CRC. It trades Hamming's eager correction for detection of
-most larger damage.
+\textbf{Two-dimensional parity.} Our third code is two-dimensional parity, the simplest product
+code, introduced by Elias~\cite{elias}. Sixteen data bits form a $4\times4$ grid, and an even
+parity bit on every row and column makes a $5\times5$ grid, so the rate is 16/25. A single flipped
+bit makes one row check and one column check fail, and that pair locates it. Any other failing
+pattern is rejected and nothing is guessed, so the code never miscorrects one or two errors. Three
+errors in an L shape are miscorrected, and four errors at the corners of a rectangle pass every
+check, so only the CRC can catch them. The code corrects less than Hamming does but detects most
+larger damage.
 
 \section{How We Ran the Experiments}
-\textbf{Plans.} Experiments are scripted (plan, record, transmit-plan, analyse). A plan fixes
-payloads, codes, repeats, bit rate and a random seed. The seed regenerates an identical shuffled
-schedule on the transmitter, so the two laptops never exchange files and method order is randomised
-against drift. One command per laptop runs a whole session. Laptop 2 saves the raw brightness,
-plan and physical conditions, then analyses them, keeps the raw data if analysis fails, and never
-overwrites a recording. We chose
-3 and 4\,bps (about seven camera samples per symbol) as baselines, 8\,bps to stress sampling and
-provoke isolated flips, and 2\,bps to test whether about fourteen samples rescue glare. We ran 3
-trials per method because a 21-trial plan already takes 40 minutes at 3\,bps and an hour at 2\,bps,
-and we wanted each session under stable light.
+\textbf{Plans.} We script every experiment with the commands plan, record, transmit-plan and
+analyse. A plan fixes the payloads, codes, repeats, bit rate and a random seed. The seed rebuilds
+the same shuffled schedule on laptop 1, so the laptops never exchange files, and the shuffling
+spreads slow drift over all methods. One command per laptop runs a session. Laptop 2 saves the raw
+brightness, the plan and the conditions, then analyses them, keeps the raw data if the analysis
+fails and never overwrites a recording. We chose 3 and 4\,bps (about seven camera samples per
+symbol) as baselines, 8\,bps to test what happens with only about four, and 2\,bps to test whether
+about fourteen help in glare. We ran 3 trials per method because a 21-trial plan already takes 40 minutes at
+3\,bps and an hour at 2\,bps, and we wanted each session to stay under stable light.
 
-\textbf{Metrics.} We report channel BER (wrong observed frame bits), decoded BER, useful throughput
-(delivered payload bits per nominal frame airtime) and frame success (decoded trials over planned
-trials). Decoded BER is genie-aided. It takes the header from the plan and counts complete
-decodable trials only, so trials that a code rejects are excluded and the figure must be read next
-to frame success. Methods are compared only within a slice that shares bit rate, payload and camera
-path. Every number, table row and figure in this report is regenerated from the per-trial CSVs by
-one script, \texttt{make\_figures.py}.
+\textbf{Metrics.} Channel BER, where BER means bit error rate, is the share of observed frame bits
+that are wrong. Decoded BER is the share of payload bits that are wrong after decoding. It takes
+the header from the plan, as if the receiver knew it, and counts only frames whose payload could be
+decoded. It must therefore be read next to frame success, the number of frames decoded correctly
+out of the number planned. Useful throughput is the delivered payload bits per second of nominal
+frame airtime. We compare methods only within a slice, meaning the runs that share one bit rate,
+one payload size and one lighting condition. One script, \texttt{make\_figures.py}, computes every
+table, figure and statistic in this report from the per-trial CSV files.
 
-\textbf{Statistics.} With three trials per cell, the statistics have to be chosen with care. Frame
-success gets Wilson 95\% intervals~\cite{wilson}, which stay meaningful at 0/3 and 3/3 where the
-usual normal interval collapses to a point. BER intervals use a bootstrap that resamples whole
-trials~\cite{efron}, because errors within a frame are correlated (Section~\ref{sec:noise}) and a
-per-bit binomial interval would overstate our certainty. Method comparisons use Fisher's exact
-test, which stays exact at counts this small where a chi-square test would not. Questions about
-noise structure use thousands of bits instead, through permutation tests and likelihood model
-comparison by BIC~\cite{schwarz}.
+\textbf{Statistics.} With only three trials per cell we chose the statistics with care. Wilson 95\%
+intervals for frame success~\cite{wilson} stay meaningful at 0/3 and 3/3, where the usual normal
+interval shrinks to a point. For BER we use a bootstrap that resamples whole trials~\cite{efron},
+because the errors within one frame are correlated (Section~\ref{sec:noise}) and treating every bit
+as independent would claim more certainty than we have. Fisher's exact test compares methods and
+stays exact at counts this small. For the structure of the noise we use thousands of bits with
+permutation tests and a likelihood comparison by BIC~\cite{schwarz}, a score that penalises extra
+parameters and is lower for a better model.
 
-\textbf{What changed between sessions.} Where we could, we changed one condition at a time (Table~\ref{tab:all} lists every group). Speed,
-facing the screen, from 3\,bps (G01 to G07, 30 October) to 8\,bps (G08 to G14, 31 October) raised
-channel BER from \speedBerA{} to \speedBerB{} and cut frames delivered from \speedOkA{} to
-\speedOkB{} of \speedN{}, with about four camera samples per symbol at 8\,bps. Camera path at
-4\,bps, reflection (G15 to G21 and G29, 27 October) against facing (G28), left channel BER near
-zero on both and delivered \pathOkA{} of \pathNA{} frames against \pathOkB{} of \pathNB{}, but G28
-has only two trials. Lighting, on the reflection path at 4\,bps, from normal light (G15 to G21) to
-the dimmed lab with glare (G22 to G26, 26 October) raised channel BER from \lightBerA{} to
-\lightBerB{} and cut frames delivered from \lightOkA{} of \lightNA{} to \lightOkB{} of \lightNB{}.
-Speed in glare, from 4\,bps to 2\,bps (G27), gave channel BER \slowBer{} and \slowOk{} of \slowN{}
-frames against 2 of 15, but exposure drift grows with time held, so this more likely reflects milder
-glare in that session as well as more samples per symbol, and we flag it as a confound. The
-sessions also differ in room and payload, so codes are compared only within a slice.
+\textbf{What changed between sessions.} We changed one condition at a time where we could, and
+Table~\ref{tab:all} lists every group. Raising the speed in normal light from 3\,bps (G01 to G07,
+30 October) to 8\,bps (G08 to G14, 31 October) changed the channel BER of the groups from the range \speedBerA{} to the range \speedBerB{} and cut
+the frames delivered from \speedOkA{} to \speedOkB{} of \speedN{}. These
+sessions also differ in day and room. Dimming the light at 4\,bps, from normal light (G15 to G21,
+27 October) to dim with glare (G22 to G26, 26 October), changed the channel BER from the range \lightBerA{} to the range \lightBerB{} and cut the frames
+delivered from \lightOkA{} of \lightNA{} to \lightOkB{} of
+\lightNB{}. Slowing down in glare from 4\,bps to 2\,bps (G27) gave a channel BER of \slowBer{} and
+\slowOk{} of \slowN{} frames, against 2 of 15. Errors grow once a colour has been held for a while
+(Section~\ref{sec:noise}), and a lower speed holds each colour longer, so the glare in that session
+was more likely milder, although the extra samples per symbol may also have helped. We cannot
+separate the two. The sessions also differ in payload, so we compare codes only within one slice.
 
-\textbf{Runs that did not work.} We kept every recording. The outside-the-lab session on 27 October
-(dim, glare, 2\,bps, 21 trials) needed 3571 s of airtime but recording stopped after 480 s, so only
-the first few trials were filmed, a planning failure and not a channel failure. A bug in how the
-transmit command was printed reordered the codes for laptop 2, so that session and the main
-reflection session (G15 to G21) first decoded nothing, and we re-analysed them against the schedule
-laptop 1 really sent. A start on 30 October stopped after 17 seconds, its retry dropped 179
-repeated camera timestamps (G01 to G07), and a pipeline test on 27 October is not counted.
+\textbf{Runs that did not work.} We kept every recording. The session of
+27 October that we recorded in a different place (dim with glare, 2\,bps, 21 trials) needed 3571 s
+of airtime, but the recording stopped after 480 s, so only the first few trials were filmed. This
+was a planning mistake and says nothing about the channel. A bug in how the transmit command was
+printed put the codes in the wrong order on laptop 2, so that session and the main 4\,bps session in
+normal light (G15 to G21) at first decoded nothing, and we analysed both again against the order
+laptop 1 sent. A start on 30 October stopped after 17 seconds, and its retry dropped 179 repeated
+camera timestamps (G01 to G07). A pipeline test on 27 October is not counted.
 
 \section{Results of the Basic Codes}
 \begin{table*}[t]
-\caption{The seven methods in the low-noise slice (4\,bps, reflection, 16-bit payload) and the
-high-noise slice (8\,bps, facing the screen). Brackets give Wilson 95\% intervals on frame success
-and trial-bootstrap 95\% intervals on decoded BER. Throughput is in bps.}
+\caption{The seven methods in normal light at 4\,bps (low noise, 16-bit payload) and 8\,bps (high
+noise), with Wilson 95\% intervals on frames and bootstrap 95\% intervals on decoded BER.
+Throughput is in bps.}
 \label{tab:slices}
 \centering\footnotesize
 \setlength{\tabcolsep}{5pt}
@@ -169,163 +178,168 @@ Method & Rate & Throughput & Frames [95\% CI] & Ch.\ BER & Dec.\ BER [95\% CI] &
 \end{tabular}
 \end{table*}
 
-\textbf{Low noise (4\,bps, reflection, Table~\ref{tab:slices}).} Channel BER is near zero and every
-code, including uncoded, reaches decoded BER 0. Throughput then follows code rate, except that
-Hamming lost one of three frames, so on a clean channel redundancy only costs rate.
+\textbf{Low noise (normal light, 4\,bps, Table~\ref{tab:slices}).} The channel BER is close to zero
+and every code, including uncoded, reaches a decoded BER of 0. Throughput then follows the code
+rate, except that Hamming lost one of three frames. On a clean channel, redundancy therefore only
+costs rate.
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/highnoise-bars.pdf}
-\caption{High-noise slice (8\,bps, facing the screen). (a) Frames delivered of 3, with Wilson
-intervals. (b) Decoded BER with trial-bootstrap intervals. The dashed line is uncoded and the
-hatched bar marks a code that did worse than sending nothing.}
+\caption{Normal light at 8\,bps. (a) Frames delivered out of 3, with Wilson intervals. (b) Decoded
+BER with bootstrap intervals, where the dashed line is uncoded and hatching marks a code that did
+worse than sending nothing.}
 \label{fig:fastbars}
 \end{figure*}
 
-\textbf{High noise (8\,bps, facing the screen, Table~\ref{tab:slices}, Fig.~\ref{fig:fastbars}).}
-Channel BER rises to 3 to 5\%. Repetition-7 delivers 3/3 frames at zero decoded BER, but at one
-seventh of the rate. Hamming's point estimate (0.073) is worse than uncoded (0.042). A 16-bit
-payload plus its 16-bit CRC is eight Hamming codewords, and at 5\% BER some carry two errors, which
-(7,4) turns into three. 2-D parity reaches decoded BER 0 on its one decodable trial but rejects the
-other two, delivering 1/3. These are the expected trade-offs between correction power, residual
-error and delivery, but we state the uncertainty plainly. The intervals overlap widely, and even
-the starkest contrast, repetition-7 3/3 against Hamming 0/3, has Fisher $p=0.10$. Pooling the three
-seven-method sessions (9 trials per method), frame success ranges from 4/9 uncoded to 8/9 for
-repetition-5, and no method differs significantly from the best ($p\ge0.13$). Frame-level rankings
-are therefore suggestive only. The decisive evidence comes from the bit-level analysis below, which
-uses thousands of bits.
+\textbf{High noise (normal light, 8\,bps, Table~\ref{tab:slices}, Fig.~\ref{fig:fastbars}).} The
+channel BER rises to 3 to 5\%. Repetition-7 delivers 3/3 frames at zero decoded BER, but at one
+seventh of the rate. Hamming has a higher decoded BER (0.073) than uncoded (0.042), because a
+16-bit payload plus its 16-bit CRC makes eight Hamming codewords, and at 5\% BER some of them
+contain two errors, which (7,4) turns into three. Two-dimensional parity reaches a decoded BER of 0
+on the one trial it could decode, but it rejects the other two and delivers 1/3. The uncertainty is
+large. The intervals overlap widely, and even the largest gap, repetition-7 with 3/3 against
+Hamming with 0/3, gives Fisher $p=0.10$. Pooling the three sessions that used all seven methods
+gives 9 trials per method. Frame success then ranges from 4/9 uncoded to 8/9 for repetition-5, and
+no method differs significantly from the best ($p\ge0.13$), so the ranking of frames is only
+suggestive. The stronger evidence comes from the bit-level analysis below, which uses thousands of
+bits.
 
 \section{What Kind of Noise This Is}\label{sec:noise}
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/noise-regimes.pdf}
-\caption{(a) Error positions in example trials, where hatching is unobserved. (b) Share of errors
-by error-run length, with the fitted Gilbert-Elliott and memoryless models for glare. (c) Error rate
-against a symbol's position in a run of identical colours. At 8\,bps errors sit at the first symbol
-after a change, and glare errors appear once a colour has been held for three or more symbols.}
+\caption{(a) Error positions in example trials, with hatching for bits that were not observed. (b)
+Share of errors by length of error run, with the fitted Gilbert-Elliott model and a memoryless model
+for glare. (c) Error rate by the position of a symbol within a run of one colour.}
 \label{fig:noise}
 \end{figure*}
 
-\textbf{Bursty or memoryless?} For each slice we compare the share of errors that sit in runs of
-three or more with a null in which each trial's errors are scattered uniformly over its observed
-bits (5000 permutations). Under glare, 87\% of errors are in such runs against 12\% under the null
-($p<0.001$). At 8\,bps errors are mostly isolated, but even there 7.3\% are in runs against 0.6\%
-($p<0.001$). At 3\,bps none are ($p=1$). A two-state Gilbert-Elliott model~\cite{gilbert,elliott},
-a hidden Markov chain switching between a Good and a Bad state fitted by Baum-Welch~\cite{rabiner},
-is strongly preferred over a memoryless channel by BIC for glare (2261 against 3824) and modestly
-at 8\,bps (2174 against 2236). The glare fit has Bad spells averaging 4.4 bits, occupying 12\% of
-the time, with nearly every Bad bit flipped. As a check on a statistic it was not fitted to, the
-model reproduces the glare burst share (simulated 0.81, 95\% range 0.75 to 0.85, observed 0.87),
-whereas a memoryless channel at the same BER gives 0.05 (Fig.~\ref{fig:noise}b). At 3\,bps BIC also
-prefers the two-state model, but its Bad spell lasts 923 bits, longer than a frame. That is not
-bursts but some trials simply being noisier than others.
+\textbf{Bursty or memoryless?} For each slice we measure the share of errors that lie in runs of
+three or more, and we compare it with a null model that scatters each trial's errors uniformly over
+its observed bits (5000 permutations). In glare, 87\% of the errors are in such runs, against 12\%
+under the null ($p<0.001$). At 8\,bps the errors are mostly isolated, but even there 7.3\% are in
+runs, against 0.6\% ($p<0.001$). At 3\,bps none are ($p=1$). We also fitted a two-state
+Gilbert-Elliott model~\cite{gilbert,elliott}, a hidden Markov chain fitted with the Baum-Welch
+algorithm~\cite{rabiner}. It switches between a good state, where bits rarely flip, and a bad
+state, where many flip. By BIC it fits glare far better than a memoryless channel (2261 against
+3824) and fits 8\,bps only slightly better (2174 against 2236). In the glare fit the bad state
+lasts 4.4 bits on average, covers 12\% of the time and flips nearly every bit. As a check on a
+statistic that the model was not fitted to, we simulated it and got a burst share of 0.81 (95\%
+range 0.75 to 0.85), close to the observed 0.87, while a memoryless channel with the same BER gives
+0.05 (Fig.~\ref{fig:noise}b). At 3\,bps BIC also prefers the two-state model, but its bad state
+lasts 923 bits, longer than a frame, so some trials were simply noisier than others.
 
-\textbf{Two physical mechanisms.} Conditioning errors on the transmitted data separates the two
-regimes (Fig.~\ref{fig:noise}c). At 8\,bps, 256 of 260 errors are black read as white, and a black
-symbol fails 15.3\% of the time (130/850) right after a white one against 3.3\% (126/3794) after
-another black (Fisher $p<10^{-10}$). White smears into the next symbol. With only about four camera
-frames per symbol, an exposure straddling the edge or a small display-to-camera timing offset reads
-the start of a black symbol as white, a form of intersymbol interference. Under glare the pattern
-reverses. Errors are rare in the first two symbols of a run (62/1760, 3.5\%) and common from the
-third onward (576/3232, 17.8\%, $p<10^{-10}$), on both colours. This fits the camera's
-auto-exposure drifting while one colour is held, pushing the level across our fixed threshold. A
-Gilbert-Elliott model whose error rate depends on run position fits glare better still (BIC 2116).
-In a Bad spell, symbols early in a run flip with probability 0.23 and later ones almost always. So
-the bursts are episodes in time that damage long same-colour runs.
+\textbf{Two physical mechanisms.} Splitting the errors by what we sent separates the two kinds
+(Fig.~\ref{fig:noise}c). At 8\,bps, 256 of 260 errors are a black symbol read as white, and a black
+symbol fails 15.3\% of the time (130/850) right after a white one, against 3.3\% (126/3794) after
+another black (Fisher $p<10^{-10}$). The camera takes only about four frames per symbol, so an
+exposure that straddles the edge between two symbols, or a small timing offset between display and
+camera, can make the start of a black symbol look white. This is intersymbol interference. In glare
+the pattern reverses. Errors are rare in the first two symbols of a run of one colour (62/1760,
+3.5\%) and common from the third symbol on (576/3232, 17.8\%, $p<10^{-10}$), for both colours. This
+fits automatic exposure drifting while one colour is held, which pushes the brightness across our
+fixed threshold. A Gilbert-Elliott model whose error rate depends on the position in the run fits
+glare better still (BIC 2116). In its bad state the early symbols of a run flip with probability
+0.23 and the later ones almost always.
 
-\textbf{Are repetition and Hamming appropriate?} Both assume independent errors within a codeword.
-The 8\,bps channel nearly meets that assumption, but at a BER where (7,4) Hamming is overwhelmed.
-Glare breaks it badly. Of 624 repetition-3 groups, 77 had all three copies flipped, against 3.0
-expected from a memoryless channel at the same BER, because adjacent copies share one burst. Worse,
-repetition lengthens same-colour runs, which is exactly what triggers the glare errors. Nine of the
-13 failed glare frames were header CRC failures, so the payload code was never reached, because the
-header uses the same adjacent repetition over mostly zero bytes. A further confound follows from
-the 8\,bps mechanism. Channel BER depends on how often the data switches colour, so repetition-7's
-low channel BER (0.016) partly reflects its fewer transitions, not better luck.
+\textbf{Are repetition and Hamming appropriate?} Both codes assume that errors inside a codeword
+are independent. The 8\,bps channel nearly meets that assumption, but its error rate is high enough
+that (7,4) Hamming often sees two errors in one codeword. Glare breaks the assumption. Of 624
+repetition-3 groups, 77 had all three copies flipped, against 3.0 expected from a memoryless
+channel with the same BER, because neighbouring copies lie in the same burst. In glare, \failGlareHdr{} of
+the \failGlareN{} failed frames had a header CRC failure, so the payload code was never reached.
+The header uses the same adjacent repetition and is mostly zero bytes. At 8\,bps, of the
+\failEightN{} failed frames, \failEightHdr{} had a header CRC failure, \failEightPay{} failed the
+payload CRC and \failEightUnc{} had an uncorrectable codeword. The channel BER also depends on how
+often the data changes colour, so repetition-7 has a low channel BER (0.016) partly because it
+changes colour less often.
 
-\section{Extension, Placing Redundancy Away from Bursts}\label{sec:ext}
-\textbf{Hamming interleaving.} Guided by the burst finding, our first extension sends up to eight
-(7,4) codewords column-first, so a burst of $b\le8$ consecutive bits hits each codeword at most
-once. It costs no extra bits, the same idea as the cross-interleaved Reed-Solomon coding that lets a
-CD survive scratches~\cite{reed,immink}. Physically, interleaving matched Hamming on the clean slice
-(3/3 against 2/3) and at 8\,bps delivered 1/3 against 0/3 with decoded BER 0.042 against 0.073. The
-intervals overlap, so we claim no detectable physical difference. That is what the noise analysis
-predicts, since 8\,bps errors are mostly isolated, and interleaving only helps against bursts. In a
-synthetic test (Fig.~\ref{fig:ext}a, 400 trials per length) each code gets fresh payloads and burst
-positions, so the comparison is not paired. Interleaving holds zero decoded BER for every burst up
-to its depth of 8 bits, while Hamming and repetition-3 fail from length 2 (0.072 and 0.042 at length
-8). Beyond about 13 bits it is worse than plain Hamming (0.184 against 0.144 at 16), because it then
-spreads damage into more words.
+\section{Extension to Place Redundancy Away from Bursts}\label{sec:ext}
+\textbf{Hamming interleaving.} Our first extension follows from the burst finding. It sends up to
+eight (7,4) codewords column by column, so a burst of $b\le8$ consecutive bits hits each codeword at
+most once. It adds no bits. It is the same idea as the cross-interleaved Reed-Solomon coding that
+lets a compact disc play through scratches~\cite{reed,immink}. On the physical link in normal light,
+interleaving did as well as Hamming at 4\,bps (3/3 frames against 2/3) and at 8\,bps delivered 1/3
+against 0/3 with a decoded BER of 0.042 against 0.073. The intervals overlap, so we claim no
+difference. The noise analysis predicts this, because the errors at 8\,bps are mostly isolated and
+interleaving only helps against bursts. We also tested it with synthetic single bursts
+(Fig.~\ref{fig:ext}a, 400 trials per length). Each code got new payloads and burst positions, so the
+comparison is not paired. Interleaving keeps the decoded BER at zero for every burst up to its depth
+of 8 bits, while Hamming and repetition-3 fail from length 2 (0.072 and 0.042 at length 8). Beyond about 13 bits it is worse
+than plain Hamming (0.184 against 0.144 at length 16), because a burst longer than the depth puts
+two flipped bits into each codeword.
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/extension.pdf}
-\caption{(a) Synthetic single bursts, 64-bit payload, 400 trials per point, error bars one standard
-error, interleaver depth 8 dotted. (b) Payload decoding probability on the Gilbert-Elliott channel
-fitted to our glare data, 3000 simulated frames per design. Hatched bars are layouts as built, solid
-bars rearrangements at the same rate except where the copy count changes.}
+\caption{(a) Synthetic single bursts, 64-bit payload, 400 trials per point, error bars one
+standard error, interleaver depth 8 dotted. (b) Probability that the payload decodes on the
+Gilbert-Elliott channel fitted to our glare data, from 3000 simulated frames per design. Hatched
+bars are layouts as built, solid bars are rearrangements at the same rate except where the copy
+count changes.}
 \label{fig:ext}
 \end{figure*}
 
-\textbf{Model-guided design on the fitted glare channel.} A single synthetic burst is not our
-channel, so we used the fitted glare model to simulate whole frames through sync, header and payload
-exactly as the receiver decodes them (Fig.~\ref{fig:ext}b). Three results follow.
+\textbf{Design study.} A single synthetic burst is not our channel, so we also simulated whole
+frames with the fitted glare model, through sync word, header and payload, and decoded them the way
+the receiver does (Fig.~\ref{fig:ext}b). We found three things.
 \begin{itemize}\setlength{\itemsep}{0pt}
-\item \textbf{Placement beats quantity.} With copies adjacent, adding redundancy makes things worse
-(payload success 0.033, 0.018 and 0.015 for repetition-3, 5 and 7), because longer runs mean longer
-bursts. Sending the whole message three times instead, at the same rate, gives 0.375, and seven
-spread copies give 0.81.
+\item \textbf{Copy placement.} When the copies of each bit sit next to each other, more redundancy
+makes things worse. Payload success is 0.033, 0.018 and 0.015 for repetition-3, 5 and 7, because
+more copies make longer runs and so longer bursts. Sending the whole message three times instead, at
+the same rate, gives 0.375, and seven copies of the whole message give 0.81.
 \item \textbf{Interleaver depth.} Payload success rises from 0.114 with no interleaving to 0.246,
-0.285 and 0.317 at depths 4, 8 and 16. With Bad spells averaging 4.4 bits, returns diminish past
+0.285 and 0.317 at depths 4, 8 and 16. The bad state averages 4.4 bits, so the gains shrink beyond
 depth 8, which supports our choice.
-\item \textbf{The header is the bottleneck.} As built, only 0.8\% of headers survive the fitted
-glare channel. Spreading the header copies the same way raises this to 22\% and whole-frame success
-for spread repetition-3 from 0.2\% to 8.6\%.
+\item \textbf{Header.} As built, only 0.8\% of headers decode correctly in the fitted glare channel. Spreading
+the header copies in the same way raises this to 22\% and raises whole-frame success for spread
+repetition-3 from 0.2\% to 8.6\%.
 \end{itemize}
-The same rearrangements still help, more modestly, on the 8\,bps model (spread repetition-3 payload
-success 0.913 against 0.835). In absolute terms the stationary model is pessimistic. It predicts
-almost no glare frames as built, while we observed 2/15 (Wilson 0.04 to 0.38), because glare also
-switches on and off between frames (session G22 had two near-clean frames and one with 80 errors).
-We therefore use it to rank designs, not to forecast exact rates.
+The same changes also help, though less, on the model fitted at 8\,bps (spread repetition-3 payload
+success 0.913 against 0.835). The fitted model keeps the glare strength fixed, so it predicts almost no glare frames as built,
+but we observed 2/15 (Wilson 0.04 to 0.38), because glare switches on and off between frames
+(session G22 had two nearly clean frames and one with 80 errors). We therefore use the model only to
+rank designs.
 
-\textbf{Three layouts built into the live link.} We added the three rearrangements to the
-transmitter and receiver (Fig.~\ref{fig:layouts}), and none adds a bit. Spread repetition sends the
-whole coded message N times in a row, so the copies of one bit sit a whole message apart and a burst
-shorter than a copy flips at most one copy of each bit. Depth 16 groups 16 Hamming codewords
-instead of 8. A spread header gives the three header copies the same rearrangement. The receiver
-cannot know the layout before reading the header, so it tries the normal layout first and, if the
-header CRC fails, the spread one, and it reports which worked. Frames from before the change still
-decode as before.
+\textbf{Three layouts built into the link.} We added three rearrangements to the transmitter and
+receiver (Fig.~\ref{fig:layouts}), and none adds a bit. The original layouts put the three copies
+of each bit next to each other and interleave to a depth of 8. Spread repetition sends the whole
+coded message N times in a row, so the copies of one bit are a whole message apart and a burst
+shorter than one copy flips at most one copy of each bit. Depth 16 groups 16 Hamming codewords
+instead of 8. A spread header arranges the three header copies in the same way. The receiver cannot
+know the layout before it reads the header, so it first tries the normal header layout and, if the
+header CRC fails, tries the spread one and reports which worked.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/layouts.pdf}
 \caption{The new layouts. (a) Adjacent repetition copies against copies a whole message apart, with
 a burst of three bits shaded. The spread header applies the same rearrangement to the three header
-copies. (b) The interleaver, where one grid column is one burst.}
+copies. (b) The interleaver, in which one column of the grid is one burst.}
 \label{fig:layouts}
 \end{figure}
 
-\textbf{Physical test.} We ran all six layouts for real in one session of \physTrials{} trials,
-\physPerLayout{} per layout in shuffled order, over \physMinutes{} minutes at 4\,bps with a 32-bit
-payload and one threshold of \physThreshold{}. Two earlier starts, stopped by hand after 106 s and
-14 s, are kept but not counted. Frames delivered ranged from \physFramesLo{} to \physFramesHi{} of
-\physPerLayout{} and decoded BER from 0 to \physDecHi\%, and no layout differed significantly from
-its as-built baseline at the frame level (Fisher exact $p$ from \physPLo{} to \physPHi{},
-Table~\ref{tab:physical}). The channel explains why. Channel BER was only \physChLo{} to
-\physChHi\%, against \earlyChLo{} to \earlyChHi\% in the original glare runs G22 to G26, which
-delivered \earlyFramesOk{} of \earlyFramesN{} frames (Wilson \earlyFramesLo{} to
-\earlyFramesHi{}), so no layout met sustained bursts (Fig.~\ref{fig:physical}b). The session also
-used a room, not the lab of the original runs, with the lamp placed by eye, so venue and glare
-strength are mixed in this contrast. The one strong episode was two consecutive frames of spread
-repetition with a spread header, within about \epiMinutes{} minutes, with \epiErrA{} and
-\epiErrB{} errors. Both failed the header CRC, and they alone lift that layout's channel BER from
+\textbf{Physical test.} We ran all six layouts on the physical link in one session of
+\physTrials{} trials, \physPerLayout{} per layout in shuffled order, over \physMinutes{} minutes at
+4\,bps with a 32-bit payload and one threshold of \physThreshold{}. Two earlier starts, stopped by
+hand after 106 s and 14 s, are kept but not counted. The layouts delivered \physFramesLo{} to
+\physFramesHi{} of \physPerLayout{} frames and had a decoded BER of 0 to \physDecHi\%, and none
+differed significantly from the original layout it replaces (Fisher exact $p$ from \physPLo{} to
+\physPHi{}, Table~\ref{tab:physical}). The session was dim with glare but mild. Its channel BER was
+only \physChLo{} to \physChHi\%, against \earlyChLo{} to \earlyChHi\% in the earlier glare runs G22
+to G26, which delivered \earlyFramesOk{} of \earlyFramesN{} frames (Wilson \earlyFramesLo{} to
+\earlyFramesHi{}), so no layout met a sustained burst (Fig.~\ref{fig:physical}b). The two sets of
+runs were recorded on different days, 26 October and 6 November, so day and glare strength are
+mixed in this comparison. One short episode was the exception. Two consecutive frames of spread
+repetition with a spread header, within about \epiMinutes{} minutes, had \epiErrA{} and
+\epiErrB{} errors and both failed the header CRC. Together they raise that layout's channel BER from
 \epiBerWithout\% to \epiBerWith\%.
 
 \begin{table}[t]
-\caption{The six layouts in one session, 12 trials each. Hdr counts header CRC failures, Ch.\ and
-Dec.\ are channel and decoded BER in percent, and $p$ is Fisher exact for frames delivered against
-the as-built baseline, rep-3 adjacent or depth 8.}
+\caption{The six layouts in one session, 12 trials each. Hdr is the number of header CRC failures,
+Ch.\ and Dec.\ are channel and decoded BER in percent, and $p$ is Fisher's exact $p$ for frames
+delivered against the original layout, which is rep-3 adjacent or depth 8.}
 \label{tab:physical}
 \centering\scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -341,38 +355,37 @@ Layout & Frames [95\% CI] & Hdr & Ch. & Dec. & $p$ \\
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/physical-test.pdf}
-\caption{Physical test of the six layouts, as built in black, new in red, and the original glare runs
-G22 to G26 in grey. (a) Frames delivered with Wilson 95\% intervals. (b) Channel BER with
-trial-bootstrap 95\% intervals. (c) Channel errors per frame in the order recorded, showing the
-episode at trials 41 and 42 and frames that failed with only 4 to 9 errors.}
+\caption{Physical test of the six layouts, with original layouts in black, new layouts in red and
+the earlier glare runs G22 to G26 in grey. (a) Frames delivered with Wilson 95\% intervals. (b)
+Channel BER with bootstrap 95\% intervals. (c) Channel errors in each frame in the order recorded.}
 \label{fig:physical}
 \end{figure*}
 
 \begin{table*}[!t]
-\caption{Every recorded run, with bps, camera path (F facing the screen, R reflection in an iPad
-screen, Rg that reflection in a dim room with glare), code, channel BER, decoded BER, useful
-throughput (thr, bps) and frames delivered (ok). Runs planned 3 trials except G28 (2) and used a 16-bit
-payload except G22 to G27 (32 bits). Compare methods only within a shared bps, payload and path.}
+\caption{Every recorded run. The columns give the bit rate (bps), the light (N normal, D dim with
+glare), the code, the channel BER, the decoded BER, the useful throughput (thr, bps) and the frames
+delivered (ok). Each run planned 3 trials, except G28 with 2, and used a 16-bit payload, except G22
+to G27 with 32 bits. G28 and G29 are rep-3 checks.}
 \label{tab:all}
 \centering\scriptsize
 \setlength{\tabcolsep}{2pt}
 \begin{tabular}[t]{@{}llllrrrr@{}}
 \toprule
-Run & bps & path & code & ChBER & DecBER & thr & ok \\
+Run & bps & light & code & ChBER & DecBER & thr & ok \\
 \midrule
 \tablerows{generated/allruns-rows-a.tex}
 \bottomrule
 \end{tabular}\hfill
 \begin{tabular}[t]{@{}llllrrrr@{}}
 \toprule
-Run & bps & path & code & ChBER & DecBER & thr & ok \\
+Run & bps & light & code & ChBER & DecBER & thr & ok \\
 \midrule
 \tablerows{generated/allruns-rows-b.tex}
 \bottomrule
 \end{tabular}\hfill
 \begin{tabular}[t]{@{}llllrrrr@{}}
 \toprule
-Run & bps & path & code & ChBER & DecBER & thr & ok \\
+Run & bps & light & code & ChBER & DecBER & thr & ok \\
 \midrule
 \tablerows{generated/allruns-rows-c.tex}
 \bottomrule
@@ -380,62 +393,62 @@ Run & bps & path & code & ChBER & DecBER & thr & ok \\
 \end{table*}
 
 \textbf{What the spread layouts showed.} Below the frame level the test found one clear difference.
-All five header CRC failures were in frames with a spread header, \hdrFailSh{} of \hdrFailShN{}
-against \hdrFailOt{} of \hdrFailOtN{} for the other layouts (Fisher $p=\hdrFisher$), the opposite
-of the simulation. Three were mild frames with 4 to 9 errors in all. In each, two or three header
-copies were wrong at the same offset, always a black symbol deep inside a run of black (run
-positions \hdrRunLo{} to \hdrRunHi{}). That happened in \hdrCoObs{} of \hdrMildN{} mild
-spread-header frames against \hdrCoNull{} expected if the same errors fell at random places
-(permutation $p=\hdrCoP$), and in \hdrAdjObs{} of 48 frames with adjacent copies (\hdrAdjNull{}
-expected). The payload copies of spread repetition show the same excess, \payCoObs{} of \payCoN{}
-frames against \payCoNull{} expected ($p=\payCoP$), and these were its only \payFail{} payload CRC
-failures. A plausible reading, consistent with Section~\ref{sec:noise}, is that identical copies a
-whole message apart meet identical run contexts and so fail together, whereas adjacent copies of a
-bit do not. The fitted model has no pattern dependence, so it could not show this. Spreading is
-meant to help against bursts in time, which this session did not test, and it can hurt against
-pattern-dependent errors, which it did.
+Every header CRC failure in the session, \hdrFailSh{} in all, was in a frame with a spread header.
+That is \hdrFailSh{} of \hdrFailShN{} frames against \hdrFailOt{} of \hdrFailOtN{} for the other
+layouts (Fisher $p=\hdrFisher$), so spreading the header cost frames. The simulation predicted the
+opposite. Of the \hdrFailSh{} failures, \hdrMildFail{} were mild frames with 4 to 9 errors in total.
+In each of those \hdrMildFail{}, two or three header copies were wrong at the same offset within the
+header, always at a black symbol deep inside a run of black symbols (run positions \hdrRunLo{} to
+\hdrRunHi{}). This happened in
+\hdrCoObs{} of \hdrMildN{} mild frames with a spread header, against \hdrCoNull{} expected if the
+same errors had fallen at random places (permutation $p=\hdrCoP$), and in \hdrAdjObs{} of 48 frames
+with adjacent header copies (\hdrAdjNull{} expected). The payload copies of spread repetition show
+the same excess, in \payCoObs{} of \payCoN{} frames against \payCoNull{} expected ($p=\payCoP$), and
+these were its only \payFail{} payload CRC failures. A plausible reading, in line with
+Section~\ref{sec:noise}, is that identical copies a whole message apart meet identical runs of
+colour, so they tend to fail together, while adjacent copies of one bit do not. The fitted model has
+no pattern dependence, so it could not show this. Spreading is meant to help
+against bursts in time, which this session did not test, and it seems to hurt when errors depend on
+the transmitted pattern.
 
-\textbf{Reading the test.} The test shows that all six layouts decode on the real link, including the
-receiver's fallback to the spread header, and that none lost frames significantly. It does not show
-that any layout recovers performance under heavy bursts, which rests on the simulation in
-Fig.~\ref{fig:ext}b alone. That glare strength swung this far between sessions on one setup is
-itself a finding, and a fair test needs the lamp held closer to the earlier harsh levels.
+\textbf{Reading the test.} All six layouts decode on the physical link, including the receiver's
+fallback to the spread header. The session was mild with no heavy burst, so the test does not show
+that any layout improves the results under heavy bursts, and that claim rests on the simulation in
+Fig.~\ref{fig:ext}b alone. For the spread header the test points the other way. The glare strength
+changed a lot between sessions on the same setup, and a fairer test needs glare as strong as in the
+earlier runs.
 
-\section{Conclusions, Trade-offs and Limitations}
-\textbf{Trade-offs.} On a clean channel coding only costs rate. As noise rises, the right choice
-depends on its shape, which our analysis measured rather than assumed. Isolated, data-dependent
-flips at high rate favour heavy repetition or rejection (2-D parity) over (7,4) Hamming, which
-miscorrects. Glare produces bursts tied to long same-colour runs, and there the decisive variable is
-where redundancy sits, not how much there is. Interleaving and spreading copies give large modelled
-gains at no rate cost, and the physical test adds a caution, since identical copies spread apart
-can fail together when errors depend on the pattern. The two mechanisms also point beyond error
-correction, towards a run-length-limited, DC-balanced line code such as 8b/10b~\cite{widmer} or
-Manchester, which bounds how long a colour is held, and an adaptive threshold. These are the
-standard fixes in wired links for the same drift problem.
+\section{Conclusions and Limitations}
+\textbf{Trade-offs.} On a clean channel, coding only costs rate. When the noise rises, the best choice depends on the kind of noise. When the flips are isolated and the rate is high, heavy repetition or two-dimensional parity,
+which rejects what it cannot correct, does better than (7,4) Hamming, which miscorrects. Glare produces bursts that follow long runs of one
+colour, and there the position of the redundancy matters more than the amount. Interleaving and
+spreading copies give large gains in the simulation without adding bits, but the mild physical test
+did not confirm them, and spreading the header cost frames. Both error mechanisms also point beyond
+error correction. A run-length-limited, DC-balanced line code such as 8b/10b~\cite{widmer}, or
+Manchester coding, limits how long a colour is held, and an adaptive threshold would follow the
+drift. 
 
-\textbf{Wider context.} Treating each slice as a binary symmetric channel at its pooled BER,
-Shannon capacity~\cite{shannon} is 0.94 facing the screen at 3\,bps, 0.77 at 8\,bps and 0.45 in
-glare, where memory makes the true capacity higher still~\cite{gilbert}. At 8\,bps Hamming's rate of
-0.57 sits well below capacity yet still fails, so the gap lies in our codes, not the channel. The
-speed results are a sampling result in the sense of this module, since about 14 samples per symbol
-at 2\,bps succeed where about 4 at 8\,bps smear edges. The 240-bit frame overhead, 240 of 272 bits
-for a 2-byte payload, is the same rate trade-off seen from the compression side. Within the degree,
-CRC framing is the Ethernet link layer, the Gilbert-Elliott model is a Markov chain, and filtering
-the brightness trace before thresholding would bring in DSP.
+\textbf{Wider context.} If we treat each slice as a binary symmetric channel at its pooled BER, the
+Shannon capacity~\cite{shannon} is 0.94 at 3\,bps in normal light, 0.77 at 8\,bps and 0.45 in
+glare, and glare has memory, so its true capacity is higher~\cite{gilbert}. At 8\,bps the Hamming
+rate of 0.57 is well below capacity and Hamming still fails, so our codes are the weak part and the
+channel would allow better ones.  The frame overhead of 240 bits is 240 of 272 bits for a 2-byte payload, a rate trade-off seen from
+the compression side. In the wider degree, CRC framing is part of the Ethernet
+link layer, the Gilbert-Elliott model is a Markov chain, and filtering the brightness trace would
+use DSP.
 
 \textbf{Limitations and threats to validity.} (i) Three trials per cell give wide intervals, and no
 frame-level difference is significant. The bit-level conclusions rest on 5{,}000 to 7{,}000 bits per
-slice, but those bits are clustered within frames, which our trial bootstrap and permutation tests
-respect. (ii) Conditions differ between sessions (lighting, camera path, glare strength), so we
-compare only within slices. Even within a slice, channel BER depends on the transmitted pattern, so
-codes face slightly different channels. (iii) The design study is simulated on a stationary model
-that misses frame-to-frame switching and pattern dependence. Its rankings, not its absolute values,
-are the claim, and the spread header shows where it fails. (iv) Offline alignment can fail in the
-worst captures, so some errors counted there may be misalignment. (v) The layouts session has 12
-trials per layout and was far milder than the runs that motivated the layouts, so it cannot separate
-layouts that all deliver 9 to 12 frames. Next we would repeat it under harsher glare and refit the
-model to the pattern dependence seen here.
-
+slice, which are clustered inside frames, and our trial bootstrap and permutation tests take that
+into account. (ii) The conditions differ between sessions (lighting, day, room, glare strength), so
+we compare only within slices, and even within a slice the channel BER depends on the transmitted
+pattern, so codes face slightly different channels. (iii) The design study uses a stationary model
+that misses the switching between frames and the dependence on the pattern, so we trust its ranking
+of designs but not its absolute values, and the spread header shows where it fails. (iv) Offline
+alignment can fail in the worst recordings, so some errors counted there may come from
+misalignment. (v) The layouts session has 12 trials per layout and was far milder than the runs that
+motivated the layouts, so it cannot separate layouts that all deliver 9 to 12 frames. Next we would
+repeat it under stronger glare and refit the model to the pattern dependence seen here.
 
 \begin{thebibliography}{16}
 \footnotesize

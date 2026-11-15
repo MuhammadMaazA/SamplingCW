@@ -1,8 +1,8 @@
 # GridLink
 
-COMP0228 coursework: send binary messages from a laptop screen to a camera using black and white flashes. The camera can face the screen directly or view its reflection in a mirror.
+COMP0228 coursework: send binary messages from a laptop screen to a camera using black and white flashes. The flashes are protected with error correcting codes, and every run is recorded and analysed.
 
-For our current setup, A is the transmitting laptop and B receives through the iPad front camera, without a mirror. The iPad feed must already appear as an OpenCV camera on B through your camera/virtual-camera setup. The program runs on the laptop, not on the iPad. Use the same `--camera` index for calibration and recording.
+For our setup, A is the transmitting laptop. An iPad stands in front of A with its front camera open, so the iPad screen shows A live. B's built-in webcam films the iPad screen and the program reads that picture. The program runs on the two laptops, not on the iPad. Use the same `--camera` index for calibration and recording.
 
 ## Setup
 
@@ -104,7 +104,7 @@ For guided setup, run this on B:
 gridlink setup
 ```
 
-It asks for the run name, venue/room, iPad camera index, coding methods, repeats, speed, payload size, threshold and physical conditions. Choose methods by number (for example `2` for repetition-3, or `2,5,6` for repetition-3, Hamming and grid parity). Numbers 8 to 11 are the spread and deep-interleaving layouts. The choice sets the actual transmission plan. Date/time is recorded automatically, with local and UTC timestamps.
+It asks for the run name, venue/room, camera index, coding methods, repeats, speed, payload size, threshold and physical conditions. Choose methods by number (for example `2` for repetition-3, or `2,5,6` for repetition-3, Hamming and grid parity). Numbers 8 to 11 are the spread and deep-interleaving layouts. The choice sets the actual transmission plan. Date/time is recorded automatically, with local and UTC timestamps.
 
 Setup saves the plan on B only and prints A's `transmit-plan` command. A does not need the JSON file: that command rebuilds the same schedule from the seed and settings. Press Enter on B to open the camera, select the region, then press Space to record. Start the printed command on A only when B says RECORDING. Q in the setup prompt saves the plan and exits without opening a camera.
 
@@ -118,10 +118,10 @@ Single-message `receive` prints the result but does not save experiment data. Fo
 gridlink plan experiments/plans/comparison.json --name comparison --configs none,repetition:3,repetition:5,repetition:7,hamming,parity2d,hamming-interleaved --repeats 5 --payload-bytes 4 --bit-rate 10 --gap 2 --seed 1
 ```
 
-The plan compares the same payloads across modes in shuffled order. It has 35 trials and prints the expected transmission time. On B, replace `127` with your calibrated threshold and `0` with the iPad camera's index:
+The plan compares the same payloads across modes in shuffled order. It has 35 trials and prints the expected transmission time. On B, replace `127` with your calibrated threshold and `0` with the camera index:
 
 ```bash
-gridlink record experiments/plans/comparison.json --name quiet1 --camera 0 --threshold 127 --lighting "indoor" --notes "iPad front camera; direct screen; no mirror" --plots
+gridlink record experiments/plans/comparison.json --name quiet1 --camera 0 --threshold 127 --lighting "indoor" --notes "iPad front camera shown live; laptop webcam films the iPad screen" --plots
 ```
 
 Select a box inside A's screen and press Enter. The next window shows a live preview with a green box: press **R** to select again, **Space** to start recording, or **Q** to cancel. The clock does not run while you are choosing the box. Once B says **RECORDING**, start A within 20 seconds:

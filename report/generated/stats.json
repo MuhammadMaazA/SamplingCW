@@ -753,18 +753,6 @@
     ]
    ]
   },
-  "path": {
-   "frames": [
-    [
-     23,
-     24
-    ],
-    [
-     1,
-     2
-    ]
-   ]
-  },
   "light": {
    "ber": [
     [
@@ -802,6 +790,18 @@
      3
     ]
    ]
+  }
+ },
+ "failure_modes": {
+  "glare": {
+   "failed": 13,
+   "header": 9
+  },
+  "fast": {
+   "failed": 12,
+   "header": 0,
+   "payload": 10,
+   "uncorrectable": 2
   }
  },
  "controlled_burst": {

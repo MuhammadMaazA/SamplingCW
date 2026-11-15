@@ -55,7 +55,7 @@ def interactive_setup(output="experiments/results"):
     if Path(name).name != name or name in (".", ".."):
         raise ValueError("use a run name without directory separators")
     venue = input("Venue / room: ").strip()
-    camera = _number("iPad camera index (0 or higher)", 0, integer=True)
+    camera = _number("Camera index (0 or higher)", 0, integer=True)
     configs = _choose_methods()
     repeats = _number(f"Trials per method (1-{256 // len(configs)})", 3, integer=True, minimum=1,
                       maximum=256 // len(configs))
@@ -64,8 +64,8 @@ def interactive_setup(output="experiments/results"):
     threshold = _number("Calibration threshold 0-255 (Enter=automatic)", None, maximum=255)
     lighting = input("Lighting / physical condition: ").strip()
     distance = _number("Distance in metres (Enter=not measured)", None)
-    notes = input("Notes [iPad front camera; direct screen; no mirror]: ").strip()
-    notes = notes or "iPad front camera; direct screen; no mirror"
+    notes = input("Notes [iPad front camera shown live; laptop webcam films the iPad screen]: ").strip()
+    notes = notes or "iPad front camera shown live; laptop webcam films the iPad screen"
     obstruction = input("Partial obstruction? [y/N]: ").strip().lower() in ("y", "yes")
     glare = input("Glare? [y/N]: ").strip().lower() in ("y", "yes")
     plots_answer = input("Save plots too (needs analysis install)? [y/N]: ").strip().lower()

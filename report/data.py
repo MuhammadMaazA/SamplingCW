@@ -39,6 +39,18 @@ SLICE_OF_GROUP = {
     29: "4 bps reflection (rep-3 check)",
 }
 
+# Visible names for the slices, used in figure labels and text. The keys above stay unchanged
+# because generated/stats.json and the slide deck read them.
+DISPLAY = {
+    "3 bps facing": "Normal light, 3 bps",
+    "8 bps facing": "Normal light, 8 bps",
+    "4 bps reflection": "Normal light, 4 bps",
+    "4 bps glare": "Dim with glare, 4 bps",
+    "2 bps glare": "Dim with glare, 2 bps",
+    "4 bps facing (rep-3 check)": "Normal light, 4 bps, rep-3 check",
+    "4 bps reflection (rep-3 check)": "Normal light, 4 bps, rep-3 check",
+}
+
 LABELS = {
     "none": "none", "hamming": "Hamming", "hamming-interleaved": "Ham-interl.",
     "parity2d": "2-D parity",

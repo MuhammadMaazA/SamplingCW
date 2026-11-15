@@ -23,7 +23,7 @@ import burst_experiment
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np
 from matplotlib.patches import Patch
-from data import METHOD_ORDER, RESULTS, by_slice, load
+from data import DISPLAY, METHOD_ORDER, RESULTS, by_slice, load
 from design_sim import Layout, frame_success
 
 from gridlink.experiments.analysis import summarise_records
@@ -358,7 +358,7 @@ def grid_below(ax, axis="y"):
 
 def fig_highnoise():
     fast = STATS["fast"]
-    fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(FULL_WIDTH, 1.34), layout="constrained")
+    fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(FULL_WIDTH, 1.28), layout="constrained")
     fig.get_layout_engine().set(w_pad=0.02, h_pad=0.02, wspace=0.06)
     x = np.arange(len(METHOD_ORDER))
     ok = [fast[m]["ok"] / fast[m]["trials"] for m in METHOD_ORDER]
@@ -401,7 +401,7 @@ def fig_highnoise():
 
 
 def fig_noise(slices, run_hist):
-    fig = plt.figure(figsize=(FULL_WIDTH, 2.45), layout="constrained")
+    fig = plt.figure(figsize=(FULL_WIDTH, 2.32), layout="constrained")
     fig.get_layout_engine().set(w_pad=0.02, h_pad=0.03, wspace=0.06, hspace=0.06)
     gs = fig.add_gridspec(2, 2, height_ratios=[0.95, 1.0])
 
@@ -425,8 +425,8 @@ def fig_noise(slices, run_hist):
     ax0.tick_params(axis="y", which="both", length=0, pad=3)
     ax0.set_xticks(np.arange(0, 401, 50))
     ax0.set_xlabel("Transmitted frame bit position")
-    handles = [Patch(facecolor=INK, lw=0, label="Facing the screen, 8 bps"),
-               Patch(facecolor=ACCENT, lw=0, label="Reflection with glare, 4 bps"),
+    handles = [Patch(facecolor=INK, lw=0, label=DISPLAY[FAST]),
+               Patch(facecolor=ACCENT, lw=0, label=DISPLAY[GLARE]),
                Patch(facecolor="none", edgecolor=GREY2, hatch="//////", lw=0,
                      label="Not observed")]
     ax0.legend(handles=handles, loc="lower right", bbox_to_anchor=(1.0, 1.0), ncol=3,
@@ -465,8 +465,8 @@ def fig_noise(slices, run_hist):
 
     ax2 = fig.add_subplot(gs[1, 1])
     for name, colour, style, mfc, label in (
-            (FAST, INK, "o-", INK, "Facing the screen, 8 bps"),
-            (GLARE, ACCENT, "s--", "white", "Reflection with glare, 4 bps")):
+            (FAST, INK, "o-", INK, DISPLAY[FAST]),
+            (GLARE, ACCENT, "s--", "white", DISPLAY[GLARE])):
         rates = STATS["noise"][name]["run_position_rate"]
         keys = sorted(rates)
         ax2.plot(keys, [rates[k][0] / rates[k][1] for k in keys], style, color=colour,
@@ -485,7 +485,7 @@ def fig_noise(slices, run_hist):
 
 
 def fig_extension():
-    fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(FULL_WIDTH, 1.52), layout="constrained",
+    fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(FULL_WIDTH, 1.45), layout="constrained",
                                    gridspec_kw={"width_ratios": [1, 1.15]})
     fig.get_layout_engine().set(w_pad=0.02, h_pad=0.02, wspace=0.06)
     bursts = burst_experiment.run()
@@ -544,37 +544,36 @@ def _arrow(ax, p, q, colour, lw=1.0, ls="-"):
 
 
 def fig_system():
-    """The channel and the frame, drawn at one column. Units are about one centimetre."""
-    fig = plt.figure(figsize=(SINGLE_COL, 1.72))
+    """The one physical chain and the frame, drawn at one column. Units are about a centimetre."""
+    fig = plt.figure(figsize=(SINGLE_COL, 1.5))
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_xlim(0, 8.7)
-    ax.set_ylim(0, 4.36)
+    ax.set_ylim(0, 3.75)
     ax.axis("off")
 
-    def box(x, y, w, h, lines, bold_first=True):
+    def box(x, y, w, h, lines):
         ax.add_patch(plt.Rectangle((x, y), w, h, facecolor=GREY4, edgecolor=INK, lw=0.6,
                                    zorder=2))
         n = len(lines)
         for i, line in enumerate(lines):
             ax.text(x + w / 2, y + h / 2 + (n - 1) * 0.15 - i * 0.3, line, ha="center",
                     va="center", fontsize=7.5, zorder=3,
-                    fontweight="bold" if (bold_first and i == 0) else "normal")
+                    fontweight="bold" if i == 0 else "normal")
 
-    box(0.0, 3.1, 2.5, 1.12, ["Laptop 1", "flashing patch", "white 1, black 0"])
-    box(5.8, 3.1, 2.9, 1.12, ["Laptop 2", "built-in webcam", "threshold, sample, decode"])
-    box(3.1, 1.55, 2.5, 0.8, ["iPad screen", "reflection path only"])
-    # facing the screen, the baseline path
-    _arrow(ax, (2.5, 3.66), (5.8, 3.66), INK, lw=1.1)
-    ax.text(4.15, 3.78, "facing the screen", ha="center", va="bottom", fontsize=7.5)
-    # reflection, the glare path
-    ax.plot([1.25, 1.25], [3.1, 1.95], color=ACCENT, lw=1.1, zorder=4, solid_capstyle="butt")
-    _arrow(ax, (1.25, 1.95), (3.1, 1.95), ACCENT, lw=1.1)
-    ax.plot([5.6, 7.35], [1.95, 1.95], color=ACCENT, lw=1.1, zorder=4, solid_capstyle="butt")
-    _arrow(ax, (7.35, 1.95), (7.35, 3.1), ACCENT, lw=1.1)
-    ax.text(1.4, 2.12, "reflection", ha="left", va="bottom", fontsize=7.5, color=ACCENT)
-    ax.text(4.35, 0.95, "lamp glare in a dim room", ha="center", va="center", fontsize=7.5,
-            color=GREY1)
-    _arrow(ax, (4.35, 1.12), (4.35, 1.55), GREY1, lw=0.8)
+    y0, h = 2.15, 1.5
+    mid = y0 + h / 2
+    box(0.0, y0, 2.2, h, ["Laptop 1", "flashing patch", "white 1, black 0"])
+    box(2.75, y0, 2.7, h, ["iPad", "front camera open", "shows laptop 1 live"])
+    box(6.0, y0, 2.7, h,
+        ["Laptop 2", "built-in webcam", "films the iPad screen", "software reads it"])
+    _arrow(ax, (2.2, mid), (2.75, mid), INK, lw=1.1)
+    _arrow(ax, (5.45, mid), (6.0, mid), INK, lw=1.1)
+    # glare enters at the glossy iPad glass and exposure drift where the webcam films it
+    _arrow(ax, (4.1, 1.5), (4.1, y0), ACCENT, lw=1.1)
+    ax.text(4.1, 1.4, "glare, room light on\nthe iPad glass", ha="center", va="top", fontsize=7.5,
+            color=ACCENT, linespacing=1.15)
+    _arrow(ax, (5.72, 1.5), (5.72, mid - 0.04), ACCENT, lw=1.1)
+    ax.text(5.5, 1.4, "exposure drift", ha="left", va="top", fontsize=7.5, color=ACCENT)
     # the frame, not to scale
     segs = [(0.0, 1.5, GREY4, ["Sync", "48 bits"]),
             (1.5, 3.3, GREY3, ["Header, 192 bits", "repetition-3"]),
@@ -642,15 +641,32 @@ def session_contrasts(slices):
 
     STATS["contrasts"] = {
         "speed": {"ber": [span(QUIET), span(FAST)], "frames": [frames(QUIET), frames(FAST)]},
-        "path": {"frames": [frames(CLEAN, "4 bps reflection (rep-3 check)"),
-                            frames("4 bps facing (rep-3 check)")]},
         "light": {"ber": [span(CLEAN), span(GLARE)], "frames": [frames(CLEAN), frames(GLARE)]},
         "slow": {"ber": span(SLOW), "frames": [frames(GLARE), frames(SLOW)]},
     }
 
 
+def failure_modes(slices):
+    """Why frames failed in glare and at 8 bps, from the failure reason of each trial."""
+    def reasons(name):
+        counts = Counter()
+        for t in slices[name]:
+            if not t.record.frame_valid:
+                counts[t.record.failure_reason or "other"] += 1
+        return counts
+
+    glare, fast = reasons(GLARE), reasons(FAST)
+    STATS["failure_modes"] = {
+        "glare": {"failed": sum(glare.values()), "header": glare["header CRC check failed"]},
+        "fast": {"failed": sum(fast.values()), "header": fast["header CRC check failed"],
+                 "payload": fast["CRC check failed"],
+                 "uncorrectable": sum(v for k, v in fast.items() if k.startswith("uncorrectable"))},
+    }
+
+
 def write_contrast_tex():
     c = STATS["contrasts"]
+    m = STATS["failure_modes"]
 
     def rng(pair):
         return f"{pair[0]:.3f} to {pair[1]:.3f}"
@@ -659,13 +675,14 @@ def write_contrast_tex():
         "speedBerA": rng(c["speed"]["ber"][0]), "speedBerB": rng(c["speed"]["ber"][1]),
         "speedOkA": c["speed"]["frames"][0][0], "speedOkB": c["speed"]["frames"][1][0],
         "speedN": c["speed"]["frames"][0][1],
-        "pathOkA": c["path"]["frames"][0][0], "pathNA": c["path"]["frames"][0][1],
-        "pathOkB": c["path"]["frames"][1][0], "pathNB": c["path"]["frames"][1][1],
         "lightBerA": rng(c["light"]["ber"][0]), "lightBerB": rng(c["light"]["ber"][1]),
         "lightOkA": c["light"]["frames"][0][0], "lightNA": c["light"]["frames"][0][1],
         "lightOkB": c["light"]["frames"][1][0], "lightNB": c["light"]["frames"][1][1],
         "slowBer": f"{c['slow']['ber'][0]:.3f}",
         "slowOk": c["slow"]["frames"][1][0], "slowN": c["slow"]["frames"][1][1],
+        "failGlareN": m["glare"]["failed"], "failGlareHdr": m["glare"]["header"],
+        "failEightN": m["fast"]["failed"], "failEightHdr": m["fast"]["header"],
+        "failEightPay": m["fast"]["payload"], "failEightUnc": m["fast"]["uncorrectable"],
     }
     lines = [f"\\newcommand{{\\{name}}}{{{value}}}" for name, value in macros.items()]
     (GENDIR / "contrasts.tex").write_text(NL.join(lines) + NL)
@@ -916,7 +933,7 @@ def fig_physical():
     rows = labels + ["Earlier glare, rep-3"]
     colour = {label: (INK if base is None else ACCENT) for _, label, base in PHYS_LAYOUTS}
     marker = {label: ("o" if base is None else "s") for _, label, base in PHYS_LAYOUTS}
-    fig = plt.figure(figsize=(FULL_WIDTH, 1.5), layout="constrained")
+    fig = plt.figure(figsize=(FULL_WIDTH, 1.42), layout="constrained")
     fig.get_layout_engine().set(w_pad=0.02, h_pad=0.02, wspace=0.05)
     gs = fig.add_gridspec(1, 3, width_ratios=[1.12, 1.0, 1.35])
     n = len(rows)
@@ -973,7 +990,7 @@ def fig_physical():
     ax2.plot([t["index"] for t in pay], [t["errors"] for t in pay], "+", color=ACCENT,
              ms=5.5, mew=1.1, label="Payload CRC failed")
     ax2.set_yscale("symlog", linthresh=2, linscale=0.7)
-    ax2.set_ylim(-0.4, 90)
+    ax2.set_ylim(-0.4, 500)
     ax2.set_yticks([0, 2, 5, 10, 20, 50])
     ax2.set_yticklabels(["0", "2", "5", "10", "20", "50"])
     ax2.set_xlim(-2, 74)
@@ -994,6 +1011,7 @@ def main():
     physical_test(slices)
     write_physical_tex()
     session_contrasts(slices)
+    failure_modes(slices)
     write_contrast_tex()
     fig_highnoise()
     fig_noise(slices, run_hist)

@@ -1,4 +1,4 @@
-# GridLink Presentation Outline
+# Presentation Outline
 
 COMP0228 Coursework 1. Presenters: Muhammad Maaz (M) and Kanav Mehta (K).
 
@@ -11,16 +11,17 @@ Target running total is shown in brackets after each slide.
 ---
 
 ### 1. Title and team (M), 0.5 min  [0.5]
-- GridLink, error correction over a screen to camera optical link.
+- Error correction over a screen to camera optical link.
 - Names, who covers what. One line on the headline finding so the audience knows where it ends:
   the noise is partly bursty, so bit ordering matters as much as adding redundancy.
 
 ### 2. The channel and why we chose it (M), 2 min  [2.5]  *(brief point 1)*
-- Photo or short clip of the setup: laptop 1 shows the flashing patch, a second laptop webcam
-  reads it, in most runs reflected off an iPad screen used as a mirror. Glare off the glossy
-  iPad surface is a real and deliberate source of the bursty noise.
-- Why this channel: cheap, no special hardware, and it shows several real noise sources
-  (sampling jitter, auto exposure, ambient light and glare off the mirror, slow drift), so the
+- Photo or short clip of the setup: laptop 1 shows the flashing patch in front of an iPad whose
+  front camera is open, so the iPad screen shows laptop 1 live, and the built-in webcam of
+  laptop 2 films that iPad screen. Glare, room light reflecting off the glossy iPad glass, is a
+  main source of the bursty noise.
+- Why this channel: cheap, no special hardware, and it shows several physical noise sources
+  (sampling jitter, auto exposure, ambient light and glare on the iPad glass, slow drift), so the
   kind of noise is interesting, not just the amount.
 
 ### 3. Sending binary over light (M), 2.5 min  [5]  *(brief point 2a)*
@@ -37,10 +38,10 @@ Target running total is shown in brackets after each slide.
   and rejects anything larger instead of guessing.
 - Show a one line code or diagram for each. Expect to be asked to explain the Hamming syndrome.
 
-### 5. Live demonstration (M drives, K narrates), 2 min  [9]  *(brief point 3)*
-- Send a short message such as "hi" and show it decode on B.
-- Keep it tight. Have a pre-recorded clip ready as backup in case the room light or camera fails.
-- Say one sentence on what the audience is seeing (calibration, then transmit, then decode).
+### 5. Demonstration (M drives, K narrates), 2 min  [9]  *(brief point 3)*
+- The brief asks for a brief live demonstration. We chose not to run one live because calibration and the room light make it slow and uncertain, so we show the setup and how a run goes instead.
+- If a short clip of a full run is recorded (calibrate, send hi, decode), play it from this slide. Ask the module lead whether a recorded clip is acceptable.
+- Say one sentence on what the audience is seeing.
 
 ### 6. How we ran the experiments (K), 1.5 min  [10.5]  *(brief point 4)*
 - Scripted plans with a fixed seed, so A and B run the identical shuffled trial order without
@@ -97,7 +98,7 @@ Target running total is shown in brackets after each slide.
 ---
 
 ## Backup and logistics
-- Pre-recorded demo clip in case the live link fails.
+- A short recorded demo clip, played from the demo slide in place of a live run.
 - Slides exported to PDF on a USB stick and emailed to one phone, in case of laptop issues.
 - Decide before the slot who clicks and who speaks on the demo slide.
 

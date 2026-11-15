@@ -1,8 +1,8 @@
 # Glare layouts session
 
-One session comparing the as-built frame layouts with the spread and deep-interleaving layouts, under the same glare conditions as the earlier glare runs: the same dim room, the iPad reflection, 4 bits/s and a 4-byte (32-bit) payload.
+One session comparing the as-built frame layouts with the spread and deep-interleaving layouts, under the same glare conditions as the earlier glare runs: the same dim room, the same iPad set-up, 4 bits/s and a 4-byte (32-bit) payload.
 
-Laptop 1 transmits (A). Laptop 2 records (B), with its camera filming laptop 1's screen as reflected in the iPad screen.
+Laptop 1 transmits (A) in front of the iPad, whose front camera is open and shows A live on its screen. Laptop 2 records (B) with its built-in webcam, which films the iPad screen.
 
 ## Plan
 
@@ -29,7 +29,7 @@ gridlink plan experiments/plans/glare-layouts.json --name glare-layouts --config
 - Check on both: `gridlink transmit --help` lists `repetition-spread` and `--spread-header`.
 - Both laptops plugged in. Sleep, screen saver and screen dimming off for at least two hours.
 - iPad auto-lock off (Settings, Display and Brightness, Auto-Lock, Never). iPad charging.
-- Same dim room, same lamp and glare position, same iPad reflection set-up as the earlier glare runs. Do not change the lighting, the devices or the threshold during the session.
+- Same dim room, same lamp and glare position, same iPad set-up as the earlier glare runs. Do not change the lighting, the devices or the threshold during the session.
 - Do not touch either laptop or the iPad while recording.
 
 ## 1. Calibrate (once, at the start)
@@ -59,7 +59,7 @@ Press Space on B while white is showing. Check `valid=True` and write down the t
 Replace `143` with the calibrated threshold and `0` with the camera index:
 
 ```bash
-gridlink record experiments/plans/glare-layouts.json --name glare-layouts --camera 0 --threshold 143 --venue lab --lighting "indoor dim" --glare --notes "ipad reflection; glare; auto-lock off; glare-layouts"
+gridlink record experiments/plans/glare-layouts.json --name glare-layouts --camera 0 --threshold 143 --venue lab --lighting "indoor dim" --glare --notes "ipad live view; glare; auto-lock off; glare-layouts"
 ```
 
 Select the box inside A's screen, check the preview, then press Space. Wait for **RECORDING**.
@@ -93,7 +93,7 @@ It should print `rebuilt plan: 72 trials, 6514.0s airtime, seed=1`. If the numbe
 - [ ] Both laptops on the new code, `pip install -e .` done
 - [ ] Laptops plugged in, sleep and screen saver off
 - [ ] iPad auto-lock off and charging
-- [ ] Same room, lighting, glare and reflection as the earlier glare runs
+- [ ] Same room, lighting, glare and iPad set-up as the earlier glare runs
 - [ ] Calibrated once, `valid=True`, threshold written down: ______
 - [ ] B started with `--name glare-layouts`, `--threshold`, `--glare` and `--lighting "indoor dim"`
 - [ ] A started within 20 s of RECORDING
