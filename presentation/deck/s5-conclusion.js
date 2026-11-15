@@ -10,8 +10,8 @@ async function tradeoff() {
   const clean = STATS.tradeoff.filter((r) => setupKey(r.env) === "n4").sort((a, b) => b.throughput - a.throughput)[0];
   const { s, top } = content({
     title: "Throughput against code rate",
-    take: `In normal light throughput follows the code rate. At 8 bps ${best.method} delivered the most.`,
-    notes: `Throughput is the message bits delivered per second, counting only frames that arrived intact. In normal light at 4 bits per second it follows the code rate, and no coding is fastest at ${clean.throughput.toFixed(3)} bits per second. At 8 bits per second no coding and Hamming delivered nothing, while repetition-7, the slowest code on paper, delivered the most at ${best.throughput.toFixed(3)} because all three frames arrived. With 3 trials this is a trend, not a ranking.`,
+    take: "Throughput is the message bits delivered per second. In normal light it follows the code rate.",
+    notes: `Throughput counts only frames that arrived intact. In normal light at 4 bits per second it follows the code rate, and no coding is fastest at ${clean.throughput.toFixed(3)} bits per second. At 8 bits per second no coding and Hamming delivered nothing, while repetition-7, the slowest code on paper, delivered the most at ${best.throughput.toFixed(3)} because all three frames arrived. With 3 trials this is a trend, not a ranking.`,
   });
   await plot(s, "tradeoff.png", { y: top, maxW: 9.4, maxH: 5.15 - top, name: "throughput against code rate", alt: "Throughput against code rate for every code, in normal light at 4 bps and at 8 bps" });
 }
@@ -28,7 +28,7 @@ function context() {
   const { s, top } = content({
     title: "How this links to the module",
     take: `At 8 bps the measured error rate allows a rate of ${cap[3].toFixed(2)}, and Hamming uses ${(4 / 7).toFixed(2)}.`,
-    notes: `Capacity is the highest rate any code could reach with reliable decoding, for a channel that flips bits independently. We worked it out from the measured error rate of each setup. At 8 bits per second it is ${cap[3].toFixed(2)}, above the Hamming rate of 0.57, so better codes exist. Glare has memory, so its ${cap[4].toFixed(2)} is pessimistic. The list on the right ties this to the module and beyond. PixNet and COBRA also send data from a screen to a camera.`,
+    notes: `Capacity is the highest rate any code could reach with reliable decoding, for a channel that flips bits independently. We worked it out from the measured error rate of each setup. At 8 bits per second it is ${cap[3].toFixed(2)}, above the Hamming rate of 0.57, so better codes exist. Glare has memory, so its ${cap[4].toFixed(2)} is pessimistic. PixNet and COBRA also send data from a screen to a camera.`,
   });
   s.addChart([
     { type: pres.charts.BAR, data: [{ name: "Capacity", labels, values: cap }], options: { chartColors: [X.ink], barGapWidthPct: 50, showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.00" } },
@@ -60,7 +60,7 @@ function whatToSend() {
   const { s, top } = content({
     title: "What to send for each kind of noise",
     take: "The best code depends on how the errors are arranged, not only how many there are.",
-    notes: "On a clean channel we should not code, because extra bits only slowed it down. With isolated flips, repetition works but costs rate, and Hamming can make more errors than no code. 2-D parity is a middle choice that rejects double errors. With bursts, where the redundancy sits matters more than how much there is. Spreading the copies and interleaving helped in simulation. We did not test heavy bursts, and spreading the header cost frames in the physical test.",
+    notes: "On a clean channel we should not code, because extra bits only slowed it down. With isolated flips, repetition works but costs rate, and Hamming can make more errors than no code. 2-D parity rejects double errors. With bursts, where the redundancy sits matters more than how much there is. We did not test heavy bursts, and spreading the header cost frames in the layout test.",
   });
   const zones = [
     { w: 2.6, fill: HEX.accent5, ink: C.text1, name: "Clean channel", send: "Do not code", why: "Every code decoded with no errors, so extra bits only slowed it down." },
@@ -80,26 +80,28 @@ function whatToSend() {
 }
 
 function limits() {
+  const N = RSTATS.noise, GL = N[k.findKey(N, 4, true)], share = Math.round(GL.burst_share * 100);
   const { s } = content({
-    title: "What worked and what limits us",
-    notes: "What worked. Every run was scripted and seeded, we kept failure counts for every result, and we reported every recording, including the failed ones. What limits us. Only 3 trials per method, room light that changed between days, and no test of heavy bursts. Next we would repeat the physical test with stronger glare, find out why the spread header failed, and run at least 10 trials per method.",
+    title: "What we can and cannot claim",
+    notes: `In glare ${share} percent of errors come in runs of 3 or more, and at 8 bits per second Hamming made more errors than no code. Spreading the copies and interleaving worked in simulation. We have not shown whether spreading helps against heavy bursts, because the glare in the layout test was mild, or why the spread header lost frames. With 3 trials per method we do not rank the codes. Next we will repeat the layout test in stronger glare with more trials.`,
   });
   const cols = [
-    ["What worked", C.text1, ["Scripted runs with a fixed seed", "Failure counts for every result", "Every recording reported"]],
-    ["What limits us", C.accent2, ["Only 3 trials per method", "The room light changed between days", "We did not test heavy bursts"]],
-    ["What we would do next", C.text1, ["Test again with stronger glare", "Find out why spread headers failed", "Run 10 or more trials per method"]],
+    ["What the data supports", [`In glare ${share} percent of errors come in runs of 3 or more`, "At 8 bps Hamming made more errors than no code", "Spreading the copies and interleaving worked in simulation"]],
+    ["What it does not show yet", ["Whether spreading helps against heavy bursts, because the glare in the layout test was mild", "Why the spread header lost frames", "A ranking of the codes, because we had 3 trials per method"]],
   ];
-  const colW = 8.8 / 3;
-  cols.forEach(([head, col, items], i) => {
-    const x = M + i * colW;
-    if (i > 0) vline(s, x - 0.18, 1.4, 3.3, { name: `column rule ${i}` });
-    text(s, head, { x, y: 1.4, w: colW - 0.4, h: 0.8, fontSize: 24, bold: true, color: col, fontFace: FONT.head, objectName: `${head} heading` });
-    items.forEach((t, j) => {
-      const y = 2.3 + j * 0.95;
-      hline(s, x, y - 0.1, colW - 0.4, { name: `${head} rule ${j + 1}` });
-      text(s, t, { x, y, w: colW - 0.4, h: 0.75, fontSize: 19, objectName: `${head} item ${j + 1}` });
+  const colW = 4.2;
+  cols.forEach(([head, items], i) => {
+    const x = M + i * (colW + 0.4);
+    if (i > 0) vline(s, x - 0.2, 1.3, 3.2, { name: "column rule" });
+    text(s, head, { x, y: 1.3, w: colW, h: 0.45, fontSize: 22, bold: true, fontFace: FONT.head, objectName: `${head} heading` });
+    items.forEach((t2, j) => {
+      const y = 1.95 + j * 0.88;
+      hline(s, x, y - 0.1, colW, { name: `${head} rule ${j + 1}` });
+      text(s, t2, { x, y, w: colW, h: 0.78, fontSize: 16, objectName: `${head} item ${j + 1}` });
     });
   });
+  hline(s, M, 4.68, 8.8, { name: "next rule" });
+  text(s, "Next we will repeat the layout test in stronger glare with more trials.", { x: M, y: 4.74, w: 8.8, h: 0.4, fontSize: 18, bold: true, objectName: "next line" });
 }
 
 function questions() {
@@ -113,7 +115,7 @@ function questions() {
     { text: "Muhammad Maaz and Kanav Mehta", options: { breakLine: true } },
     { text: "COMP0228 Coursework 1, University College London", options: { fontSize: 14, color: C.accent4 } },
   ], { placeholder: "body" });
-  note(s, "Likely questions. Why Hamming made more errors than no code at 8 bps. Why interleaving only helps up to its depth. Why we chose 2-D parity. Whether our numbers are significant, and why only 3 trials. What went wrong in the runs that failed. Why spreading the header cost frames. We can explain any file in the code. The appendix has every recording, every number of the physical test, the statistics we used, a map of the code and the coding ids.");
+  note(s, "Likely questions. Why Hamming made more errors than no code at 8 bps. Why interleaving only helps up to its depth. Whether our numbers are significant. Why spreading the header cost frames. We can explain any file in the code.");
   count(0);
 }
 

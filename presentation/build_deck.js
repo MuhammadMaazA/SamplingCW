@@ -2,7 +2,7 @@
 const k = require("./deck/kit");
 
 const OUT = process.env.DECK_OUT || "gridlink-presentation.pptx";
-const parts = ["s1-channel", "s2-experiments", "s3-results", "s4-extension", "s5-conclusion", "s6-appendix"];
+const parts = ["s1-channel", "s2-experiments", "s3-results", "s4-extension", "s5-conclusion"];
 
 (async () => {
   for (const name of parts) {

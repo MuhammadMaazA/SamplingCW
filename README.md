@@ -199,7 +199,7 @@ The slides are in `presentation/gridlink-presentation.pptx` (and a PDF copy). Th
 cd presentation
 npm install
 python make_plots.py         # charts and plots/stats.json from experiments/results
-python extract_deck_data.py  # table data for the slides, written to deck/data.js
+python extract_deck_data.py  # numbers from the code for the slides, deck/data.js (runs the tests, about 40 s)
 python make_photos.py        # camera crops from the saved recordings
 node build_deck.js
 ```

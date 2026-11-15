@@ -1,23 +1,38 @@
-"""Pull the few per-trial facts the deck draws directly from the recorded sessions.
+"""Pull the facts the deck draws directly from the recorded sessions and from the code itself.
 
-Writes deck/data.js, a plain module the deck builder requires (a .js file, because *.json is git-ignored). Run from anywhere, it needs experiments/results/
-(unpack the results archive there first, see the README). Everything else the deck shows
-comes from plots/stats.json and report/generated/stats.json.
+Writes deck/data.js, a plain module the deck builder requires (a .js file, because *.json is git-ignored).
+Run from anywhere. It needs experiments/results/ (unpack the results archive there first, see the README)
+and it imports the gridlink package from src/, so the diagrams of the transmitter, receiver and checks
+quote the real sizes and ids. It also runs the whole pytest suite, which takes about 40 seconds, to read
+how many tests there are and how many pass. Everything else the deck shows comes from
+plots/stats.json and report/generated/stats.json.
 """
 from __future__ import annotations
 
 import csv
+import itertools
 import json
+import os
+import random
+import re
+import subprocess
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-RES = HERE.parent / "experiments" / "results"
+ROOT = HERE.parent
+RES = ROOT / "experiments" / "results"
+sys.path.insert(0, str(ROOT / "src"))
+
+from gridlink import protocol  # noqa: E402
+from gridlink.coding import hamming  # noqa: E402
+from gridlink.coding.pipeline import CODING_IDS, REPETITION_SCHEMES, CodingConfig, encoded_length  # noqa: E402
+from gridlink.experiments.simulation import repetition_error_probability, run_trials, summarise_trials  # noqa: E402
 
 PLAN_SESSION = "final-comparison-20261031-150350-900428Z"          # 8 bps facing, G08 to G14
 BUG_SESSION = "full1b-lab-comparison-20261027-174408-573804Z"       # 4 bps reflection, G15 to G21
 LAB_SESSION = "full1-laboutside-comparison-20261027-170708-296161Z"  # outside the lab, 2 bps
 PHYSICAL_SESSION = "glare-layouts-room-comparison-20261106-021921-294106Z"  # 72 trials, one sitting
-DEDUP_SESSION = "monitor-room-comparison-20261030-180441-714350Z"  # 3 bps facing, repeated timestamps dropped
 
 
 def label(trial: dict) -> str:
@@ -31,6 +46,85 @@ def label(trial: dict) -> str:
 
 def plan_labels(path: Path) -> list[str]:
     return [label(t) for t in json.loads(path.read_text())["trials"]]
+
+
+def code_facts() -> dict:
+    """Sizes and ids the diagrams quote, read from protocol.py and coding/pipeline.py."""
+    config = CodingConfig("repetition", 3)
+    message = bytes(2)
+    protected = (len(message) + 2) * 8
+    frame = protocol.Frame(message, coding=config.scheme, repetitions=config.repetitions)
+    return {
+        "sync_bits": protocol.SYNC_BITS,
+        "max_sync_mismatches": protocol.MAX_SYNC_MISMATCHES,
+        "header_plain_bits": protocol.HEADER_PLAIN_BITS,
+        "header_coded_bits": protocol.HEADER_CODED_BITS,
+        "header_copies": protocol.HEADER_CODING.repetitions,
+        "coding_ids": [{"id": i, "name": n} for n, i in sorted(CODING_IDS.items(), key=lambda kv: kv[1])],
+        "example": {
+            "message_bits": len(message) * 8, "protected_bits": protected,
+            "coded_bits": encoded_length(protected, config), "frame_bits": len(protocol.build_frame(frame)),
+        },
+    }
+
+
+def hamming_check() -> dict:
+    """Run the real Hamming decoder on every codeword with every single and every double flip."""
+    singles, doubles = [], []
+    for bits in itertools.product((0, 1), repeat=4):
+        data = list(bits)
+        word = hamming.encode_nibble(data)
+        one, two = [], []
+        for position in range(7):
+            noisy = word[:]
+            noisy[position] ^= 1
+            one.append(hamming.decode_codeword(noisy)[0] == data)
+        for first, second in itertools.combinations(range(7), 2):
+            noisy = word[:]
+            noisy[first] ^= 1
+            noisy[second] ^= 1
+            two.append(hamming.decode_codeword(noisy)[0] == data)
+        singles.append(one)
+        doubles.append(two)
+    return {"singles": singles, "doubles": doubles}
+
+
+def round_trip() -> dict:
+    """Build and parse a frame for every coding id with both header layouts."""
+    results = []
+    for name in CODING_IDS:
+        repetitions = 3 if name in REPETITION_SCHEMES else 1
+        for spread_header in (False, True):
+            frame = protocol.Frame(b"Hi", sequence=7, coding=name, repetitions=repetitions, spread_header=spread_header)
+            got = protocol.parse_frame([0, 1, 1] + protocol.build_frame(frame) + [0, 0])
+            results.append(got.payload == b"Hi" and got.coding == name and got.spread_header == spread_header)
+    return {"passed": sum(results), "total": len(results), "crc_check": f"0x{protocol.crc16(b'123456789'):04X}"}
+
+
+def simulation_against_theory() -> dict:
+    """Simulate repetition coding through a binary symmetric channel and set it beside the formula."""
+    flip, trials = 0.2, 200
+    generator = random.Random(1)
+    bits = [generator.randint(0, 1) for _ in range(256)]
+    rows = []
+    for factor in (3, 5, 7):
+        summary = summarise_trials(run_trials(bits, CodingConfig("repetition", factor), flip, trials, seed=0))
+        rows.append({"factor": factor, "theory": repetition_error_probability(flip, factor), "simulated": summary.mean_decoded_ber})
+    return {"flip_probability": flip, "trials": trials, "bits": len(bits), "rows": rows}
+
+
+def run_tests() -> dict:
+    """Run the whole pytest suite and read how many tests there are and how many pass."""
+    env = dict(os.environ, PYTHONPATH=str(ROOT / "src"))
+    run = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider"], cwd=ROOT, env=env, capture_output=True, text=True)
+    def count(word: str) -> int:
+        found = re.findall(rf"(\d+) {word}", run.stdout)
+        return int(found[0]) if found else 0
+
+    passed, failed, errors = count("passed"), count("failed"), count("error")
+    if passed + failed + errors == 0:
+        raise RuntimeError("pytest reported no tests: " + run.stdout + run.stderr)
+    return {"total": passed + failed + errors, "passed": passed, "failed": failed + errors}
 
 
 def main() -> None:
@@ -60,16 +154,6 @@ def main() -> None:
         "planned_s": session["planned_seconds"], "recorded_s": round(max(stamps) - min(stamps), 1),
         "bit_rate": session["bit_rate"], "trials": session["trials"],
     }
-
-    def sample_rows(name: str) -> int:
-        n = 0
-        for line in (RES / DEDUP_SESSION / name).read_text().splitlines():
-            head = line.split(",")[0]
-            if not line.startswith("#") and head.replace(".", "", 1).isdigit():
-                n += 1
-        return n
-
-    out["timestamps"] = {"dropped": sample_rows("capture.csv") - sample_rows("capture-dedup.csv")}
 
     # lengths of every run of consecutive wrong bits in the five 4 bps glare sessions, G22 to G26
     runs: list[int] = []
@@ -156,32 +240,12 @@ def main() -> None:
         failures.append(row)
     out["failures"] = failures
 
-    # one entry per recording session in the order they were made, the five 4 bps glare sessions G22 to G26 merged into one
-    found = []
-    for folder in sorted(RES.iterdir()):
-        sj = folder / "session.json"
-        if not sj.exists():
-            continue
-        s = json.loads(sj.read_text())
-        cond, cap = s.get("conditions", {}), s.get("capture", {})
-        thr = s.get("threshold") if s.get("threshold") is not None else s.get("requested_threshold")
-        found.append({
-            "folder": folder.name, "start": s["created_utc"][:19], "venue": cond.get("venue", ""), "glare": bool(cond.get("glare")),
-            "bit_rate": s["bit_rate"], "trials": s["trials"], "methods": len(s["methods"]), "status": s["status"],
-            "threshold": thr, "stop": cap.get("stop_reason"), "elapsed": float(cap["elapsed_seconds"]) if cap.get("elapsed_seconds") else None,
-        })
-    found.sort(key=lambda r: r["start"])
-    merged = []
-    for r in found:
-        quiet = r["folder"].startswith("quiet1")
-        if quiet and merged and merged[-1]["folder"].startswith("quiet1"):
-            m = merged[-1]
-            m["trials"] += r["trials"]
-            m["threshold_hi"] = max(m["threshold_hi"], r["threshold"])
-            m["threshold"] = min(m["threshold"], r["threshold"])
-        else:
-            merged.append(dict(r, threshold_hi=r["threshold"]))
-    out["sessions"] = merged
+    # facts read from the code itself, so the diagrams of the transmitter, receiver and checks cannot drift from it
+    out["code"] = code_facts()
+    out["hamming_check"] = hamming_check()
+    out["round_trip"] = round_trip()
+    out["simulation"] = simulation_against_theory()
+    out["tests"] = run_tests()
 
     (HERE / "deck" / "data.js").write_text("// generated by extract_deck_data.py, do not edit by hand\nmodule.exports = " + json.dumps(out, indent=1) + ";\n")
     print("wrote deck/data.js", {k: (v if not isinstance(v, dict) else list(v)) for k, v in out.items()})

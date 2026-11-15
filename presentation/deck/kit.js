@@ -16,8 +16,8 @@ const DATA = require("./data");
 // DECK_DEMO points at another file, which is how the slide is tried out without putting a clip in the repository.
 const DEMO = process.env.DECK_DEMO || path.join(ROOT, "media", "demo.mp4");
 const HAS_DEMO = fs.existsSync(DEMO);
-const TOTAL = 54 + (HAS_DEMO ? 1 : 0); // slides in the whole deck, appendix included. finish() checks the count.
-const MAIN_END = 49 + (HAS_DEMO ? 1 : 0); // last slide of the talk, the Questions slide. The appendix follows it.
+const TOTAL = 54 + (HAS_DEMO ? 1 : 0); // slides in the whole deck. finish() checks the count.
+const MAIN_END = TOTAL; // the last slide is the Questions slide, so the whole deck is the talk
 
 // Black, white and one vermilion. Greys carry neutral data, the accent only marks errors, glare, bursts,
 // the new layouts or the single emphasis on a slide. Slots keep one meaning each so slide code can use them by name.
@@ -41,6 +41,8 @@ const pres = new pptxgen();
 pres.layout = "LAYOUT_16x9"; // 10 x 5.625 in
 pres.title = "Error correction over a screen-to-camera optical channel";
 pres.author = "Muhammad Maaz, Kanav Mehta";
+pres.subject = "COMP0228 Coursework 1";
+pres.company = "University College London";
 pres.theme = { headFontFace: THEME.headFontFace, bodyFontFace: THEME.bodyFontFace };
 const C = pres.SchemeColor;
 const SH = pres.shapes;
@@ -138,6 +140,37 @@ function cell(s, x, y, w, h, label, o = {}) {
 }
 function circle(s, x, y, d, o = {}) {
   s.addShape(SH.OVAL, { x, y, w: d, h: d, fill: o.fill ? { color: o.fill } : { type: "none" }, line: { color: o.line ?? C.text1, width: o.lw ?? 1.25, dashType: o.dash }, objectName: o.name ?? "node" });
+}
+
+// ---------- the devices, drawn the same wherever they appear ----------
+// a laptop with screen width w and a flat base. patch is true, "black" or "white" for what its screen shows,
+// webcam adds the camera dot and ring adds the red exposure ring round it
+function laptop(s, x, y, w, name, o = {}) {
+  const f = w / 1.5, h = w * 0.62;
+  cell(s, x, y, w, h, "", { line: C.text1, lw: 1.25, name: `${name} screen` });
+  cell(s, x - 0.12 * f, y + h, w + 0.24 * f, Math.max(0.07 * f, 0.04), "", { fill: HEX.dk1, line: HEX.dk1, lw: 0.5, name: `${name} base` });
+  if (o.patch) {
+    const p = h * 0.42, both = o.patch === true;
+    if (both || o.patch === "black") cell(s, both ? x + w / 2 - p - 0.07 * f : x + (w - p) / 2, y + (h - p) / 2, p, p, "", { fill: HEX.dk1, line: HEX.dk1, name: `${name} patch black` });
+    if (both || o.patch === "white") cell(s, both ? x + w / 2 + 0.07 * f : x + (w - p) / 2, y + (h - p) / 2, p, p, "", { fill: WHITE, line: C.text1, lw: 1, name: `${name} patch white` });
+  }
+  if (o.webcam) {
+    circle(s, x + w / 2 - 0.05 * f, y + 0.08 * f, 0.1 * f, { fill: HEX.dk1, line: HEX.dk1, name: `${name} webcam` });
+    if (o.ring !== false) circle(s, x + w / 2 - 0.12 * f, y + 0.01 * f, 0.24 * f, { line: HEX.accent2, lw: 1.25, name: `${name} exposure ring` });
+  }
+  return h;
+}
+// the iPad with its front camera, showing laptop 1 live. Width w, height 1.1 times that.
+function ipad(s, x, y, w, name, o = {}) {
+  const f = w / 1.05, h = 1.15 * f;
+  cell(s, x, y, w, h, "", { line: C.text1, lw: 1.25, name: `${name} screen` });
+  circle(s, x + w / 2 - 0.05 * f, y + 0.08 * f, 0.1 * f, { fill: HEX.dk1, line: HEX.dk1, name: `${name} front camera` });
+  if (o.ring !== false) circle(s, x + w / 2 - 0.12 * f, y + 0.01 * f, 0.24 * f, { line: HEX.accent2, lw: 1.25, name: `${name} exposure ring` });
+  cell(s, x + 0.14 * f, y + 0.45 * f, 0.77 * f, 0.5 * f, "", { line: C.text1, lw: 1, name: `${name} shows laptop 1 frame` });
+  cell(s, x + 0.38 * f, y + 0.57 * f, 0.12 * f, 0.12 * f, "", { fill: HEX.dk1, line: HEX.dk1, name: `${name} shows black patch` });
+  cell(s, x + 0.55 * f, y + 0.57 * f, 0.12 * f, 0.12 * f, "", { fill: WHITE, line: C.text1, lw: 0.75, name: `${name} shows white patch` });
+  cell(s, x + 0.08 * f, y + 0.95 * f, 0.89 * f, Math.max(0.04 * f, 0.025), "", { fill: HEX.dk1, line: HEX.dk1, lw: 0.5, name: `${name} shows laptop 1 base` });
+  return h;
 }
 
 const PARTIAL = !!process.env.DECK_PARTIAL;
@@ -245,6 +278,12 @@ async function applyTheme(file) {
   xml = xml.replace(/<a:clrScheme\b[\s\S]*?<\/a:clrScheme>/, () => scheme)
     .replace(/(<a:(?:theme|fontScheme)\b[^>]*?\bname=")[^"]*"/g, (_, head) => `${head}${THEME.name}"`);
   zip.file(part, xml);
+  // pptxgenjs lists its own default fonts and theme in docProps/app.xml, so name the ones the deck really uses
+  const app = await zip.file("docProps/app.xml").async("string");
+  zip.file("docProps/app.xml", app.replace("<vt:lpstr>Arial</vt:lpstr>", `<vt:lpstr>${THEME.headFontFace}</vt:lpstr>`).replace("<vt:lpstr>Calibri</vt:lpstr>", `<vt:lpstr>${FONT.mono}</vt:lpstr>`).replace("<vt:lpstr>Office Theme</vt:lpstr>", `<vt:lpstr>${THEME.name}</vt:lpstr>`));
+  for (const name of ["docProps/app.xml", "docProps/core.xml"]) {
+    if (/pptxgen/i.test(await zip.file(name).async("string"))) throw new Error(`${name} still carries a generator label`);
+  }
   // a scheme colour handed to an option that only takes hex is written as a bad srgbClr, catch it here
   for (const name of Object.keys(zip.files).filter((n) => n.endsWith(".xml"))) {
     const bad = (await zip.file(name).async("string")).match(/<a:srgbClr val="((?![0-9A-Fa-f]{6}")[^"]*)"/);
@@ -280,6 +319,6 @@ async function finish(file) {
 module.exports = {
   pres, C, SH, THEME, HEX, X, FONT, M, WHITE, TOTAL, MAIN_END, DEMO, HAS_DEMO, STATS, RSTATS, DATA, PLOTS, state,
   SETUPS, setupKey, setupLabel, setupRow, findKey,
-  text, hline, vline, arrow, cell, circle, plot, photo, chartFrame, axes,
+  text, hline, vline, arrow, cell, circle, laptop, ipad, plot, photo, chartFrame, axes,
   section, speaker, note, count, content, divider, progress, lineStyle, finish,
 };

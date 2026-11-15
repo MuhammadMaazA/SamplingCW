@@ -1,6 +1,7 @@
 "use strict";
-// Slides 34 to 43, the extension, spread copies and interleaving, the simulations and the physical test.
+// The extension, spread copies and interleaving, the simulations and the layout test.
 const k = require("./kit");
+const built = require("./built");
 const { pres, C, SH, HEX, X, FONT, M, WHITE, STATS, RSTATS, DATA, text, hline, vline, arrow, cell, plot, content, divider, chartFrame, axes, findKey } = k;
 
 const pct = (x, d = 1) => (x * 100).toFixed(d);
@@ -9,7 +10,7 @@ function neighbours() {
   const { s, top } = content({
     title: "Neighbouring copies fail together",
     take: "A burst of 3 bits flips all three copies of a bit when the copies sit side by side.",
-    notes: "With plain repetition the three copies of a bit sit next to each other, so one burst can flip all of them and the vote goes wrong. Spread repetition sends the whole message three times in a row. A burst shorter than the message flips at most one copy of each bit, so the vote still works. The bits and the rate stay the same, and only the order changes.",
+    notes: "With plain repetition the three copies of a bit sit next to each other, so one burst can flip all of them and the vote goes wrong. Spread repetition sends the whole message three times in a row. A burst shorter than the message flips at most one copy of each bit, so the vote still works. Only the order changes.",
   });
   const size = 0.58, gap = 0.07, pitch = size + gap, x0 = 3.45;
   const rows = [
@@ -30,7 +31,7 @@ function interleaving() {
   const { s, top } = content({
     title: "Interleaving",
     take: "Same bits and rate in a different order. An 8 bit burst now hits each codeword once.",
-    notes: `Interleaving means sending the bits in a shuffled order. We send the Hamming bits one column at a time across 8 codewords. A burst of up to 8 bits then hits each codeword once, and Hamming fixes every one. We chose depth 8 because ${pct(DATA.glare_runs.share_le8, 0)} percent of our measured glare error runs were 8 bits or shorter. Depth 16 handles bursts of up to 16 bits. In the physical runs at 4 and 8 bps, depth 8 matched plain Hamming, so we claim no difference.`,
+    notes: `Interleaving means sending the bits in a shuffled order. We send the Hamming bits one column at a time across 8 codewords, so a burst of up to 8 bits hits each codeword once and Hamming fixes every one. We chose depth 8 because ${pct(DATA.glare_runs.share_le8, 0)} percent of our glare error runs were 8 bits or shorter. Depth 16 handles bursts of up to 16 bits. In our recorded runs we saw no difference from plain Hamming.`,
   });
   const cs = 0.27, gap = 0.03, pitch = cs + gap, gy = top + 0.5;
   [["Sent one codeword at a time", 1.1, (r, c) => r * 7 + c < 8, "7 errors in one codeword, which Hamming cannot fix", true],
@@ -56,7 +57,7 @@ function burstSweep() {
   const { s, top } = content({
     title: "Bursts of up to 8 bits",
     take: `In simulation depth 8 fixes bursts up to ${zeroTo} bits. Plain Hamming fails from ${firstFail} bits.`,
-    notes: `The physical glare runs gave too few frames to compare Hamming with interleaving, so we simulated bursts of a length we chose. Each point is 400 trials with a 64 bit payload. Depth 8 makes no errors up to ${zeroTo} bits, while plain Hamming already fails at ${firstFail} bits. From ${zeroTo + 1} bits some codewords take two hits, and past ${cross} bits interleaving does worse.`,
+    notes: `Our recorded glare runs gave too few frames to compare Hamming with interleaving, so we simulated bursts of a length we chose. Each point is 400 trials with a 64 bit payload. Depth 8 makes no errors up to ${zeroTo} bits, while plain Hamming already fails at ${firstFail} bits. From ${zeroTo + 1} bits some codewords take two hits, and past ${cross} bits interleaving does worse.`,
   });
   s.addChart(pres.charts.LINE, [
     { name: "Hamming", labels: L, values: ham },
@@ -78,7 +79,7 @@ function placement() {
   const { s, top } = content({
     title: "Spreading helps more than copies",
     take: `In simulation, spreading the copies raised correct payloads from ${pct(D["rep-3 adjacent"].payload, 0)} to ${pct(D["rep-3 spread"].payload, 0)} percent.`,
-    notes: `We simulated 3000 whole frames per layout on the two-state model fitted to our glare data. With the copies side by side, adding copies makes it worse, from ${D["rep-3 adjacent"].payload.toFixed(3)} down to ${D["rep-7 adjacent"].payload.toFixed(3)}, because longer runs make longer bursts. Spreading the copies gives ${D["rep-3 spread"].payload.toFixed(3)} with three copies and ${D["rep-7 spread"].payload.toFixed(2)} with seven. Spreading the header raised whole frame success from ${pct(H.frame)} to ${pct(HS.frame)} percent. This ranks the designs and does not predict exact rates.`,
+    notes: `We simulated 3000 whole frames per layout on the two-state model fitted to our glare data. With the copies side by side, adding copies makes it worse, because longer runs make longer bursts. Spreading the copies gives ${D["rep-3 spread"].payload.toFixed(3)} with three copies and ${D["rep-7 spread"].payload.toFixed(2)} with seven. Spreading the header raised whole frame success from ${pct(H.frame)} to ${pct(HS.frame)} percent. This ranks the designs and does not predict exact rates.`,
   });
   s.addChart(pres.charts.BAR, [{ name: "Payload success", labels, values: keys.map((key) => D[key].payload) }], {
     x: M, y: top, w: 5.7, h: 5.15 - top - 0.3, barDir: "bar", barGapWidthPct: 35, catAxisOrientation: "maxMin",
@@ -134,7 +135,7 @@ function threeLayouts() {
 function physicalGrid() {
   const PH = DATA.physical, n = PH.trials, per = PH.layouts[0].valid.length, mins = Math.round(PH.planned_s / 60);
   const { s, top } = content({
-    title: "The physical test had 72 trials",
+    title: "The layout test had 72 trials",
     take: `Six layouts with ${per} trials each, recorded in one ${mins} minute session.`,
     notes: `We tested the layouts in the room. There were six layouts and ${per} trials each, ${n} trials in one ${mins} minute session with one calibrated threshold. Each square is one trial, black if the frame was delivered and red if it was lost. Plain repetition-3 and depth 8 are the baselines. Spread repetition, the spread header and depth 16 are new.`,
   });
@@ -157,13 +158,13 @@ async function physicalResults() {
   const L = R.layouts, p = (name) => L[name].fisher_p.toFixed(2);
   const cb = R.ranges.channel_ber.map((v) => (v * 100).toFixed(1));
   const { s, top } = content({
-    title: "Results of the physical test",
+    title: "Results of the layout test",
     take: `Frames delivered ranged from ${lo} to ${hi} of 12, and no comparison gave p below ${pmin.toFixed(1)}.`,
     notes: `Every layout delivered between ${lo} and ${hi} of 12 frames. We compared each new layout with its baseline using a Fisher exact test. The p values are ${p("rep-3 spread")} and ${p("rep-3 spread + header")} for the spread repetition layouts, and ${p("Ham-int depth 16")} and ${p("Ham-int depth 16 + header")} for depth 16. None is significant. With 12 trials per layout, this test could only show large differences.`,
   });
   const gap = 0.15, avail = 9.4 - M - gap, wA = 5.6, wB = 3.6, sc = Math.min(1.05, avail / (wA + wB), (5.15 - top) / 3.5);
   const a = await plot(s, "fig-physical-frames.png", { x: M, y: top, w: wA * sc, name: "frames delivered per layout", alt: "Frames delivered of 12 for the six layouts with Wilson intervals" });
-  await plot(s, "fig-physical-ber.png", { x: M + a.w + gap, y: top, w: wB * sc, name: "channel BER per layout", alt: "Channel BER for the six layouts in the physical test" });
+  await plot(s, "fig-physical-ber.png", { x: M + a.w + gap, y: top, w: wB * sc, name: "channel BER per layout", alt: "Channel BER for the six layouts in the layout test" });
 }
 
 async function headerFinding() {
@@ -171,7 +172,7 @@ async function headerFinding() {
   const { s, top } = content({
     title: "Spreading the header cost frames",
     take: `The header CRC failed in ${H.spread.failed} of ${H.spread.frames} spread header frames and ${H.other.failed} of ${H.other.frames} others, p = ${H.fisher_p.toFixed(3)}.`,
-    notes: `This was the one clear effect in the physical test, and it goes the wrong way. The header CRC failed in ${H.spread.failed} of ${H.spread.frames} spread header frames and ${H.other.failed} of ${H.other.frames} others, with a Fisher exact p of ${H.fisher_p.toFixed(3)}. The simulation predicted the opposite. Two failures came from one short stretch of heavy errors. Without it, it is still ${H.mild_spread.failed} of ${H.mild_spread.frames} against ${H.adjacent.observed} of ${H.adjacent.frames}, p of ${H.mild_fisher_p.toFixed(2)}. We have not found the cause.`,
+    notes: `This was the one clear effect in the layout test, and it goes the wrong way. The header CRC failed in ${H.spread.failed} of ${H.spread.frames} spread header frames and ${H.other.failed} of ${H.other.frames} others, with a Fisher exact p of ${H.fisher_p.toFixed(3)}. In simulation the spread header helped, and in the layout test it cost frames. Two failures came from one short stretch of heavy errors. Without it, it is still ${H.mild_spread.failed} of ${H.mild_spread.frames} against ${H.adjacent.observed} of ${H.adjacent.frames}, p of ${H.mild_fisher_p.toFixed(2)}. We have not found the cause.`,
   });
   await plot(s, "fig-physical-header.png", { y: top - 0.08, maxW: 9.4, maxH: 5.15 - top + 0.08, ar: 2.2, name: "header CRC failures by layout", alt: "Header CRC failures for the layouts with the header together and with the header spread" });
 }
@@ -181,30 +182,31 @@ async function physicalReading() {
   const SHORTL = ["rep-3 side by side", "rep-3 spread apart", "rep-3 spread + header", "Hamming depth 8", "Hamming depth 16", "Hamming depth 16 + header"];
   const rows = [...orig.map((r, i) => [`Glare run ${i + 1}`, r.channel * 100, X.accent]), ...P.layouts.map((l, i) => [SHORTL[i] ?? l.short, l.channel_ber * 100, X.g2])];
     const { s, top } = content({
-    title: "What the physical test shows",
+    title: "What the layout test shows",
     take: "Glare was mild, so heavy bursts went untested. The one clear effect was negative.",
-    notes: `Channel BER in the physical test was ${P.channel_ber_range_pct[0]} to ${P.channel_ber_range_pct[1]} percent, against ${P.original_glare_channel_ber_range_pct[0]} to ${P.original_glare_channel_ber_range_pct[1]} percent in the glare runs on 26 October. So the glare was mild and heavy bursts were not tested. The one clear effect was negative, because spreading the header cost frames. Whether spreading helps against heavy bursts still rests on the simulation.`,
+    notes: `Channel BER in the layout test was ${P.channel_ber_range_pct[0]} to ${P.channel_ber_range_pct[1]} percent, against ${P.original_glare_channel_ber_range_pct[0]} to ${P.original_glare_channel_ber_range_pct[1]} percent in the earlier glare runs. So the glare was mild and heavy bursts were not tested. The one clear effect was negative, because spreading the header cost frames. Whether spreading helps against heavy bursts still rests on the simulation.`,
   });
   s.addChart(pres.charts.BAR, [{ name: "Channel BER", labels: rows.map((r) => r[0]), values: rows.map((r) => r[1]) }], {
     x: M, y: top, w: 5.7, h: 5.15 - top, barDir: "bar", barGapWidthPct: 35, chartColors: rows.map((r) => r[2]), catAxisOrientation: "maxMin", showLegend: false,
     showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.0", valAxisMinVal: 0, valAxisMaxVal: 36, valAxisMajorUnit: 10,
     ...chartFrame, ...axes("Channel BER, percent"), objectName: "channel ber comparison",
   });
-  text(s, "Glare runs on 26 October", { x: 6.55, y: top + 0.2, w: 2.85, h: 0.3, fontSize: 16, bold: true, color: C.accent2, objectName: "original glare label" });
+  text(s, "Earlier glare runs", { x: 6.55, y: top + 0.2, w: 2.85, h: 0.3, fontSize: 16, bold: true, color: C.accent2, objectName: "original glare label" });
   text(s, `${P.original_glare_channel_ber_range_pct[0]} to ${P.original_glare_channel_ber_range_pct[1]} percent`, { x: 6.55, y: top + 0.52, w: 2.85, h: 0.4, fontSize: 22, bold: true, objectName: "original glare range" });
-  text(s, "Test on 6 November", { x: 6.55, y: top + 1.2, w: 2.85, h: 0.3, fontSize: 16, bold: true, color: C.text2, objectName: "this session label" });
+  text(s, "Layout test", { x: 6.55, y: top + 1.2, w: 2.85, h: 0.3, fontSize: 16, bold: true, color: C.text2, objectName: "this session label" });
   text(s, `${P.channel_ber_range_pct[0]} to ${P.channel_ber_range_pct[1]} percent`, { x: 6.55, y: top + 1.52, w: 2.85, h: 0.4, fontSize: 22, bold: true, objectName: "this session range" });
 }
 
 async function build() {
   k.speaker("Kanav");
-  divider({ index: 4, title: "Extension", sub: "Our extension, which changes the order we send the bits, tested in simulation and then on the physical link.",
+  divider({ index: 4, title: "Extension", sub: "Our extension, which changes the order we send the bits, tested in simulation and then in the layout test.",
     notes: "Now our extension, which changes the order we send the bits." });
   neighbours();
   interleaving();
   burstSweep();
   placement();
   threeLayouts();
+  built.layoutsFlow();
   physicalGrid();
   await physicalResults();
   await headerFinding();

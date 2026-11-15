@@ -1,6 +1,7 @@
 "use strict";
 // Slides 17 to 25, how the experiments were run, every session, the three changes and the failures.
 const k = require("./kit");
+const built = require("./built");
 const { pres, C, SH, HEX, X, FONT, M, WHITE, STATS, RSTATS, DATA, text, hline, vline, arrow, cell, plot, content, divider, chartFrame, axes, setupKey, setupLabel, setupRow } = k;
 
 const SHORT = { none: "U", "rep-3": "r3", "rep-5": "r5", "rep-7": "r7", Ham: "H", "2-D": "2D", "H-int": "HI" };
@@ -10,7 +11,7 @@ function plan() {
   const { s, top } = content({
     title: "How the plan works",
     take: "Both laptops make the same shuffled order from one seed, so nothing is sent back.",
-    notes: `A plan fixes the codes, the payloads, the repeats, the bit rate and a random seed. Laptop 2, which records, saves the plan. Laptop 1, which sends, builds the same shuffled order from the same seed and settings, so nothing is sent back. Laptop 2 can then match every recording to what laptop 1 sent. The strips show the ${n} trials of the 31 October session.`,
+    notes: `A plan fixes the codes, the payloads, the repeats, the bit rate and a random seed. Laptop 2, which records, saves the plan. Laptop 1, which sends, builds the same shuffled order from the same seed and settings, so nothing is sent back. The strips show the ${n} trials of one session.`,
   });
   const w = 0.39, gap = 0.03, pitch = w + gap, sh = 0.45;
   const yA = top + 0.42, yBox = yA + sh + 0.45, yB = yBox + 0.6 + 0.43;
@@ -37,7 +38,7 @@ function metrics() {
   const { s, top } = content({
     title: "Four numbers for every trial",
     take: `In this example ${wrongChannel} of 12 bits arrive wrong, but all 4 message bits decode correctly.`,
-    notes: `We record four numbers for every trial. Channel BER is the share of bits that arrive wrong, where BER means bit error rate. Decoded BER is the share of message bits that are wrong after decoding. Throughput is the message bits delivered per second. Frame success is the share of frames that decode correctly. In the example ${wrongChannel} of 12 bits arrive wrong, but repetition fixes both, so the decoded BER is zero.`,
+    notes: `We record four numbers for every trial. Channel BER is the share of bits that arrive wrong, where BER means bit error rate. Decoded BER is the share of message bits wrong after decoding. Throughput is the message bits delivered per second. Frame success is the share of frames that decode correctly. In the example repetition fixes both wrong bits, so the decoded BER is zero.`,
   });
   const size = 0.4, gap = 0.06, gg = 0.14, pitch = size + gap, x0 = 1.95, y = top + 0.2;
   const gx = (g, j) => x0 + g * (3 * pitch + gg) + j * pitch;
@@ -68,10 +69,10 @@ function metrics() {
 async function timeline() {
   const { s, top } = content({
     title: "The recording sessions",
-    take: "Every session from 26 to 31 October, in order. Grey dots gave nothing we could use.",
-    notes: "Every session from 26 to 31 October, in the order we recorded them. The size of a dot is the number of trials we planned. Black dots delivered most of their frames, red dots lost most of theirs, and grey dots gave us nothing we could use. The 6 November test comes later.",
+    take: "Each dot is one session, by light and speed. Grey dots gave nothing we could use.",
+    notes: "Each dot is one recording session, grouped by the light and the speed. The size of a dot is the number of trials we planned. Black dots delivered most of their frames, red dots lost most of theirs, and grey dots gave us nothing we could use. The layout test comes later.",
   });
-  await plot(s, "fig-sessions-timeline.png", { y: top, maxW: 9.4, maxH: 5.15 - top, ar: 2.5, name: "all recording sessions", alt: "Every session from 26 to 31 October by date and setup, with frames delivered and the sessions that gave nothing usable" });
+  await plot(s, "fig-sessions-timeline.png", { y: top, maxW: 9.4, maxH: 5.15 - top, ar: 2.5, name: "all recording sessions", alt: "Every session grouped by light and speed, with frames delivered and the sessions that gave nothing usable" });
 }
 
 // one slide for each change, the picture on the left and three short lines on the right
@@ -160,7 +161,7 @@ function failures() {
   const { s, top } = content({
     title: "Runs that failed",
     take: "Two of these failures were our own mistakes, and a third came from the camera.",
-    notes: `On 27 October we recorded in a different place at ${O.bit_rate} bits per second. The plan needed ${(O.planned_s / 60).toFixed(0)} minutes but the recording stopped after ${(O.recorded_s / 60).toFixed(0)}, so only 3 of ${O.trials} trials were filmed. Separately, the command that started laptop 1 listed the codes in a different order from the plan on laptop 2, so ${B.differ} of ${n} trials did not match. We fixed that by analysing against what laptop 1 sent. A third run stopped when the camera repeated timestamps.`,
+    notes: `In one session we recorded in a different place at ${O.bit_rate} bits per second. The plan needed ${(O.planned_s / 60).toFixed(0)} minutes but the recording stopped after ${(O.recorded_s / 60).toFixed(0)}, so only 3 of ${O.trials} trials were filmed. Separately, the command that started laptop 1 listed the codes in a different order from the plan, so ${B.differ} of ${n} trials did not match. We fixed that by analysing against what laptop 1 sent. A third run stopped on repeated timestamps.`,
   });
   text(s, `A different place, ${O.bit_rate} bps`, { x: M, y: top + 0.05, w: 4.0, h: 0.34, fontSize: 18, fontFace: FONT.semi, objectName: "airtime head" });
   s.addChart(pres.charts.BAR, [{ name: "Minutes", labels: ["Planned", "Recorded"], values: [O.planned_s / 60, O.recorded_s / 60] }], {
@@ -186,10 +187,13 @@ async function build() {
   k.speaker("Maaz");
   divider({ index: 2, title: "Experiments", sub: "How we ran the experiments, what we changed and which runs failed.",
     notes: "Now how we ran the sessions and what we changed." });
+  built.experiment();
+  await built.demo();
   plan();
   metrics();
   await timeline();
   await changes();
+  k.speaker("Kanav");
   frameLoss();
   failures();
 }

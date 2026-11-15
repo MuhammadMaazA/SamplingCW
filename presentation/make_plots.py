@@ -647,10 +647,10 @@ def session_start(key):
 
 
 def recordings():
-    """Every recording with its lane (light and speed), planned trials, frames delivered and outcome, read from the saved files."""
+    """Every recording with its lane (condition), planned trials, frames delivered and outcome, read from the saved files."""
     out = []
 
-    def add(lane, start, planned, filmed, valid, note="", side="right", place=""):
+    def add(lane, start, planned, filmed, valid, note=""):
         if planned == 0 or filmed < planned / 2:
             kind = "unusable"
         else:
@@ -663,10 +663,8 @@ def recordings():
             text = note
         else:
             text = f"{valid} of {planned}, only {filmed} filmed"
-        if place:
-            text = f"{place}: {text}"
         out.append({"lane": lane, "display": lane, "start": start.isoformat(), "planned": planned, "filmed": filmed,
-                    "valid": valid, "kind": kind, "label": text, "side": side, "place": place})
+                    "valid": valid, "kind": kind, "label": text})
 
     glare4, glare2, norm4 = f"{GLARE_LIGHT}, 4 bps", f"{GLARE_LIGHT}, 2 bps", f"{NORMAL}, 4 bps"
     total = [results_counts(RES / SESS[k] / "results.csv") for k in GLARE4]
@@ -676,81 +674,76 @@ def recordings():
     add("Pipeline test", datetime.fromisoformat(log[:19]), 0, 0, 0)
     add(norm4, session_start("reflect4b"), *results_counts(RES / SESS["reflect4b"] / "results.csv"))
     outside = results_counts(REPO / "experiments" / "extra-analysis" / "full1-A-thr93-results.csv")
-    add(glare2, session_start("outside"), *outside, place="a different place")
-    add(norm4, session_start("facing4"), *results_counts(RES / SESS["facing4"] / "results.csv"), side="above")
+    add(DIFFERENT_PLACE, session_start("outside"), *outside)
+    add(norm4, session_start("facing4"), *results_counts(RES / SESS["facing4"] / "results.csv"))
     add(norm4, session_start("reflect4"), *results_counts(RES / SESS["reflect4"] / RESULTS_FILE["reflect4"]))
     elapsed = re.search(r"elapsed=([\d.]+)s", open(RES / SESS["facing3_abort"] / "capture.log").read()).group(1)
     planned = json.load(open(RES / SESS["facing3_abort"] / "session.json"))["trials"]
-    add(f"{NORMAL}, 3 bps", session_start("facing3_abort"), planned, 0, 0, note=f"stopped at {float(elapsed):.1f} s", side="left")
+    add(f"{NORMAL}, 3 bps", session_start("facing3_abort"), planned, 0, 0, note=f"stopped at {float(elapsed):.1f} s")
     add(f"{NORMAL}, 3 bps", session_start("facing3"), *results_counts(RES / SESS["facing3"] / RESULTS_FILE["facing3"]))
-    add(f"{NORMAL}, 8 bps", session_start("facing8"), *results_counts(RES / SESS["facing8"] / "results.csv"), side="left")
+    add(f"{NORMAL}, 8 bps", session_start("facing8"), *results_counts(RES / SESS["facing8"] / "results.csv"))
     return sorted(out, key=lambda r: r["start"])
 
 
 KIND_COLOUR = {"delivered": INK, "lost": ACCENT, "unusable": GREY2}
+DIFFERENT_PLACE = "A different place, 2 bps"
 
 
 def fig_sessions_timeline():
     recs = recordings()
-    stats["sessions"] = recs
-    lanes = []
-    for r in recs:
-        if r["lane"] not in lanes:
-            lanes.append(r["lane"])
-    days = sorted({r["start"][:10] for r in recs})
-    first, last = datetime.fromisoformat(days[0]).date(), datetime.fromisoformat(days[-1]).date()
-    cols, d = [], first
-    while d <= last:
-        cols.append(d); d = datetime.fromordinal(d.toordinal() + 1).date()
-    per_day = {c: [r for r in recs if r["start"][:10] == c.isoformat()] for c in cols}
-    weight = {c: (len(v) + 0.7 if v else 0.9) for c, v in per_day.items()}
-    W, H, L, TOP, AW, AH = 9.0, 3.6, 2.2, 0.5, 6.7, 2.3
-    unit = AW / sum(weight.values())
+    lanes = [f"{GLARE_LIGHT}, 4 bps", f"{GLARE_LIGHT}, 2 bps", f"{NORMAL}, 3 bps", f"{NORMAL}, 4 bps", f"{NORMAL}, 8 bps",
+             "Pipeline test", DIFFERENT_PLACE]
+    seen = {}
+    for r in recs:  # chronological order within each lane, evenly spaced slots, no time axis
+        r["slot"] = seen.get(r["lane"], 0)
+        seen[r["lane"]] = r["slot"] + 1
+    slots = max(seen.values())
+    W, H, L, TOP, AW, AH = 9.0, 3.6, 2.4, 0.15, 6.5, 2.85
     fig = new_fig(W, H); ov = overlay(fig)
     ax = box(fig, L, TOP, AW, AH)
     ax.set_xlim(0, AW); ax.set_ylim(len(lanes) - 0.5, -0.5)
-    for i in range(len(lanes)):
-        ax.axhline(i, color=GREY3, lw=0.6, zorder=0)
-    x0, xs, labels, empty = 0.0, [], [], []
-    for c in cols:
-        w = weight[c] * unit
-        ax.axvline(x0, color=GREY3, lw=0.8, zorder=0)
-        recs_day = per_day[c]
-        name = c.strftime("%d %b").lstrip("0") if recs_day else str(c.day)
-        ax.text(x0 + w / 2, -0.6, name, ha="center", va="bottom", fontsize=13, color=GREY1 if recs_day else GREY2, clip_on=False)
-        if not recs_day:
-            ax.axvspan(x0, x0 + w, color=GREY4, alpha=0.3, lw=0)
-            empty.append((x0, x0 + w))
-        for i, r in enumerate(recs_day):
-            r["x"] = x0 + (i + 0.5) * w / len(recs_day)
-            xs.append(r["x"]); labels.append(r["start"][11:16])
-        x0 += w
-    ax.axvline(x0, color=GREY3, lw=0.8, zorder=0)
-    ax.text((empty[0][0] + empty[-1][1]) / 2, 2.0, "no" + chr(10) + "recordings", ha="center", va="center", fontsize=13, color=GREY2)
+    pitch = AW / slots
+    anns, gaps = [], {i: [] for i in range(len(lanes))}
     for r in recs:
+        r["x"] = 0.3 + r["slot"] * 2.1
         y = lanes.index(r["lane"])
         col = KIND_COLOUR[r["kind"]]
         if r["planned"] == 0:
-            ax.scatter(r["x"], y, s=44, facecolors="none", edgecolors=col, linewidths=1.6, zorder=3)
-            rad = 4
+            ax.scatter(r["x"], y, s=60, facecolors="none", edgecolors=col, linewidths=1.8, zorder=3)
+            rad = 5
         else:
             area = 12 * r["planned"]
             ax.scatter(r["x"], y, s=area, color=col, edgecolors="none", zorder=3)
             rad = math.sqrt(area / math.pi)
-        dx, dy, ha, va = {"right": (rad + 5, 0, "left", "center"), "left": (-(rad + 5), 0, "right", "center"),
-                          "above": (0, rad + 4, "center", "bottom")}[r["side"]]
-        ax.annotate(r["label"], (r["x"], y), xytext=(dx, dy), textcoords="offset points", ha=ha, va=va, fontsize=13,
-                    color=INK if r["kind"] != "unusable" else GREY1, fontweight="bold" if r["kind"] != "unusable" else "normal")
+        anns.append((y, ax.annotate(r["label"], (r["x"], y), xytext=(rad + 6, 0), textcoords="offset points", ha="left", va="center",
+                                    fontsize=13, color=INK if r["kind"] != "unusable" else GREY1,
+                                    fontweight="bold" if r["kind"] != "unusable" else "normal")))
+        gaps[y].append((r["x"] - rad / 72 - 0.06, r["x"] + rad / 72 + 0.06))
+    # lane hairlines stop before every marker and label, so no line runs through the text
+    fig.canvas.draw()
+    inv, renderer = ax.transData.inverted(), fig.canvas.get_renderer()
+    for y, ann in anns:
+        bb = ann.get_window_extent(renderer)
+        (x0, _), (x1, _) = inv.transform([(bb.x0, bb.y0), (bb.x1, bb.y1)])
+        gaps[y].append((x0 - 0.08, x1 + 0.08))
+    for y, spans in gaps.items():
+        start = 0.0
+        for a, b in sorted(spans):
+            if a > start:
+                ax.plot([start, a], [y, y], color=GREY3, lw=0.6, zorder=0, solid_capstyle="butt")
+            start = max(start, b)
+        if start < AW:
+            ax.plot([start, AW], [y, y], color=GREY3, lw=0.6, zorder=0, solid_capstyle="butt")
+    stats["sessions"] = recs
     ax.set_yticks(range(len(lanes))); ax.set_yticklabels(lanes); ax.tick_params(axis="y", length=0)
-    ax.spines["left"].set_visible(False)
-    ax.set_xticks(xs); ax.set_xticklabels(labels, fontsize=13)
-    ov.text(L, 0.34, "time of day (UTC), in order within each day, marker area is planned trials", ha="left", va="center", fontsize=13, color=GREY1)
+    ax.set_xticks([]); ax.spines["left"].set_visible(False); ax.spines["bottom"].set_visible(False)
+    ov.text(L, 0.37, "marker area is the number of planned trials", ha="left", va="center", fontsize=13, color=GREY1)
     x = L
     for kind, text in (("delivered", "mostly delivered"), ("lost", "mostly lost"), ("unusable", "not usable")):
         ov.plot(x + 0.06, 0.1, "o", color=KIND_COLOUR[kind], ms=8, mec="none")
         ov.text(x + 0.2, 0.1, text, ha="left", va="center", fontsize=13, color=GREY1)
         x += 0.45 + 0.085 * len(text)
-    put(fig, "fig-sessions-timeline.png", "Every recording on a date axis, lanes by light and speed, marker area is planned trials, colour is outcome")
+    put(fig, "fig-sessions-timeline.png", "Every recording as one dot per session in lanes by condition, marker area is the number of planned trials, colour is outcome")
 
 
 # ---------------------------------------------------------------- 8. the four one-variable changes
@@ -1005,7 +998,7 @@ def physical():
     glare = [float(summary[g]["channel_ber"]) for g in grp(22, 26)]
     ps_ = [e["fisher_p_vs_baseline"] for e in out if e["fisher_p_vs_baseline"] is not None]
     stats["physical"] = {
-        "session": PHYSICAL, "display": f"{GLARE_LIGHT} (mild), six layouts", "layouts": out,
+        "session": PHYSICAL, "name": "Layout test", "display": f"{GLARE_LIGHT} (mild), six layouts", "layouts": out,
         "frames_range": [min(e["frames"] for e in out), max(e["frames"] for e in out)],
         "channel_ber_range_pct": [round(min(e["channel_ber"] for e in out) * 100, 2), round(max(e["channel_ber"] for e in out) * 100, 2)],
         "original_glare_channel_ber_range_pct": [round(min(glare) * 100, 1), round(max(glare) * 100, 1)],
@@ -1015,7 +1008,7 @@ def physical():
 
 def fig_physical_frames():
     L = stats["physical"]["layouts"]
-    W, H, ax_l, ax_w, top, ah = 5.6, 3.5, 2.0, 2.1, 0.5, 2.0
+    W, H, ax_l, ax_w, top, ah = 5.6, 3.5, 1.95, 2.0, 0.5, 2.0
     fig = new_fig(W, H); ov = overlay(fig)
     ax = box(fig, ax_l, top, ax_w, ah)
     for i, e in enumerate(L):
@@ -1031,10 +1024,10 @@ def fig_physical_frames():
     ax.set_yticks(range(len(L))); ax.set_yticklabels([e["label"] for e in L]); ax.tick_params(axis="y", length=0)
     ax.grid(axis="x"); ax.set_axisbelow(True); ax.spines["left"].set_visible(False)
     ov.text(ax_l + ax_w + 0.72, H - 0.12, "Fisher p", ha="left", va="center", fontsize=13, color=GREY1)
-    ov.text(ax_l + ax_w + 0.72, H - 0.32, "vs as built", ha="left", va="center", fontsize=13, color=GREY1)
+    ov.text(ax_l + ax_w + 0.72, H - 0.32, "vs baseline", ha="left", va="center", fontsize=13, color=GREY1)
     ov.text(ax_l + ax_w / 2, 0.58, "Fraction of 12 frames delivered, with 95% Wilson intervals", ha="center", va="center", fontsize=14)
     ov.text(ax_l + ax_w / 2, 0.2, "+sh means the three header copies are spread", ha="center", va="center", fontsize=13, color=GREY1)
-    put(fig, "fig-physical-frames.png", "Frames delivered of 12 for the six layouts of the mild dim with glare session with Wilson intervals and Fisher p against the as built layout")
+    put(fig, "fig-physical-frames.png", "Layout test, dim with glare (mild): frames delivered of 12 for the six layouts with Wilson intervals and Fisher p against the baseline layout")
 
 
 def fig_physical_ber():
@@ -1050,13 +1043,13 @@ def fig_physical_ber():
         ax.barh(i, v, height=0.55, color=col, zorder=2)
         ov.text(ax_l + ax_w + 0.1, H - top - (i + 0.5) / len(L) * ah, f"{v:.2f}%", va="center", ha="left", fontsize=13, color=INK)
     cx = ax_l + ax_w * (lo + hi) / 2 / 35
-    ov.text(cx, H - 0.14, "original dim with glare runs", color=ACCENT, ha="center", va="center", fontsize=13, fontweight="bold")
+    ov.text(cx, H - 0.14, "earlier dim with glare runs", color=ACCENT, ha="center", va="center", fontsize=13, fontweight="bold")
     ov.text(cx, H - 0.34, f"{lo:g}% to {hi:g}%", color=ACCENT, ha="center", va="center", fontsize=13, fontweight="bold")
     ax.set_xlim(0, 35); ax.set_ylim(len(L) - 0.5, -0.5); ax.set_xticks([0, 10, 20, 30])
     ax.set_yticks(range(len(L))); ax.set_yticklabels([e["short"] for e in L]); ax.tick_params(axis="y", length=0)
     ax.grid(axis="x"); ax.set_axisbelow(True); ax.spines["left"].set_visible(False)
     ov.text(ax_l + ax_w / 2, 0.58, "Channel BER (%)", ha="center", va="center", fontsize=14)
-    put(fig, "fig-physical-ber.png", "Channel BER of each layout in the mild dim with glare session against the range of the original dim with glare runs, rows align with fig-physical-frames.png")
+    put(fig, "fig-physical-ber.png", "Layout test, dim with glare (mild): channel BER of each layout against the range of the earlier dim with glare runs, rows line up with the frames figure")
 
 
 def header_failures():
@@ -1100,7 +1093,7 @@ def fig_physical_header():
         else:
             ax.plot([0, 0], [y - 0.31, y + 0.31], color=col, lw=2.4, zorder=2, solid_capstyle="butt")
         ax.text(v + (0.35 if v else 0.7), y, f"{v} of {e['frames']}", va="center", ha="left", fontsize=13, color=col, fontweight="bold" if v else "normal")
-    for (a, b), key, col, name in (((0, 3), "as_built", INK, "header as built"), ((4.6, 5.6), "spread", ACCENT, "header spread")):
+    for (a, b), key, col, name in (((0, 3), "as_built", INK, "baseline header"), ((4.6, 5.6), "spread", ACCENT, "spread header")):
         g = h[key]
         ax.plot([13.0, 13.0], [a - 0.38, b + 0.38], color=GREY2, lw=1.2, clip_on=False)
         ax.text(13.7, (a + b) / 2 - 0.22, f"{g['failures']} of {g['frames']}", va="center", ha="left", fontsize=14, color=col, fontweight="bold", clip_on=False)
@@ -1110,7 +1103,7 @@ def fig_physical_header():
     ax.grid(axis="x"); ax.set_axisbelow(True); ax.spines["left"].set_visible(False)
     ov.text(ax_l + ax_w / 2 + 0.2, 0.5, "Header CRC failures, out of 12 frames", ha="center", va="center", fontsize=14)
     ov.text(ax_l + ax_w / 2 + 0.2, 0.15, f"Fisher exact p = {h['fisher_p']:.3f}", ha="center", va="center", fontsize=14, fontweight="bold")
-    put(fig, "fig-physical-header.png", "Header CRC failures out of 12 frames for each layout of the mild dim with glare session, spread header against header as built")
+    put(fig, "fig-physical-header.png", "Layout test, dim with glare (mild): header CRC failures out of 12 frames for each layout, spread header against baseline header")
 
 
 FIGURES = {
@@ -1138,7 +1131,7 @@ def write_stats():
         "G01 to G07": f"{NORMAL}, 3 bps", "G08 to G14": f"{NORMAL}, 8 bps", "G15 to G21": f"{NORMAL}, 4 bps",
         "G22 to G26": f"{GLARE_LIGHT}, 4 bps", "G27": f"{GLARE_LIGHT}, 2 bps",
         "G28": f"{NORMAL}, 4 bps, rep-3 check", "G29": f"{NORMAL}, 4 bps, rep-3 check",
-        "physical session": f"{GLARE_LIGHT} (mild), six layouts",
+        "layout test": f"{GLARE_LIGHT} (mild), six layouts",
     }
     manifest["_removed"] = ["fig-change-path.png", "fig-change-speed-facing.png", "run-lengths.png"]
     manifest["_renamed"] = {"fig-change-speed-facing.png": "fig-change-speed-normal.png"}

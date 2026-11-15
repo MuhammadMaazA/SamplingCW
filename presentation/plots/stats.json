@@ -362,6 +362,7 @@
  },
  "physical": {
   "session": "glare-layouts-room-comparison-20261106-021921-294106Z",
+  "name": "Layout test",
   "display": "Dim with glare (mild), six layouts",
   "layouts": [
    {
@@ -1056,9 +1057,8 @@
    "valid": 2,
    "kind": "lost",
    "label": "2 of 15",
-   "side": "right",
-   "place": "",
-   "x": 0.30976027397260275
+   "slot": 0,
+   "x": 0.3
   },
   {
    "lane": "Dim with glare, 2 bps",
@@ -1069,9 +1069,8 @@
    "valid": 2,
    "kind": "delivered",
    "label": "2 of 3",
-   "side": "right",
-   "place": "",
-   "x": 0.9292808219178083
+   "slot": 0,
+   "x": 0.3
   },
   {
    "lane": "Pipeline test",
@@ -1082,9 +1081,8 @@
    "valid": 0,
    "kind": "unusable",
    "label": "pipeline test",
-   "side": "right",
-   "place": "",
-   "x": 1.5006164383561644
+   "slot": 0,
+   "x": 0.3
   },
   {
    "lane": "Normal light, 4 bps",
@@ -1095,22 +1093,20 @@
    "valid": 3,
    "kind": "delivered",
    "label": "3 of 3",
-   "side": "right",
-   "place": "",
-   "x": 2.023767123287671
+   "slot": 0,
+   "x": 0.3
   },
   {
-   "lane": "Dim with glare, 2 bps",
-   "display": "Dim with glare, 2 bps",
+   "lane": "A different place, 2 bps",
+   "display": "A different place, 2 bps",
    "start": "2026-10-27T17:07:08",
    "planned": 21,
    "filmed": 3,
    "valid": 1,
    "kind": "unusable",
-   "label": "a different place: 1 of 21, only 3 filmed",
-   "side": "right",
-   "place": "a different place",
-   "x": 2.5469178082191783
+   "label": "1 of 21, only 3 filmed",
+   "slot": 0,
+   "x": 0.3
   },
   {
    "lane": "Normal light, 4 bps",
@@ -1121,9 +1117,8 @@
    "valid": 1,
    "kind": "delivered",
    "label": "1 of 2",
-   "side": "above",
-   "place": "",
-   "x": 3.0700684931506848
+   "slot": 1,
+   "x": 2.4
   },
   {
    "lane": "Normal light, 4 bps",
@@ -1134,9 +1129,8 @@
    "valid": 20,
    "kind": "delivered",
    "label": "20 of 21",
-   "side": "right",
-   "place": "",
-   "x": 3.5932191780821916
+   "slot": 2,
+   "x": 4.5
   },
   {
    "lane": "Normal light, 3 bps",
@@ -1147,9 +1141,8 @@
    "valid": 0,
    "kind": "unusable",
    "label": "stopped at 16.7 s",
-   "side": "left",
-   "place": "",
-   "x": 4.990582191780822
+   "slot": 0,
+   "x": 0.3
   },
   {
    "lane": "Normal light, 3 bps",
@@ -1160,9 +1153,8 @@
    "valid": 14,
    "kind": "delivered",
    "label": "14 of 21",
-   "side": "right",
-   "place": "",
-   "x": 5.6101027397260275
+   "slot": 1,
+   "x": 2.4
   },
   {
    "lane": "Normal light, 8 bps",
@@ -1173,9 +1165,8 @@
    "valid": 9,
    "kind": "lost",
    "label": "9 of 21",
-   "side": "left",
-   "place": "",
-   "x": 6.309931506849316
+   "slot": 0,
+   "x": 0.3
   }
  ],
  "changes": {
@@ -1496,6 +1487,6 @@
   "G27": "Dim with glare, 2 bps",
   "G28": "Normal light, 4 bps, rep-3 check",
   "G29": "Normal light, 4 bps, rep-3 check",
-  "physical session": "Dim with glare (mild), six layouts"
+  "layout test": "Dim with glare (mild), six layouts"
  }
 }

@@ -57,7 +57,7 @@ async function wilson() {
   const { s, top } = content({
     title: "What 3 trials can tell us",
     take: `With 3 trials per method, no method differs from the best one, p of ${pmin} or more.`,
-    notes: `With 3 trials per cell we need careful statistics. A Wilson interval is a 95 percent range for a proportion, and it works even at 0 of 3 or 3 of 3. A Fisher exact test compares two groups exactly with small counts. Our biggest gap, repetition-7 against Hamming at 8 bits per second, gives p of ${RSTATS.fisher_fast_rep7_vs_hamming.toFixed(2)}. Pooling three sessions gives 9 trials per method, and no method differs from the best.`,
+    notes: `With 3 trials per cell we need careful statistics. A Wilson interval is a 95 percent range for a proportion, and it works even at 0 of 3. A Fisher exact test compares two groups exactly with small counts. Our biggest gap, repetition-7 against Hamming at 8 bits per second, gives p of ${RSTATS.fisher_fast_rep7_vs_hamming.toFixed(2)}. Pooling three sessions gives 9 trials per method, and still no method differs from the best.`,
   });
   await plot(s, "wilson.png", { y: top, maxW: 9.4, maxH: 5.15 - top, name: "frames delivered with Wilson intervals", alt: "Frames delivered per method with 95 percent Wilson intervals for three setups" });
 }
@@ -99,7 +99,7 @@ function pattern() {
   const { s, top } = content({
     title: "Errors and the bit pattern",
     take: "At 8 bps black bits fail after white ones. In glare, later bits of a run fail more.",
-    notes: `At 8 bits per second, ${fd["black read white"]} of the ${fd["black read white"] + fd["white read black"]} errors are a black bit read as white. A black bit fails ${pct(r(F8.black_after_white))} percent of the time right after a white bit, against ${pct(r(F8.black_after_black))} percent after a black bit, because brightness carries over. In glare, errors are rare in the first two bits of a run, ${pct(el[0] / el[1])} percent, and common from the third, ${pct(el[2] / el[3])} percent. That fits exposure drifting while one colour is held.`,
+    notes: `At 8 bits per second, ${fd["black read white"]} of the ${fd["black read white"] + fd["white read black"]} errors are a black bit read as white. A black bit fails ${pct(r(F8.black_after_white))} percent of the time right after a white bit, against ${pct(r(F8.black_after_black))} percent after a black bit, because brightness carries over. In glare, errors are rare in the first two bits of a run, ${pct(el[0] / el[1])} percent, and common from the third, ${pct(el[2] / el[3])} percent, which fits exposure drift.`,
   });
   s.addChart(pres.charts.LINE, [
     { name: "Normal light, 8 bps", labels: L, values: rate(F8) },
@@ -124,7 +124,7 @@ async function twoState() {
   const { s, top } = content({
     title: "A two-state model of glare",
     take: `The bad state lasts ${g.mean_bad_length.toFixed(1)} bits on average and covers ${pct(g.bad_fraction, 0)} percent of the time.`,
-    notes: `We fitted a model with two states. In the good state it flips about ${pct(g.error_good, 0)} percent of bits, in the bad state almost all of them. In glare the bad state lasts ${g.mean_bad_length.toFixed(1)} bits on average and covers ${pct(g.bad_fraction, 0)} percent of the time. On BIC, a score where lower is better, it does far better than flips with no memory. It also predicts the share of errors in runs of 3 or more, ${MC.GE[0].toFixed(2)} against ${GL.burst_share.toFixed(2)} observed, which we did not fit.`,
+    notes: `We fitted a model with two states. In the good state it flips about ${pct(g.error_good, 0)} percent of bits, in the bad state almost all of them. In glare the bad state lasts ${g.mean_bad_length.toFixed(1)} bits on average and covers ${pct(g.bad_fraction, 0)} percent of the time. On BIC, where lower is better, it does far better than flips with no memory. It also predicts the share of errors in runs of 3 or more, which we did not fit.`,
   });
   const p = await plot(s, "fig-ge-fit.png", { y: top, maxW: 9.4, maxH: 5.15 - top - 0.75, name: "recorded glare frame against the fitted model", alt: "One recorded glare frame, three frames from the two state model and one draw with no memory" });
   const by = p.y + p.h + 0.14;
