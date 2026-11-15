@@ -1,6 +1,7 @@
 "use strict";
 // Shared theme, layouts and drawing helpers for the deck. Every slide module builds on this.
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const pptxgen = require("pptxgenjs");
 const JSZip = require("jszip");
@@ -16,7 +17,7 @@ const DATA = require("./data");
 // DECK_DEMO points at another file, which is how the slide is tried out without putting a clip in the repository.
 const DEMO = process.env.DECK_DEMO || path.join(ROOT, "media", "demo.mp4");
 const HAS_DEMO = fs.existsSync(DEMO);
-const TOTAL = 54 + (HAS_DEMO ? 1 : 0); // slides in the whole deck. finish() checks the count.
+const TOTAL = 35 + (HAS_DEMO ? 1 : 0); // slides in the whole deck. finish() checks the count.
 const MAIN_END = TOTAL; // the last slide is the Questions slide, so the whole deck is the talk
 
 // Black, white and one vermilion. Greys carry neutral data, the accent only marks errors, glare, bursts,
@@ -49,7 +50,7 @@ const SH = pres.shapes;
 const M = 0.6; // slide margin
 const WHITE = "FFFFFF";
 
-const state = { speaker: "Maaz", section: "Opening", count: 0, secs: [] };
+const state = { speaker: "Maaz", section: "Opening", tag: "", count: 0, secs: [] };
 
 
 // Display names of the setups, chosen by the user. The stats files may still carry older names, so every
@@ -86,17 +87,6 @@ pres.defineSlideMaster({
     { placeholder: { options: { name: "body", type: "body", x: M, y: 3.8, w: 8.8, h: 1.0, fontSize: 22,
       color: C.background1, align: "left", valign: "top", margin: 0 }, text: "" } },
   ],
-});
-pres.defineSlideMaster({
-  title: "Divider", background: { color: C.text1 },
-  objects: [
-    { placeholder: { options: { name: "title", type: "title", x: M, y: 2.35, w: 8.8, h: 0.95, fontSize: 46, bold: true,
-      color: C.background1, align: "left", valign: "bottom", margin: 0 }, text: "" } },
-    { placeholder: { options: { name: "body", type: "body", x: M, y: 3.5, w: 8.2, h: 0.8, fontSize: 20,
-      color: C.accent4, align: "left", valign: "top", margin: 0 }, text: "" } },
-    pageTotal(true),
-  ],
-  slideNumber: pageNo(true),
 });
 pres.defineSlideMaster({
   title: "Content", background: { color: C.background1 },
@@ -177,7 +167,8 @@ const PARTIAL = !!process.env.DECK_PARTIAL;
 const missing = [];
 async function plot(s, file, o = {}) {
   let meta;
-  try { meta = await sharp(path.join(PLOTS, file)).metadata(); } catch (e) {
+  const src = o.full ?? path.join(PLOTS, file);
+  try { meta = await sharp(src).metadata(); } catch (e) {
     if (!PARTIAL) throw new Error(`missing figure ${file}`);
     missing.push(file);
     meta = { width: (o.ar ?? 2.5) * 1000, height: 1000 };
@@ -191,10 +182,27 @@ async function plot(s, file, o = {}) {
   if (missing.includes(file)) {
     cell(s, x, o.y, w, h, `missing ${file}`, { fill: HEX.accent5, line: C.text2, fs: 12, color: C.text2, name: `placeholder ${file}` });
   } else {
-    s.addImage({ path: path.join(PLOTS, file), x, y: o.y, w, h, objectName: o.name ?? file, altText: o.alt ?? o.name ?? file });
+    s.addImage({ path: src, x, y: o.y, w, h, objectName: o.name ?? file, altText: o.alt ?? o.name ?? file });
   }
   return { x, y: o.y, w, h };
 }
+// A copy of a figure without its last line of text, written to the temp folder. The header figure ends with a bare
+// p label, and the slide says the same thing in plain words, so the label is cut off at the blank gap above it.
+async function withoutLastLine(file) {
+  const out = path.join(os.tmpdir(), `deck-trimmed-${file}`);
+  const { data, info } = await sharp(path.join(PLOTS, file)).flatten({ background: "#ffffff" }).raw().toBuffer({ resolveWithObject: true });
+  const inked = (y) => { for (let x = 0; x < info.width; x++) { const i = (y * info.width + x) * info.channels; if (data[i] < 240 || data[i + 1] < 240 || data[i + 2] < 240) return true; } return false; };
+  let y = info.height - 1;
+  while (y > 0 && !inked(y)) y--;                    // the blank margin under the figure
+  const bottom = y;
+  while (y > 0 && inked(y)) y--;                     // the rows of the last line of text
+  let gap = 0;
+  while (y > 0 && gap < 6) { if (inked(y)) gap = 0; else gap++; y--; }
+  if (y <= 0 || bottom - y < 10) throw new Error(`could not find the last line of ${file}`);
+  await sharp(path.join(PLOTS, file)).extract({ left: 0, top: 0, width: info.width, height: y + 1 }).toFile(out);
+  return out;
+}
+
 // a real picture with a hairline border so its edge shows on the paper
 async function photo(s, file, o) {
   const p = await plot(s, file, o);
@@ -218,9 +226,11 @@ const axes = (val, cat) => ({
 });
 
 // ---------- slide scaffolds ----------
-function section(name) {
+// starts a part of the talk. Every content slide after it carries a small grey tag like "02 Experiments" at the top right.
+function section(name, no) {
   pres.addSection({ title: name });
   state.section = name;
+  state.tag = no ? `${no} ${name}` : name;
 }
 function speaker(name) { state.speaker = name; }
 function note(s, t) { s.addNotes(`${state.speaker}. ${t}`); }
@@ -232,6 +242,7 @@ function count(secs) { state.count += 1; state.secs.push({ n: state.count, who: 
 function content({ title, take, notes, secs, fixed = false, dark = false }) {
   const s = pres.addSlide({ masterName: dark ? "Content Dark" : "Content", sectionTitle: state.section });
   s.addText(title, { placeholder: "title" });
+  if (state.tag) text(s, state.tag, { x: 6.9, y: 0.08, w: 2.5, h: 0.24, fontSize: 12, color: dark ? C.accent4 : C.text2, align: "right", objectName: "section tag" });
   let top = 1.2;
   if (take) {
     const lines = Math.ceil(take.length / 84);
@@ -242,26 +253,6 @@ function content({ title, take, notes, secs, fixed = false, dark = false }) {
   note(s, notes);
   count(fixed || secs === 0 ? secs : words(notes));
   return { s, top };
-}
-
-// the progress strip on dividers, one square for each part of the talk
-function progress(s, current, total = 5, x = M, y = 0.75) {
-  for (let i = 0; i < total; i++) {
-    const done = i < current, now = i === current - 1;
-    cell(s, x + i * 0.32, y, 0.22, 0.22, "", { fill: done ? (now ? HEX.lt1 : HEX.accent4) : HEX.dk1,
-      line: done ? (now ? HEX.lt1 : HEX.accent4) : HEX.dk2, lw: 0.75, name: `progress ${i + 1}` });
-  }
-}
-function divider({ index, title, sub, notes }) {
-  section(title);
-  const s = pres.addSlide({ masterName: "Divider", sectionTitle: title });
-  progress(s, index);
-  text(s, String(index).padStart(2, "0"), { x: M, y: 1.45, w: 1.2, h: 0.9, fontSize: 64, bold: true, color: C.accent4, fontFace: FONT.head, objectName: "section number" });
-  s.addText(title, { placeholder: "title" });
-  s.addText(sub, { placeholder: "body" });
-  note(s, notes);
-  count(words(notes));
-  return s;
 }
 
 // ---------- finishing ----------
@@ -319,6 +310,6 @@ async function finish(file) {
 module.exports = {
   pres, C, SH, THEME, HEX, X, FONT, M, WHITE, TOTAL, MAIN_END, DEMO, HAS_DEMO, STATS, RSTATS, DATA, PLOTS, state,
   SETUPS, setupKey, setupLabel, setupRow, findKey,
-  text, hline, vline, arrow, cell, circle, laptop, ipad, plot, photo, chartFrame, axes,
-  section, speaker, note, count, content, divider, progress, lineStyle, finish,
+  text, hline, vline, arrow, cell, circle, laptop, ipad, plot, photo, withoutLastLine, chartFrame, axes,
+  section, speaker, note, count, content, lineStyle, finish,
 };

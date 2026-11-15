@@ -3,6 +3,8 @@
 const k = require("./kit");
 const { pres, C, SH, HEX, X, FONT, M, WHITE, STATS, RSTATS, DATA, text, hline, vline, arrow, cell, circle, plot, photo, content, divider, note, count } = k;
 const built = require("./built");
+const merged = require("./merged");
+const { hammingWord } = merged;
 
 const pct = (x, d = 1) => (x * 100).toFixed(d);
 
@@ -19,25 +21,24 @@ function opening() {
     { text: "Muhammad Maaz and Kanav Mehta", options: { breakLine: true } },
     { text: "COMP0228 Coursework 1, University College London", options: { fontSize: 14, color: C.accent4 } },
   ], { placeholder: "body" });
-  const intro = "We are Maaz and Kanav. We sent bits from one laptop screen to another through an iPad, and tested whether basic error correcting codes work on the noise we measured. That noise came in bursts, so the order we send bits in matters. I cover the setup, the codes and how we ran the experiments. Kanav covers the failures, the results, our extension and the conclusion.";
+  const intro = `Hi everyone, we're Maaz and Kanav. We built a link that sends bits from one laptop screen to another through an iPad, and tested whether basic error correcting codes cope with the noise we measured. That noise came in bursts, so the order we send the bits in matters. I'll take the setup and the codes, then the experiments.`;
   note(s, intro);
   count(Math.round(intro.split(/\s+/).length / 2.5));
 
-  k.section("Channel and codes");
+  k.section("Overview");
   const { s: a, top } = content({
     title: "What we will cover",
-    take: "Five parts. We show every recording, including the ones that failed.",
-    notes: "Five parts. The channel and the codes, the experiments, the results, our extension, and what we learned. We show every recording, including the ones that failed.",
+    notes: `Here's what we'll cover, in five parts. The channel and the codes first, then how we ran the experiments, then the results. After that comes our extension, where a layout means a way of ordering the bits we send, and last the conclusion.`,
   });
   const items = [
-    ["01", "Channel and codes", "How a message becomes flashes, and the three codes we use."],
+    ["01", "Channel and codes", "How a message is sent as flashes of light, and the three codes we use."],
     ["02", "Experiments", "How we ran the experiments, what we changed and which runs failed."],
     ["03", "Results and noise", "What the codes did and what the noise looked like."],
-    ["04", "Extension", "Our extension, which changes the order we send the bits, tested in simulation and then in the layout test."],
-    ["05", "Conclusion", "What we learned and where it falls short."],
+    ["04", "Extension", "Our extension, which changes the order we send the bits, tested in simulation and then on the link with all six layouts."],
+    ["05", "Conclusion", "The trade-off between errors and speed, and what went well and what did not."],
   ];
   items.forEach(([n, h, d], i) => {
-    const y = top + 0.1 + i * 0.68;
+    const y = top + 0.2 + i * 0.76;
     hline(a, M, y - 0.06, 8.8, { name: `agenda rule ${n}` });
     text(a, n, { x: M, y, w: 0.9, h: 0.5, fontSize: 28, bold: true, color: C.accent4, fontFace: FONT.head, valign: "middle", objectName: `agenda ${n} number` });
     text(a, h, { x: 1.7, y, w: 2.5, h: 0.5, fontSize: 20, fontFace: FONT.semi, valign: "middle", objectName: `agenda ${n} name` });
@@ -50,7 +51,7 @@ function chain() {
   const { s, top } = content({
     title: "How the channel is built",
     take: "Laptop 1 flashes a patch, the iPad shows it live and laptop 2 films the iPad.",
-    notes: "Every run used this one chain. Laptop 1 flashes a patch in front of an iPad with its front camera open. The iPad shows laptop 1 live, and laptop 2's built-in webcam films the iPad screen. We kept the iPad in on purpose. Its glass adds glare, which is room light on the glass, and its camera adds exposure drift, a change in brightness while it records. bps means bits per second.",
+    notes: `Here's the chain we used. Laptop 1 flashes a patch, a black or white square, in front of an iPad, and laptop 2's webcam films the iPad screen. The iPad adds glare, room light bouncing off its glass, and exposure drift, where its camera keeps changing the brightness. None of this noise is simulated, and it comes in bursts, meaning runs of wrong bits.`,
   });
   const y0 = top + 0.3, lw = 1.5;
   // laptop 1, the iPad and laptop 2 in the order the light travels
@@ -84,16 +85,6 @@ function chain() {
   });
 }
 
-async function traces() {
-  const w47 = STATS.traces[1].errors_in_window;
-  const { s, top } = content({
-    title: "Brightness the camera records",
-    take: "In glare the black level rises above the threshold, so black bits read as white.",
-    notes: `These are brightness traces from two recordings, 30 seconds each. In normal light every white flash is above the dashed threshold, so there are no errors. In the dim room with glare the brightness falls after each white flash and then rises again, so black bits read as white. This window has ${w47} errors.`,
-  });
-  await plot(s, "raw-traces.png", { y: top, maxW: 9.4, maxH: 5.15 - top, name: "brightness traces", alt: "Camera brightness over 30 seconds in normal light and in dim light with glare, with the threshold and the bit errors marked" });
-}
-
 async function boxes() {
   const B = Object.fromEntries(DATA.boxes.map((b) => [b.key, b]));
   const cases = [
@@ -103,7 +94,7 @@ async function boxes() {
   const { s, top } = content({
     title: "Which pixels we measure",
     take: "Each camera frame becomes one number, the median brightness inside a box we draw.",
-    notes: `The software reads one number from each camera frame, the median brightness of the pixels inside a box we draw. In normal light the box sits tightly round the patch. In the earlier glare runs we drew it round the whole iPad screen, so room light on the glass went into the number. The layout test went back to a tight box, ${B.test.roi[2]} by ${B.test.roi[3]} pixels. The drawings are not to scale.`,
+    notes: `On the left is normal light, where the box hugs the patch, ${B.n4.roi[2]} by ${B.n4.roi[3]} pixels, so everything inside is one flat colour. On the right we drew the box round the whole iPad, ${B.g22.roi[2]} by ${B.g22.roi[3]} pixels, so room light on the glass leaks into the number. The drawings aren't to scale, but the sizes are exact.`,
   });
   const pw = 4.2, fw = 1.95, fy = top + 0.72;
   for (let i = 0; i < cases.length; i++) {
@@ -133,75 +124,14 @@ async function boxes() {
   text(s, "A bigger box lets room light into the number.", { x: M, y: 4.7, w: 8.8, h: 0.4, fontSize: 18, bold: true, objectName: "box takeaway" });
 }
 
-async function calibration() {
-  const L = STATS.levels, glareKey = L.glare_c ?? Object.values(L)[1], cleanKey = L.reflect4 ?? Object.values(L)[0];
-  const { s, top } = content({
-    title: "Setting the threshold",
-    take: `In glare ${(glareKey.wrong_side_share * 100).toFixed(1)} percent of symbols fall on the wrong side of the threshold.`,
-    notes: "At the start we show black, then white, and measure the median brightness of each. The threshold goes halfway between them and stays fixed for the session. In normal light the two levels are far apart. In glare they overlap, and the overlap is where the bit errors come from.",
-  });
-  await plot(s, "fig-levels.png", { y: top, maxW: 9.4, maxH: 5.15 - top, name: "brightness levels", alt: "Brightness at the centre of each symbol for black and white symbols, with the threshold, in normal light and in glare" });
-}
-
 async function sampling() {
   const spb8 = Math.round(k.setupRow(STATS.setup, "n8").spb_min), spb2 = Math.round(k.setupRow(STATS.setup, "g2").spb_min);
   const { s, top } = content({
     title: "Samples per bit at each speed",
     take: `At 8 bps the camera gives about ${spb8} samples per bit, at 2 bps about ${spb2}.`,
-    notes: `The camera does not run at a steady rate, so counting frames would drift. Instead every camera frame has a timestamp, and each bit uses the frame nearest the middle of its time slot. That frame is one sample. At 8 bits per second we get about ${spb8} samples per bit, at 2 bits per second about ${spb2}.`,
+    notes: `This shows how many camera readings we get per bit. The camera's rate isn't perfectly steady, so every camera frame carries a timestamp, and each bit uses the frame closest to the middle of its time slot. That reading is one sample. At 8 bits per second we get about ${spb8} samples per bit, at 2 bits per second about ${spb2}.`,
   });
   await plot(s, "fig-sampling.png", { y: top + 0.05, maxW: 9.4, maxH: 5.15 - top - 0.05, name: "camera frames against symbol centres", alt: "Camera frame timestamps against the centre of each symbol at three bit rates" });
-}
-
-function frameAnatomy() {
-  const SYNC = 48, HEADER = 192; // bits, from src/gridlink/protocol.py, SYNC_BITS and HEADER_CODED_BITS
-  const total = RSTATS.design[k.findKey(RSTATS.design, 8, false)]["rep-3 adjacent"].bits;
-  const payload = total - SYNC - HEADER, over = SYNC + HEADER;
-  const { s, top } = content({
-    title: "One message is one frame",
-    take: `The sync word and header take ${over} of the ${total} bits sent for a 2 byte message.`,
-    notes: `Every message is sent as one frame. A ${SYNC} bit sync word marks the start. The header says which code we used, and we send it three times, so it takes ${HEADER} bits. The payload comes last, with its own check value, called a CRC. If the header is lost, so is the whole frame.`,
-  });
-  const scale = 8.8 / total, y = top + 1.2, h = 1.25;
-  const segs = [
-    ["Sync word", SYNC, HEX.dk2, "start marker", `${SYNC} bits`, C.background1],
-    ["Header", HEADER, HEX.lt2, "which code was used", `${HEADER} bits, three copies of 64`, C.text1],
-    ["Payload and check value", payload, HEX.dk1, "the message", `${payload} bits, three copies of 32`, C.background1],
-  ];
-  let x = M;
-  segs.forEach(([name, bits, fill, role, cap, ink], i) => {
-    const w = bits * scale;
-    cell(s, x, y, w, h, name, { fill, line: HEX.lt1, lw: 1.5, color: ink, fs: i === 0 ? 15 : 18, font: FONT.semi, name: `frame segment ${i + 1}` });
-    text(s, role, { x: x + (i === 0 ? 0 : 0.15), y: y + h + 0.12, w: i === 0 ? w : Math.max(w - 0.2, 1.9), h: 0.3, fontSize: 14, fontFace: FONT.semi, objectName: `frame segment ${i + 1} role` });
-    text(s, cap, { x: x + (i === 0 ? 0 : 0.15), y: y + h + 0.44, w: i === 0 ? w : Math.max(w - 0.2, 1.9), h: 0.3, fontSize: 14, color: C.text2, objectName: `frame segment ${i + 1} caption` });
-    x += w;
-  });
-  const bx = M + over * scale;
-  hline(s, M, y - 0.22, over * scale, { color: C.accent2, w: 1.25, name: "overhead bracket" });
-  vline(s, M, y - 0.22, 0.12, { color: C.accent2, w: 1.25, name: "overhead bracket left" });
-  vline(s, bx, y - 0.22, 0.12, { color: C.accent2, w: 1.25, name: "overhead bracket right" });
-  text(s, `${over} bits before the payload`, { x: M, y: y - 0.56, w: over * scale, h: 0.32, fontSize: 18, fontFace: FONT.semi, color: C.accent2, align: "center", objectName: "overhead label" });
-}
-
-function header() {
-  const fields = [["Version", 8], ["Coding id", 8], ["Repeats", 8], ["Sequence", 8], ["Payload length", 16], ["CRC-16", 16]];
-  const total = fields.reduce((t, f) => t + f[1], 0), scale = 8.8 / total;
-  const { s, top } = content({
-    title: "The header and the CRC",
-    take: "The header is 64 bits with its own check value, and we send it three times.",
-    notes: "The header holds the version, the code we used, how many repeats, the frame number and the payload length. It ends with a CRC, a 16 bit check value computed from the data. The receiver recomputes it to see whether anything changed. A CRC can detect damage but cannot repair it. The payload has its own CRC.",
-  });
-  let x = M;
-  fields.forEach(([name, bits], i) => {
-    const w = bits * scale, last = name === "CRC-16";
-    cell(s, x, top + 0.4, w, 0.8, name, { fill: last ? HEX.dk1 : i % 2 ? HEX.accent5 : HEX.lt2, line: HEX.lt1, lw: 1.5, color: last ? C.background1 : C.text1, fs: 17, bold: true, name: `header field ${i + 1}` });
-    text(s, `${bits} bits`, { x, y: top + 1.28, w, h: 0.3, fontSize: 14, color: C.text2, align: "center", objectName: `header field ${i + 1} bits` });
-    x += w;
-  });
-  arrow(s, M + 4.4, top + 1.75, M + 4.4, top + 2.15, { color: C.text2, w: 1.5, name: "sent three times arrow" });
-  text(s, "sent three times, 192 bits", { x: M + 4.6, y: top + 1.78, w: 3.5, h: 0.3, fontSize: 16, color: C.text2, objectName: "sent three times" });
-  for (let i = 0; i < 3; i++) cell(s, M + i * (8.8 / 3), top + 2.3, 8.8 / 3 - 0.06, 0.55, `copy ${i + 1}`, { fill: HEX.accent5, line: HEX.lt2, color: C.text1, fs: 16, name: `header copy ${i + 1}` });
-  text(s, "The receiver recomputes the CRC from the other fields. If it comes out different, the header is thrown away.", { x: M, y: top + 3.15, w: 8.8, h: 0.6, fontSize: 14, color: C.text2, objectName: "crc note" });
 }
 
 function rateBars() {
@@ -209,7 +139,7 @@ function rateBars() {
   const { s, top } = content({
     title: "The three codes and their rates",
     take: "The rate of a code is the share of the sent bits that carry the message.",
-    notes: "These are the codes the brief asks for, plus our own 2-D parity. Uncoded has rate 1. 2-D parity is 16 over 25, Hamming is 4 over 7, and repetition with 3, 5 or 7 copies is a third, a fifth or a seventh. A lower rate means more protection and slower sending.",
+    notes: `These are the codes and their rates. The rate is the share of sent bits that carry the message, so a lower rate means more protection but slower sending. Uncoded is 1. Repetition sends each bit 3, 5 or 7 times. Hamming seven four turns 4 message bits into 7. 2-D parity puts 16 bits in a grid with check bits, 16 out of 25.`,
   });
   const x0 = 2.7, full = 5.6, rh = 0.34, pitch = 0.5, y0 = top + 0.15;
   rows.forEach(([name, r, frac], i) => {
@@ -239,7 +169,7 @@ function repetition() {
   const { s, top } = content({
     title: "How repetition coding works",
     take: "Majority vote fixes one flipped copy. If two copies flip, it gets the bit wrong.",
-    notes: "Repetition sends every bit three times, and the receiver takes a majority vote. If one copy flips, the other two still agree, so the bit is right. If two copies flip, the vote is wrong. That sends three times as many bits, so the rate is one third. A burst flips neighbouring copies together, and we come back to that.",
+    notes: `Let's start with repetition. We send every bit three times and the receiver takes a majority vote. On the left one copy flips but the other two still agree, so the vote is right. On the right two copies flip and the vote is wrong. It costs us rate, one third here.`,
   });
   const panels = [
     { x0: M, title: "One copy flips", sent: [1, 1, 1], got: [1, 0, 1], bad: [1], vote: 1, ok: true },
@@ -262,13 +192,6 @@ function repetition() {
   vline(s, 4.9, top + 0.1, 3.1, { name: "panel divider" });
 }
 
-// Hamming (7,4) with even parity at positions 1 to 7, the same arrangement as src/gridlink/coding/hamming.py
-function hammingWord(data) {
-  const code = [0, 0, 0, 0, 0, 0, 0, 0];
-  [3, 5, 6, 7].forEach((pos, i) => { code[pos] = data[i]; });
-  [1, 2, 4].forEach((p) => { code[p] = [1, 2, 3, 4, 5, 6, 7].filter((q) => q & p).reduce((t, q) => t + code[q], 0) % 2; });
-  return code.slice(1);
-}
 const covers = (check, pos) => (pos & check) !== 0;
 
 function hamming() {
@@ -280,7 +203,7 @@ function hamming() {
   const { s, top } = content({
     title: "How Hamming finds a flipped bit",
     take: "The pattern of failed parity checks gives the position of the flipped bit.",
-    notes: "Hamming seven four adds three parity bits to four data bits, and the seven bits together are one codeword. Each check covers some of the seven positions. When one bit flips, the checks that cover it fail, and read as a binary number they give its position. Here checks 1 and 3 fail, 1 0 1 is 5, so the decoder flips bit 5 back.",
+    notes: `Now Hamming. It adds 3 parity bits, extra check bits, to 4 data bits, and those 7 bits together are one codeword. When one bit flips, the checks that cover it fail, and read as a binary number they give its position. Here checks 1 and 3 fail, which reads 1 0 1, that's 5, so the decoder flips bit 5 back.`,
   });
   const x0 = 2.6, w = 0.62, g = 0.1, pitch = w + g, y = top + 0.4;
   text(s, "Received", { x: M, y, w: 1.8, h: w, fontSize: 17, fontFace: FONT.semi, valign: "middle", objectName: "received label" });
@@ -314,7 +237,7 @@ function parity() {
   const { s, top } = content({
     title: "When 2-D parity fails",
     take: "Three errors in an L get a wrong fix, and four in a rectangle are not noticed.",
-    notes: "We put 16 bits in a four by four grid and add a parity bit for every row and every column. One flip makes one row and one column fail, and their crossing is the bad bit. Three errors in an L give a wrong fix, and four at the corners of a rectangle pass every check. The payload CRC then catches the damage.",
+    notes: `This shows how 2-D parity can fail. We put 16 bits in a four by four grid with a parity bit for every row and column. One flip makes one row and one column fail, and where they cross is the bad bit. Three errors in an L give a wrong fix, and four at the corners of a rectangle go unnoticed.`,
   });
   const size = 0.44, g = 0.03, pitch = size + g, gridW = 5 * pitch - g;
   cases.forEach((cs, ci) => {
@@ -344,23 +267,18 @@ function parity() {
 
 async function build() {
   opening();
-  divider({ index: 1, title: "Channel and codes", sub: "How a message becomes flashes, and the three codes we use.",
-    notes: "First the channel, the frame and the three codes." });
+  k.section("Channel and codes", "01");
   chain();
-  built.transmitter();
-  built.receiver();
-  await traces();
+  built.txrx();
   await boxes();
-  await calibration();
+  await merged.camera();
   await sampling();
-  frameAnatomy();
-  header();
+  merged.frameAndHeader();
   rateBars();
   repetition();
   hamming();
   parity();
-  built.plugin();
-  built.checked();
+  built.plugAndCheck();
 }
 
-module.exports = { build, hammingWord };
+module.exports = { build };

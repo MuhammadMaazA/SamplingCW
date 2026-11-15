@@ -122,8 +122,7 @@ about fourteen help in glare. We ran 3 trials per method because a 21-trial plan
 that are wrong. Decoded BER is the share of payload bits that are wrong after decoding. It takes
 the header from the plan, as if the receiver knew it, and counts only frames whose payload could be
 decoded. It must therefore be read next to frame success, the number of frames decoded correctly
-out of the number planned. Useful throughput is the delivered payload bits per second of nominal
-frame airtime. We compare methods only within a slice, meaning the runs that share one bit rate,
+out of the number planned. Delivery rate is the delivered payload bits per second of nominal frame airtime. We compare methods only within a slice, meaning the runs that share one bit rate,
 one payload size and one lighting condition. One script, \texttt{make\_figures.py}, computes every
 table, figure and statistic in this report from the per-trial CSV files.
 
@@ -162,7 +161,7 @@ camera timestamps (G01 to G07). A pipeline test on 27 October is not counted.
 \begin{table*}[t]
 \caption{The seven methods in normal light at 4\,bps (low noise, 16-bit payload) and 8\,bps (high
 noise), with Wilson 95\% intervals on frames and bootstrap 95\% intervals on decoded BER.
-Throughput is in bps.}
+Delivery rate is in bps.}
 \label{tab:slices}
 \centering\footnotesize
 \setlength{\tabcolsep}{5pt}
@@ -170,7 +169,7 @@ Throughput is in bps.}
 \toprule
  & & \multicolumn{2}{c}{Low noise} & \multicolumn{4}{c}{High noise} \\
 \cmidrule(r){3-4}\cmidrule(l){5-8}
-Method & Rate & Throughput & Frames [95\% CI] & Ch.\ BER & Dec.\ BER [95\% CI] & Throughput
+Method & Rate & Delivery rate & Frames [95\% CI] & Ch.\ BER & Dec.\ BER [95\% CI] & Delivery rate
 & Frames [95\% CI] \\
 \midrule
 \tablerows{generated/table-slices.tex}
@@ -179,8 +178,7 @@ Method & Rate & Throughput & Frames [95\% CI] & Ch.\ BER & Dec.\ BER [95\% CI] &
 \end{table*}
 
 \textbf{Low noise (normal light, 4\,bps, Table~\ref{tab:slices}).} The channel BER is close to zero
-and every code, including uncoded, reaches a decoded BER of 0. Throughput then follows the code
-rate, except that Hamming lost one of three frames. On a clean channel, redundancy therefore only
+and every code, including uncoded, reaches a decoded BER of 0. The delivery rate then follows the code rate, except that Hamming lost one of three frames. On a clean channel, redundancy therefore only
 costs rate.
 
 \begin{figure*}[t]
@@ -363,7 +361,7 @@ Channel BER with bootstrap 95\% intervals. (c) Channel errors in each frame in t
 
 \begin{table*}[!t]
 \caption{Every recorded run. The columns give the bit rate (bps), the light (N normal, D dim with
-glare), the code, the channel BER, the decoded BER, the useful throughput (thr, bps) and the frames
+glare), the code, the channel BER, the decoded BER, the delivery rate (dr, bps) and the frames
 delivered (ok). Each run planned 3 trials, except G28 with 2, and used a 16-bit payload, except G22
 to G27 with 32 bits. G28 and G29 are rep-3 checks.}
 \label{tab:all}
@@ -371,21 +369,21 @@ to G27 with 32 bits. G28 and G29 are rep-3 checks.}
 \setlength{\tabcolsep}{2pt}
 \begin{tabular}[t]{@{}llllrrrr@{}}
 \toprule
-Run & bps & light & code & ChBER & DecBER & thr & ok \\
+Run & bps & light & code & ChBER & DecBER & dr & ok \\
 \midrule
 \tablerows{generated/allruns-rows-a.tex}
 \bottomrule
 \end{tabular}\hfill
 \begin{tabular}[t]{@{}llllrrrr@{}}
 \toprule
-Run & bps & light & code & ChBER & DecBER & thr & ok \\
+Run & bps & light & code & ChBER & DecBER & dr & ok \\
 \midrule
 \tablerows{generated/allruns-rows-b.tex}
 \bottomrule
 \end{tabular}\hfill
 \begin{tabular}[t]{@{}llllrrrr@{}}
 \toprule
-Run & bps & light & code & ChBER & DecBER & thr & ok \\
+Run & bps & light & code & ChBER & DecBER & dr & ok \\
 \midrule
 \tablerows{generated/allruns-rows-c.tex}
 \bottomrule

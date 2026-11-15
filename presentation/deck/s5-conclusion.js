@@ -9,11 +9,11 @@ async function tradeoff() {
   const T = STATS.tradeoff.filter((r) => setupKey(r.env) === "n8").sort((a, b) => b.throughput - a.throughput), best = T[0];
   const clean = STATS.tradeoff.filter((r) => setupKey(r.env) === "n4").sort((a, b) => b.throughput - a.throughput)[0];
   const { s, top } = content({
-    title: "Throughput against code rate",
-    take: "Throughput is the message bits delivered per second. In normal light it follows the code rate.",
-    notes: `Throughput counts only frames that arrived intact. In normal light at 4 bits per second it follows the code rate, and no coding is fastest at ${clean.throughput.toFixed(3)} bits per second. At 8 bits per second no coding and Hamming delivered nothing, while repetition-7, the slowest code on paper, delivered the most at ${best.throughput.toFixed(3)} because all three frames arrived. With 3 trials this is a trend, not a ranking.`,
+    title: "Delivery rate against code rate",
+    take: "Delivery rate is the message bits delivered per second. In normal light it follows the code rate.",
+    notes: `Here you can see delivery rate against code rate, counting only frames that arrived intact. In normal light at 4 bits per second it follows the code rate, and no coding is fastest at ${clean.throughput.toFixed(3)}. At 8 bits per second no coding and Hamming delivered nothing, and repetition 7, the slowest code on paper, delivered the most at ${best.throughput.toFixed(3)}. With 3 trials that's a trend, not a ranking.`,
   });
-  await plot(s, "tradeoff.png", { y: top, maxW: 9.4, maxH: 5.15 - top, name: "throughput against code rate", alt: "Throughput against code rate for every code, in normal light at 4 bps and at 8 bps" });
+  await plot(s, "tradeoff.png", { y: top, maxW: 9.4, maxH: 5.15 - top, name: "delivery rate against code rate", alt: "Delivery rate against code rate for every code, in normal light at 4 bps and at 8 bps" });
 }
 
 function context() {
@@ -26,9 +26,9 @@ function context() {
   k.lineStyle("Hamming rate 0.571", "dash", "none");
   k.lineStyle("rep-3 rate 0.333", "sysDot", "none");
   const { s, top } = content({
-    title: "How this links to the module",
+    title: "How close we are to the limit",
     take: `At 8 bps the measured error rate allows a rate of ${cap[3].toFixed(2)}, and Hamming uses ${(4 / 7).toFixed(2)}.`,
-    notes: `Capacity is the highest rate any code could reach with reliable decoding, for a channel that flips bits independently. We worked it out from the measured error rate of each setup. At 8 bits per second it is ${cap[3].toFixed(2)}, above the Hamming rate of 0.57, so better codes exist. Glare has memory, so its ${cap[4].toFixed(2)} is pessimistic. PixNet and COBRA also send data from a screen to a camera.`,
+    notes: `This chart shows capacity, the highest rate any code could reach and still decode reliably when bits flip independently. At 8 bits per second it's ${cap[3].toFixed(2)}, above the Hamming rate of 0.57, so better codes exist. Glare has memory, so its ${cap[4].toFixed(2)} is pessimistic. On the right, a Markov chain is a model where the next state depends only on the current one, and Reed-Solomon is a strong code from CDs and QR codes.`,
   });
   s.addChart([
     { type: pres.charts.BAR, data: [{ name: "Capacity", labels, values: cap }], options: { chartColors: [X.ink], barGapWidthPct: 50, showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.00" } },
@@ -48,8 +48,9 @@ function context() {
     ["Degree", "CRC framing is what Ethernet uses. Our burst model is a Markov chain."],
     ["Beyond the module", "CDs and QR codes use Reed-Solomon codes with interleaving."],
   ];
+  text(s, "Links to the module and beyond", { x: 5.9, y: top - 0.02, w: 3.5, h: 0.3, fontSize: 15, bold: true, objectName: "links heading" });
   items.forEach(([h, b], i) => {
-    const y = top + 0.1 + i * 0.86;
+    const y = top + 0.42 + i * 0.78;
     hline(s, 5.9, y - 0.06, 3.5, { name: `context rule ${i + 1}` });
     text(s, h, { x: 5.9, y, w: 3.5, h: 0.26, fontSize: 14, color: C.text2, objectName: `context label ${i + 1}` });
     text(s, b, { x: 5.9, y: y + 0.26, w: 3.5, h: 0.56, fontSize: 14, objectName: `context text ${i + 1}` });
@@ -60,7 +61,7 @@ function whatToSend() {
   const { s, top } = content({
     title: "What to send for each kind of noise",
     take: "The best code depends on how the errors are arranged, not only how many there are.",
-    notes: "On a clean channel we should not code, because extra bits only slowed it down. With isolated flips, repetition works but costs rate, and Hamming can make more errors than no code. 2-D parity rejects double errors. With bursts, where the redundancy sits matters more than how much there is. We did not test heavy bursts, and spreading the header cost frames in the layout test.",
+    notes: `This sums up which code to send for each kind of noise. On a clean channel we shouldn't code at all, because extra bits only slow things down. With isolated flips, repetition works but costs rate, 2-D parity rejects double errors, and Hamming can make more errors than no code. With bursts, where the redundancy sits matters more than how much.`,
   });
   const zones = [
     { w: 2.6, fill: HEX.accent5, ink: C.text1, name: "Clean channel", send: "Do not code", why: "Every code decoded with no errors, so extra bits only slowed it down." },
@@ -82,26 +83,31 @@ function whatToSend() {
 function limits() {
   const N = RSTATS.noise, GL = N[k.findKey(N, 4, true)], share = Math.round(GL.burst_share * 100);
   const { s } = content({
-    title: "What we can and cannot claim",
-    notes: `In glare ${share} percent of errors come in runs of 3 or more, and at 8 bits per second Hamming made more errors than no code. Spreading the copies and interleaving worked in simulation. We have not shown whether spreading helps against heavy bursts, because the glare in the layout test was mild, or why the spread header lost frames. With 3 trials per method we do not rank the codes. Next we will repeat the layout test in stronger glare with more trials.`,
+    title: "Successes and limitations",
+    notes: `Here's our summary. On the left, we built a working link with the required codes, 2-D parity and three new layouts, scripted and seeded every run, and measured the noise, where ${share} percent of glare errors sit in runs of 3 or more. On the right, 3 trials per method keeps frame results suggestive, room light changed between sessions, the layout test glare was mild, and the simulation ignores glare switching.`,
   });
-  const cols = [
-    ["What the data supports", [`In glare ${share} percent of errors come in runs of 3 or more`, "At 8 bps Hamming made more errors than no code", "Spreading the copies and interleaving worked in simulation"]],
-    ["What it does not show yet", ["Whether spreading helps against heavy bursts, because the glare in the layout test was mild", "Why the spread header lost frames", "A ranking of the codes, because we had 3 trials per method"]],
+  // each row is a success and a limitation, the row is as tall as its longer text
+  const rows = [
+    ["A working link from a laptop screen to a camera, with the three required codes, 2-D parity and three new layouts", "Only 3 trials per method, so frame results are suggestive", 0.8],
+    ["Every run scripted and seeded, every recording reported, failures included", "Room light changed between sessions, so we compare codes only within a session", 0.54],
+    [`We measured the noise instead of assuming it. In glare ${share} percent of errors come in runs of 3 or more, so independent flip theory fails`, "The layout test glare was mild, so heavy bursts are untested, and the spread header lost frames for a reason we have not found", 0.8],
+    ["Spreading the copies and interleaving worked in simulation", "The simulation does not model the switching of glare between frames", 0.54],
   ];
-  const colW = 4.2;
-  cols.forEach(([head, items], i) => {
+  const colW = 4.2, heads = ["Successes", "Limitations"];
+  heads.forEach((head, i) => {
     const x = M + i * (colW + 0.4);
-    if (i > 0) vline(s, x - 0.2, 1.3, 3.2, { name: "column rule" });
-    text(s, head, { x, y: 1.3, w: colW, h: 0.45, fontSize: 22, bold: true, fontFace: FONT.head, objectName: `${head} heading` });
-    items.forEach((t2, j) => {
-      const y = 1.95 + j * 0.88;
-      hline(s, x, y - 0.1, colW, { name: `${head} rule ${j + 1}` });
-      text(s, t2, { x, y, w: colW, h: 0.78, fontSize: 16, objectName: `${head} item ${j + 1}` });
-    });
+    if (i > 0) vline(s, x - 0.2, 1.25, 3.5, { name: "column rule" });
+    text(s, head, { x, y: 1.2, w: colW, h: 0.4, fontSize: 22, bold: true, fontFace: FONT.head, objectName: `${head} heading` });
   });
-  hline(s, M, 4.68, 8.8, { name: "next rule" });
-  text(s, "Next we will repeat the layout test in stronger glare with more trials.", { x: M, y: 4.74, w: 8.8, h: 0.4, fontSize: 18, bold: true, objectName: "next line" });
+  let y = 1.72;
+  rows.forEach(([good, limit, h], j) => {
+    [good, limit].forEach((t2, i) => {
+      const x = M + i * (colW + 0.4);
+      hline(s, x, y - 0.08, colW, { name: `${heads[i]} rule ${j + 1}` });
+      text(s, t2, { x, y, w: colW, h, fontSize: 15, objectName: `${heads[i]} item ${j + 1}` });
+    });
+    y += h + 0.17;
+  });
 }
 
 function questions() {
@@ -115,14 +121,13 @@ function questions() {
     { text: "Muhammad Maaz and Kanav Mehta", options: { breakLine: true } },
     { text: "COMP0228 Coursework 1, University College London", options: { fontSize: 14, color: C.accent4 } },
   ], { placeholder: "body" });
-  note(s, "Likely questions. Why Hamming made more errors than no code at 8 bps. Why interleaving only helps up to its depth. Whether our numbers are significant. Why spreading the header cost frames. We can explain any file in the code.");
+  note(s, `That's everything from us. We're happy to take questions, and we can walk through any file in the code or any number you've seen.`);
   count(0);
 }
 
 async function build() {
   k.speaker("Kanav");
-  divider({ index: 5, title: "Conclusion", sub: "What we learned and where it falls short.",
-    notes: "To finish, what we learned and where it falls short." });
+  k.section("Conclusion", "05");
   await tradeoff();
   context();
   whatToSend();

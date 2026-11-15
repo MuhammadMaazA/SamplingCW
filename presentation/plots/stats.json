@@ -1480,6 +1480,8 @@
   "depth_glare4": "Dim with glare, 4 bps",
   "flips_glare4": "Dim with glare, 4 bps",
   "quarters_glare4": "Dim with glare, 4 bps",
+  "throughput": "Delivery rate (message bits per second)",
+  "useful_throughput_bps": "Delivery rate (bps)",
   "G01 to G07": "Normal light, 3 bps",
   "G08 to G14": "Normal light, 8 bps",
   "G15 to G21": "Normal light, 4 bps",

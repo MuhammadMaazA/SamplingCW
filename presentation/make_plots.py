@@ -384,10 +384,10 @@ def fig_tradeoff():
         if j:
             ax.set_yticklabels([]); ax.tick_params(left=False)
         else:
-            ax.set_ylabel("Useful throughput (bps)")
+            ax.set_ylabel("Delivery rate (bps)")
     ov.text(left0 + (2 * lw + gap) / 2, 0.52, "Code rate, information bits per bit sent", ha="center", va="center", fontsize=14)
     outcome_key(ov, left0 + 0.9, 0.17)
-    put(fig, "tradeoff.png", "Useful throughput against code rate for every method, labelled with frames delivered of 3, two setups")
+    put(fig, "tradeoff.png", "Delivery rate (message bits per second) against code rate for every method, labelled with frames delivered of 3, two light and speed setups")
     stats["tradeoff"] = out
 
 
@@ -1128,6 +1128,7 @@ def write_stats():
         **ENV_DISPLAY, **KEY_DISPLAY,
         "depth_facing8": f"{NORMAL}, 8 bps", "flips_facing8": f"{NORMAL}, 8 bps", "quarters_facing8": f"{NORMAL}, 8 bps",
         "depth_glare4": f"{GLARE_LIGHT}, 4 bps", "flips_glare4": f"{GLARE_LIGHT}, 4 bps", "quarters_glare4": f"{GLARE_LIGHT}, 4 bps",
+        "throughput": "Delivery rate (message bits per second)", "useful_throughput_bps": "Delivery rate (bps)",
         "G01 to G07": f"{NORMAL}, 3 bps", "G08 to G14": f"{NORMAL}, 8 bps", "G15 to G21": f"{NORMAL}, 4 bps",
         "G22 to G26": f"{GLARE_LIGHT}, 4 bps", "G27": f"{GLARE_LIGHT}, 2 bps",
         "G28": f"{NORMAL}, 4 bps, rep-3 check", "G29": f"{NORMAL}, 4 bps, rep-3 check",

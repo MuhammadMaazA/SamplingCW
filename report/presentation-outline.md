@@ -46,11 +46,11 @@ Target running total is shown in brackets after each slide.
 ### 6. How we ran the experiments (K), 1.5 min  [10.5]  *(brief point 4)*
 - Scripted plans with a fixed seed, so A and B run the identical shuffled trial order without
   copying files. This is the automatic multi run point from Lab 1.
-- Four metrics: channel BER, decoded BER, useful throughput, frame success, always read with
+- Four metrics: channel BER, decoded BER, delivery rate, frame success, always read with
   failure counts. We only compare methods within one matched condition.
 
 ### 7. Results of the basic codes (K), 3 min  [13.5]  *(brief point 5)*
-- Low noise slice (Table 1): every code reaches zero decoded BER, so only throughput differs
+- Low noise slice (Table 1): every code reaches zero decoded BER, so only delivery rate differs
   and it ranks by code rate. Message: on a clean channel, do not code.
 - High noise slice (`figures/highnoise-bars.png`): Hamming goes above the uncoded baseline
   because many codewords take two flips and it miscorrects. Repetition-7 and 2-D parity reach

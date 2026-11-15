@@ -201,7 +201,8 @@ npm install
 python make_plots.py         # charts and plots/stats.json from experiments/results
 python extract_deck_data.py  # numbers from the code for the slides, deck/data.js (runs the tests, about 40 s)
 python make_photos.py        # camera crops from the saved recordings
+python make_merged.py        # the pictures on the combined slides, deck/figs/
 node build_deck.js
 ```
 
-`build_deck.js` reads those files and the report's `report/generated/stats.json`, so every number on the slides comes from the data. The slide code is in `deck/`. If a clip of a full run is saved as `presentation/media/demo.mp4`, the build adds a demonstration slide that plays it. The slides and figures use the Gill Sans MT font, which comes with Microsoft Office.
+`build_deck.js` reads those files and the report's `report/generated/stats.json`, so every number on the slides comes from the data. The slide code is in `deck/` and the deck has 35 slides. If a clip of a full run is saved as `presentation/media/demo.mp4`, the build adds a demonstration slide that plays it. The slides and figures use the Gill Sans MT font, which comes with Microsoft Office.
