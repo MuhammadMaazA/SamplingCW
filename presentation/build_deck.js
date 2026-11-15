@@ -5,29 +5,15 @@ const React = require("react");
 const ReactDOMServer = require("react-dom/server");
 const sharp = require("sharp");
 const fa = require("react-icons/fa");
-const fs = require("fs");
-const JSZip = require(require.resolve("jszip", { paths: [require.resolve("pptxgenjs")] }));
-
-// pptxgenjs cannot write theme colours, so swap the colour scheme in theme1.xml after saving.
-async function applyTheme(deckPath, theme) {
-  const slots = ["dk1", "lt1", "dk2", "lt2", "accent1", "accent2", "accent3", "accent4",
-    "accent5", "accent6", "hlink", "folHlink"];
-  const zip = await JSZip.loadAsync(fs.readFileSync(deckPath));
-  const part = "ppt/theme/theme1.xml";
-  const scheme = `<a:clrScheme name="${theme.name}">` +
-    slots.map((k) => `<a:${k}><a:srgbClr val="${theme.colors[k]}"/></a:${k}>`).join("") +
-    "</a:clrScheme>";
-  const xml = (await zip.file(part).async("string"))
-    .replace(/<a:clrScheme\b[\s\S]*?<\/a:clrScheme>/, scheme);
-  zip.file(part, xml);
-  fs.writeFileSync(deckPath, await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" }));
-}
+const { applyTheme } = require(
+  "C:/Users/mmaaz/.claude/skills/synced/c277a44a-948d-4482-a60c-dd16c6467dd0_a0ef168a-3769-4d39-898d-9a2292d5f667/pptx/scripts/apply_theme.js"
+);
 
 const OUT = "gridlink-presentation.pptx";
 const PLOTS = path.join(__dirname, "plots");
 const STATS = require(path.join(PLOTS, "stats.json"));
 // numbers shared with the final report, read only from the report's generated statistics
-const RSTATS = require(path.join(__dirname, "..", "report", "generated", "stats.json"));
+const RSTATS = require(path.join(__dirname, "..", "gridlink", "report", "generated", "stats.json"));
 
 const THEME = {
   name: "GridLink",
@@ -226,7 +212,7 @@ function styledTable(slide, hdr, rows, colW, y, rowH, name, fontSize = 13) {
   });
 }
 
-// every recording, from session.json, plan.json and capture.log in experiments/results
+// every recording, from session.json, plan.json and capture.log in gridlink-results-backup/results
 function slideSessions() {
   const s = pres.addSlide({ masterName: "Content", sectionTitle: "Experiments" });
   s.addText("Every recording session", { placeholder: "title" });
@@ -461,28 +447,36 @@ function slideRedundancy() {
   s.addNotes(`Kanav. A single synthetic burst is not our channel, so we pushed whole frames through the fitted glare model, exactly as the receiver decodes them. Placement beats quantity. With copies adjacent, more repetition makes it worse, ${D["rep-3 adjacent"].payload.toFixed(3)} down to ${D["rep-7 adjacent"].payload.toFixed(3)}, because longer runs mean longer bursts. Sending the whole message three times at the same rate gives ${D["rep-3 spread"].payload.toFixed(3)}, and seven spread copies ${D["rep-7 spread"].payload.toFixed(2)}. Interleaving depth helps up to 8 and then flattens, which fits Bad spells of 4.4 bits. The header is the bottleneck, only ${pc(H.header)} survive as built. This is a simulation, so it ranks designs rather than forecasting exact rates.`);
 }
 
-// placeholder for the final physical test, results are filled in after it runs
+// the physical test ran on 6 Nov, 72 real trials in one 109 minute session. Numbers below are
+// read from experiments/results/glare-layouts-room-comparison-20261106-021921-294106Z/summary.csv
 function slidePhysicalTest() {
   const s = pres.addSlide({ masterName: "Content", sectionTitle: "Conclusion" });
   s.addText("Physical test of the new layouts", { placeholder: "title" });
-  card(s, 0.5, 1.1, 9.0, 0.6, "planned banner", C.accent4);
-  text(s, "Planned final test. Results to be added", { x: 0.75, y: 1.1, w: 8.5, h: 0.6, fontSize: 18, bold: true, color: C.text1, valign: "middle", objectName: "planned banner text" });
-  const L = [
-    ["As built", "Adjacent repetition-3 payload and header, the baseline"],
-    ["Spread repetition", "The whole message sent three times, same rate"],
-    ["Depth 16 interleaving", "Hamming codewords sent column first, 16 deep"],
-    ["Spread header", "Header copies spread the same way"],
-  ];
-  L.forEach(([h, b], i) => {
-    const x = 0.5 + i * 2.29;
-    card(s, x, 1.9, 2.14, 2.45, `layout card ${i + 1}`);
-    text(s, h, { x: x + 0.15, y: 2.02, w: 1.9, h: 0.6, fontSize: 15, bold: true, color: C.accent1, objectName: `layout head ${i + 1}` });
-    text(s, b, { x: x + 0.15, y: 2.65, w: 1.88, h: 1.0, fontSize: 13, objectName: `layout body ${i + 1}` });
-    text(s, "Result to be added", { x: x + 0.15, y: 3.8, w: 1.9, h: 0.35, fontSize: 13, bold: true, color: C.accent5, objectName: `layout result ${i + 1}` });
+  const labels = ["rep-3 adj.", "rep-3 spread", "rep-3 spread +sh", "Ham-int d8 adj.", "Ham-int d16", "Ham-int d16 +sh"];
+  const chBer = [0.69, 0.63, 2.54, 0.59, 0.39, 0.49];
+  const frames = ["12/12", "10/12", "9/12", "12/12", "11/12", "10/12"];
+  s.addChart(pres.charts.BAR, [{ name: "Channel BER", labels, values: chBer }], {
+    x: 0.4, y: 1.1, w: 6.2, h: 3.55, barDir: "col", barGapWidthPct: 40,
+    chartColors: [HEX.accent5, HEX.accent3, HEX.accent2, HEX.accent5, HEX.accent1, HEX.accent2],
+    showLegend: false, showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.00",
+    valAxisMinVal: 0, valAxisMaxVal: 3, valAxisMajorUnit: 1, valAxisLabelFormatCode: "0.0", ...chartFrame,
+    ...axes("Channel BER, percent", "Layout (frames delivered of 12 below)"), objectName: "physical test chart",
   });
-  text(s, "Same dimmed lab with glare, 10 or more trials per layout, Wilson intervals and Fisher exact tests",
-    { x: 0.5, y: 4.55, w: 8.6, h: 0.5, fontSize: 13, color: C.text2, objectName: "physical test note" });
-  s.addNotes("Kanav. This is our planned final test, and the results are not in yet. We are building the three layouts the model ranked highest into the live link, spread repetition, depth 16 interleaving and a spread header, and testing them against the layout as built. They run in the same dimmed lab with glare, with 10 or more trials per layout, so the intervals are narrower than our 3 trial cells. The question is whether the ranking from the model holds on the real channel.");
+  labels.forEach((_, i) => {
+    text(s, frames[i], { x: 0.4 + i * (6.2 / 6) + 0.05, y: 4.62, w: 6.2 / 6 - 0.1, h: 0.25, fontSize: 9, color: C.accent5, align: "center", objectName: `physical frames ${i + 1}` });
+  });
+  const st = [
+    ["9 to 12 of 12", "frames delivered, no significant difference, Fisher p 0.22 to 0.48", C.accent5],
+    ["0.4% to 2.5%", "channel BER this session, against 7.3% to 31.5% in our original glare runs", C.accent4],
+  ];
+  st.forEach(([v, l, col], i) => {
+    const y = 1.2 + i * 1.6;
+    text(s, v, { x: 6.85, y, w: 2.75, h: 0.6, fontSize: 28, bold: true, color: col, fontFace: THEME.headFontFace, objectName: `physical stat ${i + 1}` });
+    text(s, l, { x: 6.85, y: y + 0.62, w: 2.65, h: 0.75, fontSize: 13, objectName: `physical stat label ${i + 1}` });
+  });
+  text(s, "Confirms the layouts work on the real link at no cost, not that they recover performance under heavy bursts, which still rests on the simulation alone",
+    { x: 0.5, y: 4.95, w: 8.6, h: 0.55, fontSize: 13, color: C.text2, objectName: "physical test caveat" });
+  s.addNotes("Kanav. We built all three layouts into the live link and ran the six of them for real, 12 trials each, one 109 minute session. Frames delivered ranged 9 to 12 of 12 and the differences are not significant. The reason is plain in the data. That night's channel BER was 0.4 to 2.5 percent, against 7.3 to 31.5 percent in our original glare runs, so no layout actually met a real burst. So this physical test confirms the new layouts work correctly on the real link at no measurable cost. It does not confirm they recover performance under heavy bursts, which still rests on the simulation from the last slide. Glare strength swinging this much between sessions on the same setup is itself a finding, and the honest next step is repeating this with the lamp held closer to the earlier harsh levels.");
 }
 
 // pooled channel BER per setup from summary.csv, capacity of a binary symmetric channel C = 1 - H(p)

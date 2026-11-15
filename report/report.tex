@@ -291,9 +291,14 @@ channels. (iii) The design study is simulated on a stationary model that misses 
 switching. Its rankings, not its absolute values, are the claim. (iv) Offline alignment can fail
 in the worst captures, so some errors counted there may be misalignment.
 
-\textbf{Next physical test.} Ten or more trials per cell under fixed glare, comparing as-built
-against spread repetition, deep interleaving and a spread header. Then a 2 against 4\,bps
-comparison within one session to separate rate from glare strength.
+\textbf{Physical test of the new layouts.} We built all three into the live link and ran the six
+layouts for real, 12 trials each, one 109-minute session. Frames delivered ranged 9 to 12 of 12
+and decoded BER 0 to 0.69\,\%, with no significant difference (Fisher $p$ 0.22 to 0.48), because
+that night's channel BER was 0.4 to 2.5\,\%, against 7.3 to 31.5\,\% in our original glare runs.
+So this confirms the layouts work correctly on the real link at no cost, not that they recover
+performance under heavy bursts, which rests on the simulation in Fig.~\ref{fig:ext}(b) alone.
+The glare swing is itself a finding, and the next session should hold the lamp closer to the
+earlier harsh levels.
 
 \begin{thebibliography}{99}
 \footnotesize\setlength{\itemsep}{0pt}\setlength{\parsep}{0pt}
@@ -331,6 +336,7 @@ systems,'' in Proc. ACM MobiSys, Jun. 2012, pp.~85--98.
 \end{thebibliography}
 
 \section*{Appendix, all recorded runs}
+\enlargethispage{2\baselineskip}
 \begin{center}\footnotesize
 \setlength{\tabcolsep}{3.5pt}
 \captionof{table}{Every recorded run, with bps, camera path (facing the screen, reflection in an
