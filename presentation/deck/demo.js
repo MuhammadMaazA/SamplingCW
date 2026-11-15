@@ -24,9 +24,9 @@ function probe(file) {
 
 // a poster frame as a base64 png. It is the clip's own picture from the first second when ffmpeg is installed,
 // else a dark panel with a play triangle
-async function poster(file, info) {
+async function poster(file, info, at) {
   const tmp = path.join(os.tmpdir(), `demo-poster-${process.pid}.png`);
-  if (run("ffmpeg", ["-y", "-v", "error", "-ss", info.secs > 2 ? "1" : "0", "-i", file, "-frames:v", "1", "-vf", "scale=1280:-2", tmp]) !== null && fs.existsSync(tmp)) {
+  if (run("ffmpeg", ["-y", "-v", "error", "-ss", String(at ?? (info.secs > 2 ? 1 : 0)), "-i", file, "-frames:v", "1", "-vf", "scale=1280:-2", tmp]) !== null && fs.existsSync(tmp)) {
     const data = fs.readFileSync(tmp);
     fs.unlinkSync(tmp);
     return `data:image/png;base64,${data.toString("base64")}`;
@@ -37,4 +37,12 @@ async function poster(file, info) {
   return `data:image/png;base64,${png.toString("base64")}`;
 }
 
-module.exports = { probe, poster };
+// how many times faster the replay runs than the recording, read from make_replay.py (SPEED, recording seconds per video second)
+function replaySpeed() {
+  const src = fs.readFileSync(path.join(__dirname, "..", "make_replay.py"), "utf8");
+  const m = src.match(/^SPEED\s*=\s*([0-9.]+)/m);
+  if (!m) throw new Error("could not read SPEED from make_replay.py");
+  return Math.round(parseFloat(m[1]));
+}
+
+module.exports = { probe, poster, replaySpeed };

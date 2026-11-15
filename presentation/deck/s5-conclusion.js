@@ -28,7 +28,7 @@ function context() {
   const { s, top } = content({
     title: "How close we are to the limit",
     take: `At 8 bps the measured error rate allows a rate of ${cap[3].toFixed(2)}, and Hamming uses ${(4 / 7).toFixed(2)}.`,
-    notes: `This chart shows capacity, the highest rate any code could reach and still decode reliably when bits flip independently. At 8 bits per second it's ${cap[3].toFixed(2)}, above the Hamming rate of 0.57, so better codes exist. Glare has memory, so its ${cap[4].toFixed(2)} is pessimistic. On the right, a Markov chain is a model where the next state depends only on the current one, and Reed-Solomon is a strong code from CDs and QR codes.`,
+    notes: `This chart shows capacity, the highest rate any code could reach and still decode reliably when bits flip independently. At 8 bits per second it's ${cap[3].toFixed(2)}, above the Hamming rate of 0.57, so better codes exist. Glare has memory, so its ${cap[4].toFixed(2)} is pessimistic. On the right, a Markov chain is a model where the next state depends only on the current one, and Reed-Solomon is a strong code from CDs and QR codes. I'll hand back to Maaz for the conclusion.`,
   });
   s.addChart([
     { type: pres.charts.BAR, data: [{ name: "Capacity", labels, values: cap }], options: { chartColors: [X.ink], barGapWidthPct: 50, showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.00" } },
@@ -61,7 +61,7 @@ function whatToSend() {
   const { s, top } = content({
     title: "What to send for each kind of noise",
     take: "The best code depends on how the errors are arranged, not only how many there are.",
-    notes: `This sums up which code to send for each kind of noise. On a clean channel we shouldn't code at all, because extra bits only slow things down. With isolated flips, repetition works but costs rate, 2-D parity rejects double errors, and Hamming can make more errors than no code. With bursts, where the redundancy sits matters more than how much.`,
+    notes: `Thanks Kanav. This sums up which code to send for each kind of noise. On a clean channel we shouldn't code at all, because extra bits only slow things down. With isolated flips, repetition works but costs rate, 2-D parity rejects double errors, and Hamming can make more errors than no code. With bursts, where the redundancy sits matters more than how much.`,
   });
   const zones = [
     { w: 2.6, fill: HEX.accent5, ink: C.text1, name: "Clean channel", send: "Do not code", why: "Every code decoded with no errors, so extra bits only slowed it down." },
@@ -83,31 +83,18 @@ function whatToSend() {
 function limits() {
   const N = RSTATS.noise, GL = N[k.findKey(N, 4, true)], share = Math.round(GL.burst_share * 100);
   const { s } = content({
-    title: "Successes and limitations",
-    notes: `Here's our summary. On the left, we built a working link with the required codes, 2-D parity and three new layouts, scripted and seeded every run, and measured the noise, where ${share} percent of glare errors sit in runs of 3 or more. On the right, 3 trials per method keeps frame results suggestive, room light changed between sessions, the layout test glare was mild, and the simulation ignores glare switching.`,
+    title: "Conclusion and limitations",
+    notes: `To wrap up, the main message is on the slide. Coding only helps if it fits the noise. On a clean channel it only costs speed, and with bursts the order of the bits matters as much as how many extra bits we add. On the good side, we built a working link from a laptop screen to a camera, with the three required codes, 2-D parity and three new layouts. We scripted and seeded every run, and we reported every recording, failures included. We also measured the noise instead of assuming it, and in glare ${share} percent of errors come in runs of 3 or more. Now the limitations. We only had 3 trials per method, so the frame results are suggestive. Room light changed between sessions, so we only compare codes within a session. The layout test glare was mild, so heavy bursts are untested, and we don't know yet why the spread header lost frames. One more, our simulation doesn't model glare switching between frames.`,
   });
-  // each row is a success and a limitation, the row is as tall as its longer text
-  const rows = [
-    ["A working link from a laptop screen to a camera, with the three required codes, 2-D parity and three new layouts", "Only 3 trials per method, so frame results are suggestive", 0.8],
-    ["Every run scripted and seeded, every recording reported, failures included", "Room light changed between sessions, so we compare codes only within a session", 0.54],
-    [`We measured the noise instead of assuming it. In glare ${share} percent of errors come in runs of 3 or more, so independent flip theory fails`, "The layout test glare was mild, so heavy bursts are untested, and the spread header lost frames for a reason we have not found", 0.8],
-    ["Spreading the copies and interleaving worked in simulation", "The simulation does not model the switching of glare between frames", 0.54],
-  ];
-  const colW = 4.2, heads = ["Successes", "Limitations"];
-  heads.forEach((head, i) => {
-    const x = M + i * (colW + 0.4);
-    if (i > 0) vline(s, x - 0.2, 1.25, 3.5, { name: "column rule" });
-    text(s, head, { x, y: 1.2, w: colW, h: 0.4, fontSize: 22, bold: true, fontFace: FONT.head, objectName: `${head} heading` });
-  });
-  let y = 1.72;
-  rows.forEach(([good, limit, h], j) => {
-    [good, limit].forEach((t2, i) => {
-      const x = M + i * (colW + 0.4);
-      hline(s, x, y - 0.08, colW, { name: `${heads[i]} rule ${j + 1}` });
-      text(s, t2, { x, y, w: colW, h, fontSize: 15, objectName: `${heads[i]} item ${j + 1}` });
-    });
-    y += h + 0.17;
-  });
+  text(s, "Conclusion", { x: M, y: 1.3, w: 8.8, h: 0.4, fontSize: 22, bold: true, fontFace: FONT.head, objectName: "conclusion heading" });
+  text(s, "Coding only helps if it fits the noise. On a clean channel it just costs speed, and with bursts the order of the bits matters as much as how many extra bits we add.", { x: M, y: 1.82, w: 8.2, h: 1.0, fontSize: 20, bold: true, objectName: "conclusion sentence" });
+  hline(s, M, 3.0, 8.8, { name: "limitations rule" });
+  text(s, "Limitations", { x: M, y: 3.15, w: 8.8, h: 0.4, fontSize: 22, bold: true, fontFace: FONT.head, objectName: "limitations heading" });
+  [
+    "Only 3 trials per method, so the frame results are suggestive.",
+    "Room light changed between sessions, so we only compare codes within a session.",
+    "The layout test glare was mild, so heavy bursts are untested, and we do not know yet why the spread header lost frames.",
+  ].forEach((t, i) => text(s, t, { x: M, y: 3.7 + i * 0.36, w: 8.8, h: i === 2 ? 0.62 : 0.34, fontSize: 16, objectName: `limitation ${i + 1}` }));
 }
 
 function questions() {
@@ -130,6 +117,7 @@ async function build() {
   k.section("Conclusion", "05");
   await tradeoff();
   context();
+  k.speaker("Maaz");
   whatToSend();
   limits();
   questions();

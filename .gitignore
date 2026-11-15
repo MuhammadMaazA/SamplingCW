@@ -32,3 +32,4 @@ report/*.log
 report/*.out
 report/*.synctex.gz
 presentation/plots/_done.txt
+presentation/media/_replay_done.txt

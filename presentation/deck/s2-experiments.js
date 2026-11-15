@@ -48,7 +48,7 @@ async function timeline() {
   const { s, top } = content({
     title: "The recording sessions",
     take: "Each dot is one session, by light and speed. Grey dots gave nothing we could use.",
-    notes: `Each dot is one recording session, grouped by the light and the speed, and a bigger dot means more planned trials. Black dots delivered most of their frames, red dots lost most of theirs, and grey dots gave us nothing we could use. Some of those grey ones were our own mistakes, and we'll come back to them.`,
+    notes: `Each dot is one recording session, grouped by the light and the speed, and a bigger dot means more planned trials. Black dots delivered most of their frames, red dots lost most of theirs, and grey dots gave us nothing we could use. Some of those grey ones were our own mistakes, and we'll come back to them. Okay, I'll hand over to Kanav now.`,
   });
   await plot(s, "fig-sessions-timeline.png", { y: top, maxW: 9.4, maxH: 5.15 - top, ar: 2.5, name: "all recording sessions", alt: "Every session grouped by light and speed, with frames delivered and the sessions that gave nothing usable" });
 }
@@ -60,8 +60,8 @@ async function build() {
   await built.demo();
   metrics();
   await timeline();
-  await merged.changes();
   k.speaker("Kanav");
+  await merged.changes();
   merged.lostAndFailed();
 }
 

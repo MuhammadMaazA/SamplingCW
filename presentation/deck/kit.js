@@ -13,10 +13,15 @@ const STATS = require(path.join(PLOTS, "stats.json"));
 const RSTATS = require(path.join(ROOT, "..", "report", "generated", "stats.json"));
 const DATA = require("./data");
 
-// An optional demonstration clip. The slide after "How one run goes" exists only when this file does, so the counts follow it.
+// An optional clip after the slide "How we ran an experiment". A genuine recording media/demo.mp4 wins, else the replay of one
+// recorded run media/replay.mp4 once the figures job has written its done marker, else there is no slide.
 // DECK_DEMO points at another file, which is how the slide is tried out without putting a clip in the repository.
-const DEMO = process.env.DECK_DEMO || path.join(ROOT, "media", "demo.mp4");
-const HAS_DEMO = fs.existsSync(DEMO);
+const MEDIA = path.join(ROOT, "media");
+const DEMO_REAL = process.env.DECK_DEMO || path.join(MEDIA, "demo.mp4");
+const REPLAY = path.join(MEDIA, "replay.mp4");
+const DEMO_KIND = fs.existsSync(DEMO_REAL) ? "demo" : fs.existsSync(REPLAY) && fs.existsSync(path.join(MEDIA, "_replay_done.txt")) ? "replay" : null;
+const DEMO = DEMO_KIND === "replay" ? REPLAY : DEMO_REAL;
+const HAS_DEMO = DEMO_KIND !== null;
 const TOTAL = 35 + (HAS_DEMO ? 1 : 0); // slides in the whole deck. finish() checks the count.
 const MAIN_END = TOTAL; // the last slide is the Questions slide, so the whole deck is the talk
 
@@ -308,7 +313,7 @@ async function finish(file) {
 }
 
 module.exports = {
-  pres, C, SH, THEME, HEX, X, FONT, M, WHITE, TOTAL, MAIN_END, DEMO, HAS_DEMO, STATS, RSTATS, DATA, PLOTS, state,
+  pres, C, SH, THEME, HEX, X, FONT, M, WHITE, TOTAL, MAIN_END, DEMO, DEMO_KIND, MEDIA, HAS_DEMO, STATS, RSTATS, DATA, PLOTS, state,
   SETUPS, setupKey, setupLabel, setupRow, findKey,
   text, hline, vline, arrow, cell, circle, laptop, ipad, plot, photo, withoutLastLine, chartFrame, axes,
   section, speaker, note, count, content, lineStyle, finish,

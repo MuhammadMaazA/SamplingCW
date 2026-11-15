@@ -202,7 +202,8 @@ python make_plots.py         # charts and plots/stats.json from experiments/resu
 python extract_deck_data.py  # numbers from the code for the slides, deck/data.js (runs the tests, about 40 s)
 python make_photos.py        # camera crops from the saved recordings
 python make_merged.py        # the pictures on the combined slides, deck/figs/
+python make_replay.py        # media/replay.mp4, a replay of one recording (needs ffmpeg)
 node build_deck.js
 ```
 
-`build_deck.js` reads those files and the report's `report/generated/stats.json`, so every number on the slides comes from the data. The slide code is in `deck/` and the deck has 35 slides. If a clip of a full run is saved as `presentation/media/demo.mp4`, the build adds a demonstration slide that plays it. The slides and figures use the Gill Sans MT font, which comes with Microsoft Office.
+`build_deck.js` reads those files and the report's `report/generated/stats.json`, so every number on the slides comes from the data. The slide code is in `deck/`. The deck has 35 slides, plus one that plays `media/demo.mp4` if you add a recording of a full run, or otherwise `media/replay.mp4`, a replay of one of our recordings that is labelled as not live. The slides and figures use the Gill Sans MT font, which comes with Microsoft Office.

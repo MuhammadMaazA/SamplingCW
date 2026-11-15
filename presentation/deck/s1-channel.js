@@ -21,7 +21,7 @@ function opening() {
     { text: "Muhammad Maaz and Kanav Mehta", options: { breakLine: true } },
     { text: "COMP0228 Coursework 1, University College London", options: { fontSize: 14, color: C.accent4 } },
   ], { placeholder: "body" });
-  const intro = `Hi everyone, we're Maaz and Kanav. We built a link that sends bits from one laptop screen to another through an iPad, and tested whether basic error correcting codes cope with the noise we measured. That noise came in bursts, so the order we send the bits in matters. I'll take the setup and the codes, then the experiments.`;
+  const intro = `Hi everyone, we're Maaz and Kanav. We built a link that sends bits from one laptop screen to another through an iPad, and tested whether basic error correcting codes cope with the noise we measured. That noise came in bursts, so the order we send the bits in matters. I'll start with the setup, the codes and how we ran the experiments. Kanav takes the results and our extension, and I'll come back for the conclusion.`;
   note(s, intro);
   count(Math.round(intro.split(/\s+/).length / 2.5));
 
