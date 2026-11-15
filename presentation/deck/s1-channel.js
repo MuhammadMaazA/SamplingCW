@@ -21,14 +21,16 @@ function opening() {
     { text: "Muhammad Maaz and Kanav Mehta", options: { breakLine: true } },
     { text: "COMP0228 Coursework 1, University College London", options: { fontSize: 14, color: C.accent4 } },
   ], { placeholder: "body" });
-  const intro = `Hi everyone, we're Maaz and Kanav, and we'll take turns, alternating slide by slide. We built a link that sends bits from one laptop screen to another through an iPad, and tested whether basic error correcting codes cope with the noise we measured. That noise came in bursts, so the order we send the bits in matters. Kanav, can you take us through what's coming?`;
+  const intro = `Hi everyone, we're Maaz and Kanav, and we'll take turns, alternating slide by slide. We built a link that sends bits from one laptop screen to another through an iPad, and tested whether basic error correcting codes cope with the noise we measured. That noise came in bursts, so the order we send the bits in matters. Kanav, can you take the plan?`;
   note(s, intro);
   count(Math.round(intro.split(/\s+/).length / 2.5));
 
   k.section("Overview");
   const { s: a, top } = content({
     title: "What we will cover",
-    notes: `Thanks Maaz. Here's what we'll cover, in five parts. The channel and the codes, then how we ran the experiments, then the results. After that comes our extension, where a layout means a way of ordering the bits we send, and last the conclusion.`,
+    notes: `Thanks Maaz. Here is our plan in five parts, and the part number sits in the top right corner of every slide. One, the channel and the codes. Two, how we ran the experiments, what we changed and which runs failed. Three, the results and the noise. Four, our extension, where a layout means a way of ordering the bits we send. Five, the conclusion. Maaz, the channel is yours.
+
+If asked about the structure, it runs from the channel and the codes through the experiments, the noise and our extension to the conclusion. Every number on the slides is read from the saved results and the analysis code, not typed in, and the full write-up is the report in the report folder of the repository.`,
   });
   const items = [
     ["01", "Channel and codes", "How a message is sent as flashes of light, and the three codes we use."],
@@ -51,7 +53,9 @@ function chain() {
   const { s, top } = content({
     title: "How the channel is built",
     take: "Laptop 1 flashes a patch, the iPad shows it live and laptop 2 films the iPad.",
-    notes: `Okay, so first the channel. Laptop 1 flashes a patch, a black or white square, in front of an iPad, and laptop 2's webcam films the iPad screen. The iPad adds glare, room light bouncing off its glass, and exposure drift, where its camera keeps changing the brightness. None of this noise is simulated, and it comes in bursts, meaning runs of wrong bits.`,
+    notes: `Okay, so first the channel, read left to right. Laptop 1 flashes a patch, a black or white square. The iPad has its front camera open, so its screen shows laptop 1 live, and laptop 2 films the iPad screen with its webcam. The iPad adds glare, room light bouncing off its glass, and exposure drift, where its camera keeps changing the brightness. None of this noise is simulated, and it comes in bursts, meaning runs of wrong bits.
+
+If asked why this channel, it was cheap, needed no special hardware and gave us several noise sources at once, namely camera sampling jitter, automatic exposure, room light and glare on the glass, and slow drift. The glossy iPad screen bounces room light back at the webcam, and both cameras set their own exposure. Sessions in a dim room with strong glare, which we call dim with glare, were our main source of bursty noise.`,
   });
   const y0 = top + 0.3, lw = 1.5;
   // laptop 1, the iPad and laptop 2 in the order the light travels
@@ -94,7 +98,9 @@ async function boxes() {
   const { s, top } = content({
     title: "Which pixels we measure",
     take: "Each camera frame becomes one number, the median brightness inside a box we draw.",
-    notes: `Yes, and about that box. On the left is normal light, where the box hugs the patch, ${B.n4.roi[2]} by ${B.n4.roi[3]} pixels, so everything inside is one flat colour. On the right we drew the box round the whole iPad, ${B.g22.roi[2]} by ${B.g22.roi[3]} pixels, so room light on the glass leaks into the number. The drawings aren't to scale, but the sizes are exact.`,
+    notes: `Yes, and about that box. Every camera frame becomes one number, the median brightness inside a box we draw. Normal light is left, glare right. On the left the box hugs the patch, ${B.n4.roi[2]} by ${B.n4.roi[3]} pixels, ${(B.n4.fraction * 100).toFixed(1)} percent of the frame, so the crop is one flat colour. On the right the box covers the whole iPad, ${B.g22.roi[2]} by ${B.g22.roi[3]} pixels, so the crop shows the glass, and room light leaks into the number. The drawings aren't to scale, but the sizes are exact.
+
+If asked how the box is chosen, we drag a rectangle on the first camera frame, then the software shows the live region and waits for a key press before the recording clock starts, and the region can be selected again. At calibration the software warns if the black and white levels are less than 20 apart on the 0 to 255 brightness scale.`,
   });
   const pw = 4.2, fw = 1.95, fy = top + 0.72;
   for (let i = 0; i < cases.length; i++) {
@@ -129,7 +135,9 @@ async function sampling() {
   const { s, top } = content({
     title: "Samples per bit at each speed",
     take: `At 8 bps the camera gives about ${spb8} samples per bit, at 2 bps about ${spb2}.`,
-    notes: `On that point, timing matters too. This shows how many camera readings we get per bit. The camera's rate isn't perfectly steady, so every camera frame carries a timestamp, and each bit uses the frame closest to the middle of its time slot. That reading is one sample. At 8 bits per second we get about ${spb8} samples per bit, at 2 bits per second about ${spb2}.`,
+    notes: `On that point, timing matters too. Three rows, 8, 4 and 2 bits per second. Shaded bands are white symbols, thin grey lines are camera frames, and the red lines are the frames we use. Every camera frame carries a timestamp, and each bit uses the frame closest to the middle of its time slot. That reading is one sample. At 8 bits per second we get about ${spb8} samples per bit, at 2 bits per second about ${spb2}.
+
+If asked how this works, the webcam and the screen run on separate clocks, and the webcam delivered only 22.6 to 30 frames per second in our recordings. So the software timestamps every camera frame and picks the one nearest the centre of each symbol by binary search over the sorted timestamps. If the observations run out, decoding stops, so missing data never becomes made up bits.`,
   });
   await plot(s, "fig-sampling.png", { y: top + 0.05, maxW: 9.4, maxH: 5.15 - top - 0.05, name: "camera frames against symbol centres", alt: "Camera frame timestamps against the centre of each symbol at three bit rates" });
 }
@@ -139,7 +147,9 @@ function rateBars() {
   const { s, top } = content({
     title: "The three codes and their rates",
     take: "The rate of a code is the share of the sent bits that carry the message.",
-    notes: `Thanks Kanav. Now the codes. The rate is the share of sent bits that carry the message, so a lower rate means more protection but slower sending. Uncoded is 1. Repetition sends each bit 3, 5 or 7 times. Hamming seven four turns 4 message bits into 7. 2-D, or two-dimensional, parity puts 16 bits in a grid with check bits, 16 out of 25. Kanav, can you take repetition?`,
+    notes: `Thanks Kanav. Now the codes. Dark is message bits, light is extra bits, and the rate is on the right. The rate is the share of sent bits that carry the message, so a lower rate means more protection but slower sending. Uncoded is 1. 2-D, or two-dimensional, parity puts 16 bits in a grid with check bits, 16 out of 25. Hamming seven four turns 4 message bits into 7. Repetition sends each bit 3, 5 or 7 times. Kanav, can you take repetition?
+
+If asked why these codes, repetition and Hamming seven four are the standard basic codes, and 2-D parity is the extra code we researched, a simple product code first described by Peter Elias in 1954. It corrects one error and rejects anything larger instead of guessing, and its rate is 16 out of 25.`,
   });
   const x0 = 2.7, full = 5.6, rh = 0.34, pitch = 0.5, y0 = top + 0.15;
   rows.forEach(([name, r, frac], i) => {
@@ -169,7 +179,9 @@ function repetition() {
   const { s, top } = content({
     title: "How repetition coding works",
     take: "Majority vote fixes one flipped copy. If two copies flip, it gets the bit wrong.",
-    notes: `Right, let's start with repetition. We send every bit three times and the receiver takes a majority vote. On the left one copy flips but the other two still agree, so the vote is right. On the right two copies flip and the vote is wrong. It costs us rate, one third here.`,
+    notes: `Right, let's start with repetition. Each panel reads top to bottom, sent, received, vote. We send every bit three times and the receiver takes a majority vote. On the left one copy flips, in red, but the other two agree, so the vote is right. On the right two copies flip and the vote is wrong. It costs us rate, one third here. Remember the copies sit side by side, because that matters when we meet bursts.
+
+If asked about the repetition codes, we tested 3, 5 and 7 copies, with rates one third, one fifth and one seventh, and the decoder takes the majority of the copies. With independent flips the vote follows a simple binomial curve, which we compare against later. With a burst the copies sit next to each other and fail together, which is the point of the extension.`,
   });
   const panels = [
     { x0: M, title: "One copy flips", sent: [1, 1, 1], got: [1, 0, 1], bad: [1], vote: 1, ok: true },
@@ -203,7 +215,9 @@ function hamming() {
   const { s, top } = content({
     title: "How Hamming finds a flipped bit",
     take: "The pattern of failed parity checks gives the position of the flipped bit.",
-    notes: `Okay, now Hamming. It adds 3 parity bits, extra check bits, to 4 data bits, and those 7 bits together are one codeword. When one bit flips, the checks that cover it fail, and read as a binary number they give its position. Here checks 1 and 3 fail, which reads 1 0 1, that's 5, so the decoder flips bit 5 back.`,
+    notes: `Okay, now Hamming. One codeword of 7 bits, and bit 5, in red, has flipped. Hamming adds 3 parity bits, extra check bits, to 4 data bits, and those 7 bits together are one codeword. Each check covers a different set of positions, shown by the dots. When a bit flips, the checks that cover it fail, and read as a binary number they give its position. Here checks 1 and 3 fail and check 2 holds, so reading 3, 2, 1 gives 1 0 1, that's 5, and the decoder flips bit 5 back. It fixes one flip, not two.
+
+If asked how it fails, the decoder computes the syndrome from the three parity checks and treats a nonzero syndrome as the position of one flipped bit. With two flips in one seven bit word the syndrome points at a third, good bit, so decoding flips a correct bit and leaves three wrong. We ran every single flip and every double flip on all 16 codewords, which is the grid on the plugging in slide.`,
   });
   const x0 = 2.6, w = 0.62, g = 0.1, pitch = w + g, y = top + 0.4;
   text(s, "Received", { x: M, y, w: 1.8, h: w, fontSize: 17, fontFace: FONT.semi, valign: "middle", objectName: "received label" });
@@ -237,7 +251,9 @@ function parity() {
   const { s, top } = content({
     title: "When 2-D parity fails",
     take: "Three errors in an L get a wrong fix, and four in a rectangle are not noticed.",
-    notes: `And the last code, two-dimensional parity, or 2-D parity, and how it can fail. We put 16 bits in a four by four grid with a parity bit for every row and column. One flip makes one row and one column fail, and where they cross is the bad bit. Three errors in an L give a wrong fix, and four at the corners of a rectangle go unnoticed. Maaz, can you take this one?`,
+    notes: `And the last code, 2-D, two-dimensional, parity. Each grid is four by four data bits plus a parity bit for every row and column, so rate 16 out of 25. In the first grid one bit is flipped, in red. One row check and one column check fail, and where they cross is the bad bit, so it is fixed. In the middle grid three errors in an L give a wrong fix. In the right grid four errors at the corners of a rectangle pass every check, so nothing is noticed. Maaz, can you take this one?
+
+If asked how it behaves, 2-D parity corrects one error and rejects larger patterns instead of guessing when the failing checks do not point at a single cell. It is a simple product code, first described by Peter Elias in 1954. In the high noise runs it reached a decoded error rate of zero but delivered only one frame in three.`,
   });
   const size = 0.44, g = 0.03, pitch = size + g, gridW = 5 * pitch - g;
   cases.forEach((cs, ci) => {
