@@ -21,14 +21,14 @@ function opening() {
     { text: "Muhammad Maaz and Kanav Mehta", options: { breakLine: true } },
     { text: "COMP0228 Coursework 1, University College London", options: { fontSize: 14, color: C.accent4 } },
   ], { placeholder: "body" });
-  const intro = `Hi everyone, we're Maaz and Kanav. We built a link that sends bits from one laptop screen to another through an iPad, and tested whether basic error correcting codes cope with the noise we measured. That noise came in bursts, so the order we send the bits in matters. I'll start with the setup, the codes and how we ran the experiments. Kanav takes the results and our extension, and I'll come back for the conclusion.`;
+  const intro = `Hi everyone, we're Maaz and Kanav, and we'll take turns, alternating slide by slide. We built a link that sends bits from one laptop screen to another through an iPad, and tested whether basic error correcting codes cope with the noise we measured. That noise came in bursts, so the order we send the bits in matters. Kanav, can you take us through what's coming?`;
   note(s, intro);
   count(Math.round(intro.split(/\s+/).length / 2.5));
 
   k.section("Overview");
   const { s: a, top } = content({
     title: "What we will cover",
-    notes: `Here's what we'll cover, in five parts. The channel and the codes first, then how we ran the experiments, then the results. After that comes our extension, where a layout means a way of ordering the bits we send, and last the conclusion.`,
+    notes: `Thanks Maaz. Here's what we'll cover, in five parts. The channel and the codes, then how we ran the experiments, then the results. After that comes our extension, where a layout means a way of ordering the bits we send, and last the conclusion.`,
   });
   const items = [
     ["01", "Channel and codes", "How a message is sent as flashes of light, and the three codes we use."],
@@ -51,7 +51,7 @@ function chain() {
   const { s, top } = content({
     title: "How the channel is built",
     take: "Laptop 1 flashes a patch, the iPad shows it live and laptop 2 films the iPad.",
-    notes: `Here's the chain we used. Laptop 1 flashes a patch, a black or white square, in front of an iPad, and laptop 2's webcam films the iPad screen. The iPad adds glare, room light bouncing off its glass, and exposure drift, where its camera keeps changing the brightness. None of this noise is simulated, and it comes in bursts, meaning runs of wrong bits.`,
+    notes: `Okay, so first the channel. Laptop 1 flashes a patch, a black or white square, in front of an iPad, and laptop 2's webcam films the iPad screen. The iPad adds glare, room light bouncing off its glass, and exposure drift, where its camera keeps changing the brightness. None of this noise is simulated, and it comes in bursts, meaning runs of wrong bits.`,
   });
   const y0 = top + 0.3, lw = 1.5;
   // laptop 1, the iPad and laptop 2 in the order the light travels
@@ -94,7 +94,7 @@ async function boxes() {
   const { s, top } = content({
     title: "Which pixels we measure",
     take: "Each camera frame becomes one number, the median brightness inside a box we draw.",
-    notes: `On the left is normal light, where the box hugs the patch, ${B.n4.roi[2]} by ${B.n4.roi[3]} pixels, so everything inside is one flat colour. On the right we drew the box round the whole iPad, ${B.g22.roi[2]} by ${B.g22.roi[3]} pixels, so room light on the glass leaks into the number. The drawings aren't to scale, but the sizes are exact.`,
+    notes: `Yes, and about that box. On the left is normal light, where the box hugs the patch, ${B.n4.roi[2]} by ${B.n4.roi[3]} pixels, so everything inside is one flat colour. On the right we drew the box round the whole iPad, ${B.g22.roi[2]} by ${B.g22.roi[3]} pixels, so room light on the glass leaks into the number. The drawings aren't to scale, but the sizes are exact.`,
   });
   const pw = 4.2, fw = 1.95, fy = top + 0.72;
   for (let i = 0; i < cases.length; i++) {
@@ -129,7 +129,7 @@ async function sampling() {
   const { s, top } = content({
     title: "Samples per bit at each speed",
     take: `At 8 bps the camera gives about ${spb8} samples per bit, at 2 bps about ${spb2}.`,
-    notes: `This shows how many camera readings we get per bit. The camera's rate isn't perfectly steady, so every camera frame carries a timestamp, and each bit uses the frame closest to the middle of its time slot. That reading is one sample. At 8 bits per second we get about ${spb8} samples per bit, at 2 bits per second about ${spb2}.`,
+    notes: `On that point, timing matters too. This shows how many camera readings we get per bit. The camera's rate isn't perfectly steady, so every camera frame carries a timestamp, and each bit uses the frame closest to the middle of its time slot. That reading is one sample. At 8 bits per second we get about ${spb8} samples per bit, at 2 bits per second about ${spb2}.`,
   });
   await plot(s, "fig-sampling.png", { y: top + 0.05, maxW: 9.4, maxH: 5.15 - top - 0.05, name: "camera frames against symbol centres", alt: "Camera frame timestamps against the centre of each symbol at three bit rates" });
 }
@@ -139,7 +139,7 @@ function rateBars() {
   const { s, top } = content({
     title: "The three codes and their rates",
     take: "The rate of a code is the share of the sent bits that carry the message.",
-    notes: `These are the codes and their rates. The rate is the share of sent bits that carry the message, so a lower rate means more protection but slower sending. Uncoded is 1. Repetition sends each bit 3, 5 or 7 times. Hamming seven four turns 4 message bits into 7. 2-D, or two-dimensional, parity puts 16 bits in a grid with check bits, 16 out of 25.`,
+    notes: `Thanks Kanav. Now the codes. The rate is the share of sent bits that carry the message, so a lower rate means more protection but slower sending. Uncoded is 1. Repetition sends each bit 3, 5 or 7 times. Hamming seven four turns 4 message bits into 7. 2-D, or two-dimensional, parity puts 16 bits in a grid with check bits, 16 out of 25. Kanav, can you take repetition?`,
   });
   const x0 = 2.7, full = 5.6, rh = 0.34, pitch = 0.5, y0 = top + 0.15;
   rows.forEach(([name, r, frac], i) => {
@@ -169,7 +169,7 @@ function repetition() {
   const { s, top } = content({
     title: "How repetition coding works",
     take: "Majority vote fixes one flipped copy. If two copies flip, it gets the bit wrong.",
-    notes: `Let's start with repetition. We send every bit three times and the receiver takes a majority vote. On the left one copy flips but the other two still agree, so the vote is right. On the right two copies flip and the vote is wrong. It costs us rate, one third here.`,
+    notes: `Right, let's start with repetition. We send every bit three times and the receiver takes a majority vote. On the left one copy flips but the other two still agree, so the vote is right. On the right two copies flip and the vote is wrong. It costs us rate, one third here.`,
   });
   const panels = [
     { x0: M, title: "One copy flips", sent: [1, 1, 1], got: [1, 0, 1], bad: [1], vote: 1, ok: true },
@@ -203,7 +203,7 @@ function hamming() {
   const { s, top } = content({
     title: "How Hamming finds a flipped bit",
     take: "The pattern of failed parity checks gives the position of the flipped bit.",
-    notes: `Now Hamming. It adds 3 parity bits, extra check bits, to 4 data bits, and those 7 bits together are one codeword. When one bit flips, the checks that cover it fail, and read as a binary number they give its position. Here checks 1 and 3 fail, which reads 1 0 1, that's 5, so the decoder flips bit 5 back.`,
+    notes: `Okay, now Hamming. It adds 3 parity bits, extra check bits, to 4 data bits, and those 7 bits together are one codeword. When one bit flips, the checks that cover it fail, and read as a binary number they give its position. Here checks 1 and 3 fail, which reads 1 0 1, that's 5, so the decoder flips bit 5 back.`,
   });
   const x0 = 2.6, w = 0.62, g = 0.1, pitch = w + g, y = top + 0.4;
   text(s, "Received", { x: M, y, w: 1.8, h: w, fontSize: 17, fontFace: FONT.semi, valign: "middle", objectName: "received label" });
@@ -237,7 +237,7 @@ function parity() {
   const { s, top } = content({
     title: "When 2-D parity fails",
     take: "Three errors in an L get a wrong fix, and four in a rectangle are not noticed.",
-    notes: `This shows how 2-D parity can fail. We put 16 bits in a four by four grid with a parity bit for every row and column. One flip makes one row and one column fail, and where they cross is the bad bit. Three errors in an L give a wrong fix, and four at the corners of a rectangle go unnoticed.`,
+    notes: `And the last code, two-dimensional parity, or 2-D parity, and how it can fail. We put 16 bits in a four by four grid with a parity bit for every row and column. One flip makes one row and one column fail, and where they cross is the bad bit. Three errors in an L give a wrong fix, and four at the corners of a rectangle go unnoticed. Maaz, can you take this one?`,
   });
   const size = 0.44, g = 0.03, pitch = size + g, gridW = 5 * pitch - g;
   cases.forEach((cs, ci) => {

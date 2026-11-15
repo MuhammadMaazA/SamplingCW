@@ -86,9 +86,6 @@ class Scene:
         self.ov = ov = self.fig.add_axes([0, 0, 1, 1])
         ov.set_xlim(0, W); ov.set_ylim(H, 0); ov.axis("off")
         self.main, self.title, self.conf, self.compare = [], [], [[], [], []], []
-        ov.text(0.4, 0.34, f"One recording, shown {speed_label} times faster. Not a live run.", fontsize=18,
-                fontweight="bold", color=INK, va="center", ha="left")
-        ov.text(0.4, 0.72, f"{CONDITION}. Drawn from the brightness the camera measured, not a video of the setup.", fontsize=16, color=GREY1, va="center", ha="left")
         self.clock = ov.text(12.4, 0.34, "", fontsize=16, color=GREY1, va="center", ha="right")
         self.main.append(self.clock)
         self._devices()
@@ -123,8 +120,10 @@ class Scene:
         self._add(ov.add_patch(Circle((cx3, y0 - 0.075), 0.035, fc=INK, ec="none")))
         self.reads = self._add(ov.text(cx3, y0 + 0.27, "reads", fontsize=16, color=GREY1, ha="center", va="center"))
         self.bit3 = self._add(ov.text(cx3, y0 + 0.68, "", fontsize=34, fontweight="bold", color=INK, ha="center", va="center"))
-        for cx, text in ((cx1, "Laptop 1 shows the symbol"), (cx2, "iPad screen shows laptop 1"), (cx3, "Laptop 2 reads the bit")):
-            self._add(ov.text(cx, 2.3, text, fontsize=16, color=GREY1, ha="center", va="center"))
+        labels = []
+        for cx, text in ((cx1, "Laptop 1 shows black or white"), (cx2, "iPad screen shows laptop 1"), (cx3, "Laptop 2 reads the bit")):
+            labels.append(self._add(ov.text(cx, 2.3, text, fontsize=16, color=GREY1, ha="center", va="center")))
+        self.lab1 = labels[0]
         for xa, xb in ((cx1 + 1.3, cx2 - 1.2), (cx2 + 1.2, cx3 - 1.3)):
             self._add(ov.annotate("", xy=(xb, y0 + 0.55), xytext=(xa, y0 + 0.55), arrowprops=dict(arrowstyle="-|>", color=GREY2, lw=2.4, shrinkA=0, shrinkB=0)))
 
@@ -224,6 +223,7 @@ class Scene:
         self.cursor.set_visible(not final)
         self.cursor.set_xdata([tr, tr])
         self.patch1.set_facecolor((INK if tx[i] == 0 else WHITE) if in_frame else GREY4)
+        self.lab1.set_text(("Laptop 1 shows black, a 0" if tx[i] == 0 else "Laptop 1 shows white, a 1") if in_frame else "Laptop 1 shows black or white")
         self.patch2.set_facecolor(str(float(vals[max(k - 1, 0)]) / 255))
         self.bit3.set_text(str(rx[m - 1]) if m else "")
         self.reads.set_text("reads" if m else "")

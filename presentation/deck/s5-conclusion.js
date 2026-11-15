@@ -11,7 +11,7 @@ async function tradeoff() {
   const { s, top } = content({
     title: "Delivery rate against code rate",
     take: "Delivery rate is the message bits delivered per second. In normal light it follows the code rate.",
-    notes: `Here you can see delivery rate against code rate, counting only frames that arrived intact. In normal light at 4 bits per second it follows the code rate, and no coding is fastest at ${clean.throughput.toFixed(3)}. At 8 bits per second no coding and Hamming delivered nothing, and repetition 7, the slowest code on paper, delivered the most at ${best.throughput.toFixed(3)}. With 3 trials that's a trend, not a ranking.`,
+    notes: `Right, now speed against protection. Here you can see delivery rate against code rate, counting only frames that arrived intact. In normal light at 4 bits per second it follows the code rate, and no coding is fastest at ${clean.throughput.toFixed(3)}. At 8 bits per second no coding and Hamming delivered nothing, and repetition 7, the slowest code on paper, delivered the most at ${best.throughput.toFixed(3)}. With 3 trials that's a trend, not a ranking.`,
   });
   await plot(s, "tradeoff.png", { y: top, maxW: 9.4, maxH: 5.15 - top, name: "delivery rate against code rate", alt: "Delivery rate against code rate for every code, in normal light at 4 bps and at 8 bps" });
 }
@@ -28,7 +28,7 @@ function context() {
   const { s, top } = content({
     title: "How close we are to the limit",
     take: `At 8 bps the measured error rate allows a rate of ${cap[3].toFixed(2)}, and Hamming uses ${(4 / 7).toFixed(2)}.`,
-    notes: `This chart shows capacity, the highest rate any code could reach and still decode reliably when bits flip independently. At 8 bits per second it's ${cap[3].toFixed(2)}, above the Hamming rate of 0.57, so better codes exist. Glare has memory, so its ${cap[4].toFixed(2)} is pessimistic. On the right, a Markov chain is a model where the next state depends only on the current one, and Reed-Solomon is a strong code from compact discs, CDs, and from QR, quick response, codes. I'll hand back to Maaz for the conclusion.`,
+    notes: `Okay, so how close are we to the best possible? This chart shows capacity, the highest rate any code could reach and still decode reliably when bits flip independently. At 8 bits per second it's ${cap[3].toFixed(2)}, above the Hamming rate of 0.57, so better codes exist. Glare has memory, so its ${cap[4].toFixed(2)} is pessimistic. A Markov chain is a model where the next state depends only on the current one, and Reed-Solomon is a strong code from compact discs, CDs, and from QR, quick response, codes. Kanav, what should we send?`,
   });
   s.addChart([
     { type: pres.charts.BAR, data: [{ name: "Capacity", labels, values: cap }], options: { chartColors: [X.ink], barGapWidthPct: 50, showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.00" } },
@@ -61,7 +61,7 @@ function whatToSend() {
   const { s, top } = content({
     title: "What to send for each kind of noise",
     take: "The best code depends on how the errors are arranged, not only how many there are.",
-    notes: `Thanks Kanav. This sums up which code to send for each kind of noise. On a clean channel we shouldn't code at all, because extra bits only slow things down. With isolated flips, repetition works but costs rate, 2-D parity rejects double errors, and Hamming can make more errors than no code. With bursts, where the redundancy sits matters more than how much.`,
+    notes: `Thanks Maaz. So, what to send. On a clean channel we shouldn't code at all, because extra bits only slow things down. With isolated flips, repetition works but costs rate, 2-D parity rejects double errors, and Hamming can make more errors than no code. With bursts, where the redundancy sits matters more than how much. Maaz, can you wrap up?`,
   });
   const zones = [
     { w: 2.6, fill: HEX.accent5, ink: C.text1, name: "Clean channel", send: "Do not code", why: "Every code decoded with no errors, so extra bits only slowed it down." },
@@ -84,7 +84,7 @@ function limits() {
   const N = RSTATS.noise, GL = N[k.findKey(N, 4, true)], share = Math.round(GL.burst_share * 100);
   const { s } = content({
     title: "Conclusion and limitations",
-    notes: `To wrap up, the main message is on the slide. Coding only helps if it fits the noise. On a clean channel it only costs speed, and with bursts the order of the bits matters as much as how many extra bits we add. On the good side, we built a working link from a laptop screen to a camera, with the three required codes, 2-D parity and three new layouts. We scripted and seeded every run, and we reported every recording, failures included. We also measured the noise instead of assuming it, and in glare ${share} percent of errors come in runs of 3 or more. Now the limitations. Room light changed between sessions, so we only compare codes within a session. Our simulation also doesn't model glare switching between frames. The other limits, only 3 trials per method and the mild glare in the layout test, we already covered on the earlier slides.`,
+    notes: `Yes, so to wrap up, coding only helps if it fits the noise. On a clean channel it only costs speed, and with bursts the order of the bits matters as much as how many extra bits we add. On the good side, we built a working link from a laptop screen to a camera, with the three required codes, 2-D parity and three new layouts. We scripted and seeded every run, and we reported every recording, failures included. We also measured the noise instead of assuming it, and in glare ${share} percent of errors come in runs of 3 or more. As for limits, room light changed between sessions, so we only compare codes within a session, and our simulation doesn't model glare switching between frames. The other limits, only 3 trials per method and mild layout test glare, came up earlier. Kanav, shall we take questions?`,
   });
   text(s, "Conclusion", { x: M, y: 1.3, w: 8.8, h: 0.4, fontSize: 22, bold: true, fontFace: FONT.head, objectName: "conclusion heading" });
   text(s, "Coding only helps if it fits the noise. On a clean channel it just costs speed, and with bursts the order of the bits matters as much as how many extra bits we add.", { x: M, y: 1.82, w: 8.2, h: 1.0, fontSize: 20, bold: true, objectName: "conclusion sentence" });

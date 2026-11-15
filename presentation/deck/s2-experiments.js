@@ -16,7 +16,7 @@ function metrics() {
   const { s, top } = content({
     title: "Four numbers for every trial",
     take: `In this example ${wrongChannel} of 12 bits arrive wrong, but all 4 message bits decode correctly.`,
-    notes: `These are the four numbers we record for every trial. Channel BER is the share of bits that arrive wrong, and BER means bit error rate. Decoded BER is the share of message bits still wrong after decoding. Delivery rate is message bits delivered per second. Frame success is the share of frames decoded correctly. Here repetition fixes both wrong bits, so decoded BER is zero.`,
+    notes: `Right, so what do we measure? These are the four numbers we record for every trial. Channel BER is the share of bits that arrive wrong, and BER means bit error rate. Decoded BER is the share of message bits still wrong after decoding. Delivery rate is message bits delivered per second. Frame success is the share of frames decoded correctly. Maaz, your turn.`,
   });
   const size = 0.4, gap = 0.06, gg = 0.14, pitch = size + gap, x0 = 1.95, y = top + 0.2;
   const gx = (g, j) => x0 + g * (3 * pitch + gg) + j * pitch;
@@ -48,7 +48,7 @@ async function timeline() {
   const { s, top } = content({
     title: "The recording sessions",
     take: "Each dot is one session, by light and speed. Grey dots gave nothing we could use.",
-    notes: `Each dot is one recording session, grouped by the light and the speed, and a bigger dot means more planned trials. Black dots delivered most of their frames, red dots lost most of theirs, and grey dots gave us nothing we could use. Some of those grey ones were our own mistakes, and we'll come back to them. Okay, I'll hand over to Kanav now.`,
+    notes: `So which sessions did we record? Each dot is one recording session, grouped by the light and the speed, and a bigger dot means more planned trials. Black dots delivered most of their frames, red dots lost most of theirs, and grey dots gave us nothing we could use. Some grey ones were our own mistakes, which we'll come back to. Kanav, what did we change?`,
   });
   await plot(s, "fig-sessions-timeline.png", { y: top, maxW: 9.4, maxH: 5.15 - top, ar: 2.5, name: "all recording sessions", alt: "Every session grouped by light and speed, with frames delivered and the sessions that gave nothing usable" });
 }

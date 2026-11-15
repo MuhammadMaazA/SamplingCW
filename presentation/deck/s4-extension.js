@@ -14,7 +14,7 @@ function layoutsAndFlow() {
   const { s, top } = content({
     title: "The three new layouts",
     take: "Each layout only reorders the bits, and the receiver tries the normal header first.",
-    notes: `The top row has the three layouts we added, so a layout is a way of ordering the same bits. Spread repetition sends the whole message three times in a row. Depth 16 mixes 16 Hamming codewords instead of 8, so a burst of up to 16 bits hits each codeword once. The spread header sends its three copies a whole header apart. The bottom row shows how the receiver copes, left to right. It reads the ${CODE.header_coded_bits} header bits and tries the normal layout first. If the header CRC fails, it undoes the spread and tries again, and if both fail the frame is lost. In our experiments the plan already says which layout was sent.`,
+    notes: `Right, and the layouts themselves. The top row has the three layouts we added, so a layout is a way of ordering the same bits. Spread repetition sends the whole message three times in a row. Depth 16 mixes 16 Hamming codewords instead of 8, so a burst of up to 16 bits hits each codeword once. The spread header sends its three copies a whole header apart. The bottom row shows how the receiver copes, left to right. It reads the ${CODE.header_coded_bits} header bits and tries the normal layout first. If the header CRC fails, it undoes the spread and tries again, and if both fail the frame is lost.`,
   });
   const cw = 2.8, cx = (i) => M + i * 3.0, cs = 0.2, pitch = 0.22;
   const strips = (x, y, a, b, la, lb) => {
@@ -64,7 +64,7 @@ async function headerFinding() {
   const { s, top } = content({
     title: "Spreading the header cost frames",
     take: `The header CRC failed in ${H.spread.failed} of ${H.spread.frames} spread header frames and ${H.other.failed} of ${H.other.frames} others.`,
-    notes: `This was the one clear effect in the layout test, and it went the wrong way. The header CRC failed in ${H.spread.failed} of ${H.spread.frames} spread header frames against ${H.other.failed} of ${H.other.frames} others. If spreading made no difference, a gap this big would happen by chance about ${Math.round(H.fisher_p * 1000)} times in 1000, which is the p of ${H.fisher_p.toFixed(3)}. In simulation it helped. Without one short burst it's still ${H.mild_spread.failed} of ${H.mild_spread.frames} against ${H.adjacent.observed} of ${H.adjacent.frames}. We haven't found why.`,
+    notes: `On that point, this was the one clear effect in the layout test, and it went the wrong way. The header CRC failed in ${H.spread.failed} of ${H.spread.frames} spread header frames against ${H.other.failed} of ${H.other.frames} others. If spreading made no difference, a gap this big would happen by chance about ${Math.round(H.fisher_p * 1000)} times in 1000, which is the p of ${H.fisher_p.toFixed(3)}. In simulation it helped. Without one short burst it's still ${H.mild_spread.failed} of ${H.mild_spread.frames} against ${H.adjacent.observed} of ${H.adjacent.frames}. We haven't found why. Maaz, what else did it show?`,
   });
   const trimmed = await k.withoutLastLine("fig-physical-header.png");
   const pic = await plot(s, "fig-physical-header.png", { full: trimmed, y: top - 0.08, maxW: 9.4, maxH: 5.15 - top - 0.55, ar: 2.2, name: "header CRC failures by layout", alt: "Header CRC failures for the layouts with the header together and with the header spread" });
@@ -78,7 +78,7 @@ async function physicalReading() {
     const { s, top } = content({
     title: "What the layout test shows",
     take: "Glare was mild, so heavy bursts went untested. The one clear effect was negative.",
-    notes: `This puts the layout test next to our earlier glare runs. Channel BER in the layout test was ${P.channel_ber_range_pct[0]} to ${P.channel_ber_range_pct[1]} percent, against ${P.original_glare_channel_ber_range_pct[0]} to ${P.original_glare_channel_ber_range_pct[1]} percent before, so the glare was mild and heavy bursts went untested. The one clear effect was negative, because spreading the header cost frames. Whether spreading helps against heavy bursts still rests on the simulation.`,
+    notes: `Thanks Kanav. Here's the layout test next to our earlier glare runs. Channel BER in the layout test was ${P.channel_ber_range_pct[0]} to ${P.channel_ber_range_pct[1]} percent, against ${P.original_glare_channel_ber_range_pct[0]} to ${P.original_glare_channel_ber_range_pct[1]} percent before, so the glare was mild and heavy bursts went untested. The one clear effect was negative, because spreading the header cost frames. Whether spreading helps against heavy bursts still rests on the simulation. Kanav, your turn.`,
   });
   s.addChart(pres.charts.BAR, [{ name: "Channel BER", labels: rows.map((r) => r[0]), values: rows.map((r) => r[1]) }], {
     x: M, y: top, w: 5.7, h: 5.15 - top, barDir: "bar", barGapWidthPct: 35, chartColors: rows.map((r) => r[2]), catAxisOrientation: "maxMin", showLegend: false,

@@ -238,10 +238,12 @@ function section(name, no) {
   state.tag = no ? `${no} ${name}` : name;
 }
 function speaker(name) { state.speaker = name; }
-function note(s, t) { s.addNotes(`${state.speaker}. ${t}`); }
+// the speakers alternate slide by slide, Maaz on the odd numbers and Kanav on the even ones, and the last slide is both
+function who() { return state.speaker === "Both" ? "Both" : (state.count + 1) % 2 ? "Maaz" : "Kanav"; }
+function note(s, t) { s.addNotes(`${who()}. ${t}`); }
 // speaking time in seconds for a note, at 150 words a minute
 function words(t) { return Math.round(t.split(/\s+/).length / 2.5); }
-function count(secs) { state.count += 1; state.secs.push({ n: state.count, who: state.speaker, secs }); }
+function count(secs) { const w = who(); state.count += 1; state.secs.push({ n: state.count, who: w, secs }); }
 
 // a content slide, title and an optional one sentence takeaway. Returns the slide and the y where visuals can start.
 function content({ title, take, notes, secs, fixed = false, dark = false }) {
