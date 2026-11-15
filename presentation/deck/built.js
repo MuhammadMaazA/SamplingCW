@@ -203,10 +203,9 @@ async function demo() {
     notes: `Here's a short recording of one run. First we calibrate with black and then white, then laptop 1 sends a short message, and laptop 2 decodes it.`,
     secs: Math.round(info.secs + 6), fixed: true,
   });
-  const room = replay ? 4.78 - top : 5.15 - top;
+  const room = 5.15 - top;
   const h = Math.min(room, (9.4 * info.h) / info.w), w = (h * info.w) / info.h;
   s.addMedia({ type: "video", path: k.DEMO, x: (10 - w) / 2, y: top, w, h, cover: await clip.poster(k.DEMO, info, replay ? Math.round(info.secs * 0.35) : undefined), objectName: replay ? "replay clip" : "demonstration clip" });
-  if (replay) text(s, `Drawn from one recording, ${N} times faster. Not a live run and not a video of the setup.`, { x: M, y: top + h + 0.12, w: 8.8, h: 0.3, fontSize: 14, color: C.text2, align: "center", objectName: "replay caption" });
 }
 
 module.exports = { txrx, plugAndCheck, experiment, demo, box, label, elbow, deviceBand, SHORT };
