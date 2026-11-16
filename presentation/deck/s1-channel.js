@@ -53,7 +53,7 @@ function chain() {
   const { s, top } = content({
     title: "How the channel is built",
     take: "Laptop 1 flashes a patch, the iPad shows it live and laptop 2 films the iPad.",
-    notes: `Okay, so first the channel, read left to right. Laptop 1 flashes a patch, a black or white square. The iPad has its front camera open, so its screen shows laptop 1 live, and laptop 2 films the iPad screen with its webcam. The iPad adds glare, room light bouncing off its glass, and exposure drift, where its camera keeps changing the brightness. None of this noise is simulated, and it comes in bursts, meaning runs of wrong bits.
+    notes: `Okay, so first the channel, read left to right. Laptop 1 flashes a patch, a black or white square. The iPad has its front camera open, so its screen shows laptop 1 live, and laptop 2 films the iPad screen with its webcam. The iPad adds glare, room light bouncing off its glass, and exposure drift, where its camera keeps changing the brightness. None of this noise is simulated. In the dim room the errors come in bursts, meaning runs of wrong bits. In normal light they are mostly single flips.
 
 If asked why this channel, it was cheap, needed no special hardware and gave us several noise sources at once, namely camera sampling jitter, automatic exposure, room light and glare on the glass, and slow drift. The glossy iPad screen bounces room light back at the webcam, and both cameras set their own exposure. Sessions in a dim room with strong glare, which we call dim with glare, were our main source of bursty noise.`,
   });
@@ -83,7 +83,7 @@ If asked why this channel, it was cheap, needed no special hardware and gave us 
   // why it is built this way
   const wy = cy + 1.0;
   hline(s, M, wy, 8.8, { name: "why rule" });
-  [["Cheap", "Two laptops and an iPad, no other hardware.", M, 2.5], ["Hardware noise", "Glare and two auto exposure cameras add noise that is not simulated.", 3.55, 2.9], ["Bursts", "Errors come in bursts, which are hard to correct.", 6.95, 2.45]].forEach(([h, t, x, w], i) => {
+  [["Cheap", "Two laptops and an iPad, no other hardware.", M, 2.5], ["Hardware noise", "Glare and two auto exposure cameras add noise that is not simulated.", 3.55, 2.9], ["Bursts", "In the dim room, errors come in bursts.", 6.95, 2.45]].forEach(([h, t, x, w], i) => {
     text(s, h, { x, y: wy + 0.07, w, h: 0.3, fontSize: 16, fontFace: FONT.semi, objectName: `why ${i + 1} head` });
     text(s, t, { x, y: wy + 0.37, w, h: 0.55, fontSize: 14, color: C.text2, objectName: `why ${i + 1} text` });
   });
@@ -253,7 +253,7 @@ function parity() {
     take: "Three errors in an L get a wrong fix, and four in a rectangle are not noticed.",
     notes: `And the last code, 2-D, two-dimensional, parity. Each grid is four by four data bits plus a parity bit for every row and column, so rate 16 out of 25. In the first grid one bit is flipped, in red. One row check and one column check fail, and where they cross is the bad bit, so it is fixed. In the middle grid three errors in an L give a wrong fix. In the right grid four errors at the corners of a rectangle pass every check, so nothing is noticed. Maaz, can you take this one?
 
-If asked how it behaves, 2-D parity corrects one error and rejects larger patterns instead of guessing when the failing checks do not point at a single cell. It is a simple product code, first described by Peter Elias in 1954. In the high noise runs it reached a decoded error rate of zero but delivered only one frame in three.`,
+If asked how it behaves, one failed row and one failed column look like a single error, so the decoder flips the cell where they cross. The L in the middle is exactly that case: three flipped bits leave one failing row and one failing column, and the cell they point at is the wrong one. Two failing rows, or two failing columns, are rejected instead of guessed. Four flips at the corners of a rectangle leave every check passing, so nothing is noticed. It is a simple product code, first described by Peter Elias in 1954. In the high noise runs it reached a decoded error rate of zero but delivered only one frame in three.`,
   });
   const size = 0.44, g = 0.03, pitch = size + g, gridW = 5 * pitch - g;
   cases.forEach((cs, ci) => {

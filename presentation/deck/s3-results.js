@@ -11,7 +11,7 @@ async function wilson() {
   const { s, top } = content({
     title: "What 3 trials can tell us",
     take: `With 3 trials per method, no method differs from the best one, p of ${pmin} or more.`,
-    notes: `Okay so, a word on statistics. The dot is the share of frames delivered out of 3, the line is a 95 percent Wilson interval, which stays sensible even at 0 of 3, and the label is the count. A p value asks one thing. If the methods made no difference, how often would chance alone give a gap this big? Below about 0.05, chance is unlikely, and a Fisher exact test works p out for small counts. Our biggest gap, repetition 7 against Hamming at 8 bits per second, gives p of ${RSTATS.fisher_fast_rep7_vs_hamming.toFixed(2)}, so we read these as trends. Over to you Kanav.
+    notes: `Okay so, a word on statistics. The dot is the share of frames delivered out of 3, the line is a 95 percent Wilson interval, which stays sensible even at 0 of 3, and the label is the count. A p value asks one thing. If the methods made no difference, how often would chance alone give a gap this big? Below about 0.05, chance is unlikely, and a Fisher exact test works p out for small counts. The p of ${pmin} on the slide compares each code with the best one, repetition 5, using 9 trials pooled across the sessions. That is a different test from the 8 bits per second session alone, where repetition 7 delivered 3 of 3 frames and Hamming 0 of 3, p of ${RSTATS.fisher_fast_rep7_vs_hamming.toFixed(2)}. Neither is below 0.05, so we read both as trends. Over to you Kanav.
 
 If asked how the statistics work, the Wilson score interval is a confidence interval for a proportion that behaves sensibly at zero successes and at all successes, where the usual normal interval does not. Fisher's exact test takes the two by two table of delivered and lost frames and finds, from the table totals alone, how likely a split at least this uneven would be if the methods were the same.`,
   });
@@ -71,7 +71,7 @@ async function repetitionTheory() {
   const R = Object.fromEntries(STATS.repetition.map((r) => [r.group, r]));
   const { s, top } = content({
     title: "Repetition does worse than theory",
-    take: `In glare rep-3 left ${R.G25.decoded.toFixed(3)} of bits wrong. Theory for independent flips says ${R.G25.theory.toFixed(3)}.`,
+    take: `One glare recording: rep-3 left ${R.G25.decoded.toFixed(3)} of bits wrong, theory says ${R.G25.theory.toFixed(3)}.`,
     notes: `So, if flips were independent, majority voting would follow these curves, the theory for repetition 3, 5 and 7. Each dot is a measured run, red for glare, black for normal light. In glare our runs sit far above the curves. One recording left ${R.G25.decoded.toFixed(3)} of the bits wrong where theory says ${R.G25.theory.toFixed(3)}, because neighbouring copies share one burst. Of ${RSTATS.rep3_all_copies.groups} bits sent three times in glare, ${RSTATS.rep3_all_copies.observed} lost all three copies, where we'd expect ${RSTATS.rep3_all_copies.memoryless.toFixed(0)}. So our extension had to deal with bursts.
 
 If asked about the theory curves, they assume each copy flips independently at the frame's channel error rate, and the vote fails when most copies are wrong. In our frames the copies of a bit are next to each other, so a burst hits them together. That is what motivated spreading the copies apart. The decoded error rate here counts the payload bits of frames we could decode.`,
