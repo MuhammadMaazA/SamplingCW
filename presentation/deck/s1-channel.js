@@ -18,10 +18,11 @@ function opening() {
   });
   s.addText("Error Correction over a\nScreen-to-Camera Optical Channel", { placeholder: "title" });
   s.addText([
-    { text: "Muhammad Maaz and Kanav Mehta", options: { breakLine: true } },
+    { text: "Muhammad Maaz, Kanav Mehta and Daniel Helmi", options: { breakLine: true } },
     { text: "COMP0228 Coursework 1, University College London", options: { fontSize: 14, color: C.accent4 } },
   ], { placeholder: "body" });
-  const intro = `We are Maaz and Kanav, and we will take turns presenting, one slide each. Our project is an optical link that sends bits from one laptop screen to another through an iPad. We tested whether basic error correcting codes can cope with the noise on this link. In the dim room that noise arrives in bursts, so the order in which we send the bits matters as much as the number of extra bits.`;
+  const intro = `We are Daniel, Maaz and Kanav, and we will take turns presenting. Our project is an optical link that sends bits from one laptop screen to another through an iPad. We tested whether basic error correcting codes can cope with the noise on this link. In the dim room that noise arrives in bursts, so the order in which we send the bits matters as much as the number of extra bits.`;
+  k.state.title = "Error Correction over a Screen-to-Camera Optical Channel";
   note(s, intro);
   count(Math.round(intro.split(/\s+/).length / 2.5));
 

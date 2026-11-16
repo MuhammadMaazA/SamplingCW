@@ -61,7 +61,7 @@ function whatToSend() {
   const { s, top } = content({
     title: "What to send for each kind of noise",
     take: "The best code depends on how the errors are arranged, not only how many there are.",
-    notes: `This slide summarises which code to send for each kind of noise. On a clean channel we should not code, because the extra bits only slow the link down. With isolated flips we should use repetition or 2-D parity, because at 8 bits per second Hamming made more errors than no code. With bursts we should spread the copies and interleave. This helped in simulation, but we did not test heavy bursts, and spreading the header cost frames. The best code therefore depends on how the errors are arranged, not only on how many there are.`,
+    notes: `This slide summarises which code to send for each kind of noise. On a clean channel we should not code, because the extra bits only slow the link down. With isolated flips we should use repetition or 2-D, which means two-dimensional, parity, because at 8 bits per second Hamming made more errors than no code. With bursts we should spread the copies and interleave. This helped in simulation, but we did not test heavy bursts, and spreading the header cost frames. The best code therefore depends on how the errors are arranged, not only on how many there are.`,
   });
   const zones = [
     { w: 2.6, fill: HEX.accent5, ink: C.text1, name: "Clean channel", send: "Do not code", why: "Every code decoded with no errors, so extra bits only slowed it down." },
@@ -103,7 +103,7 @@ function questions() {
   });
   s.addText("Questions", { placeholder: "title" });
   s.addText([
-    { text: "Muhammad Maaz and Kanav Mehta", options: { breakLine: true } },
+    { text: "Muhammad Maaz, Kanav Mehta and Daniel Helmi", options: { breakLine: true } },
     { text: "COMP0228 Coursework 1, University College London", options: { fontSize: 14, color: C.accent4 } },
   ], { placeholder: "body" });
   note(s, `That is everything from us. We would be happy to take questions, and we can walk through any file in the code or any number that you have seen.`);

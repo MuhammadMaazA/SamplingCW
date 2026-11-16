@@ -81,7 +81,7 @@ function plugAndCheck() {
   const { s, top } = content({
     title: "Plugging in and checking a code",
     take: TS.passed === TS.total ? `A coding id picks the code, and every check on the decoder passes, ${TS.total} of ${TS.total} tests.` : `A coding id picks the code, and ${TS.passed} of ${TS.total} tests pass.`,
-    notes: `This slide shows how a code plugs into the link and how we checked it. The header carries a coding identifier, or id, from 0 to 6, and both laptops look it up in one table of codes. The two new layouts, in red, are id 5, spread repetition, and id 6, interleaved Hamming at depth 16. In the bottom half, the grids test all 16 Hamming codewords with every single flip and every double flip, and the decoder fixed 112 of 112 single flips and 0 of 336 double flips. The CRC, the cyclic redundancy check, gives the standard value two nine B one, 14 of 14 frames decode back for every code and both header layouts, and all 84 tests pass.`,
+    notes: `This slide shows how a code plugs into the link and how we checked it. The header carries a coding identifier, or id, from 0 to 6, and both laptops look it up in one table of codes. The two new layouts, in red, are id 5, spread repetition, and id 6, interleaved Hamming at depth 16. In the bottom half, the grids test all 16 Hamming codewords with every single flip and every double flip, and the decoder fixed 112 of 112 single flips and 0 of 336 double flips. The CRC gives the standard value two nine B one, 14 of 14 frames decode back for every code and both header layouts, and all 84 tests pass.`,
   });
   // the top half, the header picks a row of the table, every code has the same two functions
   const rh = 0.28, ty = top + 0.3, tx = 2.35, idw = 0.42, nws = [2.15, 2.6], colGap = 0.1;
@@ -195,7 +195,7 @@ async function demo() {
   const N = replay ? clip.replaySpeed() : 0;
   const { s, top } = content(replay ? {
     title: "One recorded run",
-    notes: `This clip is a replay of one of our recordings. It is not a live run, and it is not a video of the equipment. We drew it from the recorded data for normal light at 4 bits per second, and we play it about 6 times faster than it happened. Each dot above the dashed threshold line is read as a 1, each dot below it is read as a 0, and these readings fill the squares underneath. At the end the clip checks the sync word, the header CRC and the payload CRC, and the decoded message matches the message we sent.`,
+    notes: `This clip is a replay of one of our recordings. It is not a live run, and it is not a video of the equipment. We drew it from the recorded data for normal light at 4 bits per second, and we play it about 6 times faster than it happened. Each dot above the dashed threshold line is read as a 1, each dot below it is read as a 0, and these readings fill the squares underneath. At the end the clip checks the sync word, the header CRC, which stands for cyclic redundancy check, and the payload CRC, and the decoded message matches the message we sent.`,
     secs: Math.round(info.secs + 15), fixed: true,
   } : {
     title: "Demonstration of one run",

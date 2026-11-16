@@ -1,11 +1,25 @@
 # Presentation Outline
 
-COMP0228 Coursework 1. Presenters: Muhammad Maaz (M) and Kanav Mehta (K).
+COMP0228 Coursework 1. Presenters: Muhammad Maaz (M), Kanav Mehta (K) and Daniel Helmi (D).
 
 Slot is 30 minutes total. Aim for a 22 minute talk, leaving 5 to 10 minutes for questions.
-Both presenters must speak. The brief requires the nine content points below, so each slide is
+All three presenters must speak. The brief requires the nine content points below, so each slide is
 tagged with the point it covers. Figures live in `report/figures/`.
 
+## Speaker allocation of the final 36 slide deck
+
+The slide by slide plan below is the earlier 14 slide outline, and its (M) and (K) tags are superseded by this allocation.
+Daniel Helmi takes the plainest slides, and Maaz and Kanav share the technical ones in runs of two or three. The speaker notes in
+the deck start with the speaker's name and are written to be read out as they stand. Minutes are at 150 words a minute.
+
+- Daniel, about 7.4 min. Slides 1 to 3 (title, plan, channel), 14 and 15 (how we ran an experiment, the replay), 17 to 19 (sessions, the three changes, lost frames and failed runs), 34 and 35 (what to send, conclusion and limitations).
+- Maaz, about 8.5 min. Slides 4 and 5 (the two laptops, which pixels), 9 and 10 (the codes and rates, repetition), 13 (plugging in and checking), 16 (four numbers), 22 and 23 (the two kinds of noise, which bits go wrong), 26 and 27 (why the order matters, simulations), 30 and 31 (the header finding, what the layout test shows).
+- Kanav, about 8.9 min. Slides 6 to 8 (what the camera sees, samples per bit, the frame), 11 and 12 (Hamming, 2-D parity), 20 and 21 (clean channel against high noise, what 3 trials can tell us), 24 and 25 (two state model, repetition against theory), 28 and 29 (the three new layouts, the layout test), 32 and 33 (delivery rate, how close to the limit).
+- Slide 36, questions, all three.
+
+Acronyms are spelled out the first time each presenter uses them, because each person reads only their own notes.
+
+---
 Target running total is shown in brackets after each slide.
 
 ---

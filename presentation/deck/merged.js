@@ -26,7 +26,7 @@ function frameAndHeader() {
   const { s, top } = content({
     title: "One message is one frame",
     take: `The sync word and header take ${over} of ${total} bits, and a CRC checks the header.`,
-    notes: `This slide shows the structure of one frame for our two byte message, which has 336 bits. The top bar starts with the 48 bit sync word, which marks the start, then the header with 192 bits, three copies of 64 bits, then the 96 bit payload. The red bracket shows that 240 of the 336 bits come before the payload. The lower row opens one copy of the header, which ends with a CRC, a 16 bit check value. If the receiver calculates a different value, the header is discarded.`,
+    notes: `This slide shows the structure of one frame for our two byte message, which has 336 bits. The top bar starts with the 48 bit sync word, which marks the start, then the header with 192 bits, three copies of 64 bits, then the 96 bit payload. The red bracket shows that 240 of the 336 bits come before the payload. The lower row opens one copy of the header, which ends with a CRC, short for cyclic redundancy check, a 16 bit check value. If the receiver calculates a different value, the header is discarded.`,
   });
   const scale = 8.8 / total, y = top + 0.5, h = 0.75;
   const segs = [
@@ -100,7 +100,7 @@ async function changes() {
   const { s, top } = content({
     title: "Three changes we made",
     take: "Going faster or dimmer lost frames. Going slower in glare may have helped.",
-    notes: `This slide shows our three changes. The left charts show frames delivered, and the right charts show channel BER. In the first panel the speed rises from 3 to 8 bits per second, and the frames delivered fall from 14 of 21 to 9 of 21. The likely reason is that at 8 bits per second there are only about 4 samples per bit, but the two sessions were on different days, so speed may not be the only difference. In the second panel the light is dimmer, and at 4 bits per second the frames delivered fall from 20 of 21 to 2 of 15, with channel BER between 7.3 and 31.5 percent, and the likely reason is that glare raises the black level after each white flash. The glare runs only used repetition 3, so the fair comparison is 3 of 3 against 2 of 15. In the third panel the speed falls to 2 bits per second in glare, 2 of 3 frames were delivered, and channel BER fell to 0.4 percent, which may come from more samples per bit or from milder glare that day, and one session cannot tell us which.`,
+    notes: `This slide shows our three changes. The left charts show frames delivered, and the right charts show channel BER, the bit error rate. In the first panel the speed rises from 3 to 8 bits per second, and the frames delivered fall from 14 of 21 to 9 of 21. The likely reason is that at 8 bits per second there are only about 4 samples per bit, but the two sessions were on different days, so speed may not be the only difference. In the second panel the light is dimmer, and at 4 bits per second the frames delivered fall from 20 of 21 to 2 of 15, with channel BER between 7.3 and 31.5 percent, and the likely reason is that glare raises the black level after each white flash. The glare runs only used repetition 3, so the fair comparison is 3 of 3 against 2 of 15. In the third panel the speed falls to 2 bits per second in glare, 2 of 3 frames were delivered, and channel BER fell to 0.4 percent, which may come from more samples per bit or from milder glare that day, and one session cannot tell us which.`,
   });
   const pw = 2.95, px = (i) => 0.4 + i * 3.2;
   const panels = [
@@ -187,7 +187,7 @@ function normalLight() {
   const { s, top } = content({
     title: "Clean channel against high noise",
     take: `At 8 bps Hamming made more errors than no code, ${F.Hamming.decoded_ber.toFixed(3)} against ${F.none.decoded_ber.toFixed(3)}.`,
-    notes: `This slide compares a clean channel with a noisy one. The left panel is normal light at 4 bits per second, where each bar is the delivery rate. Uncoded transmission is highest at 0.235. Every code decoded with zero errors, so the extra bits only slowed the link down. The right panel is 8 bits per second, where each bar is the decoded BER, the share of message bits still wrong after decoding. Uncoded transmission scores 0.042 and Hamming scores 0.073, which is worse. The squares show why, because two flips in one codeword make Hamming flip a third, correct bit. Repetition 7 and 2-D parity reached zero.`,
+    notes: `This slide compares a clean channel with a noisy one. The left panel is normal light at 4 bits per second, where each bar is the delivery rate. Uncoded transmission is highest at 0.235. Every code decoded with zero errors, so the extra bits only slowed the link down. The right panel is 8 bits per second, where each bar is the decoded BER, the share of message bits still wrong after decoding, and BER means bit error rate. Uncoded transmission scores 0.042 and Hamming scores 0.073, which is worse. The squares show why, because two flips in one codeword make Hamming flip a third, correct bit.`,
   });
   text(s, "Normal light at 4 bps, 3 trials per code", { x: M, y: top - 0.04, w: 4.1, h: 0.3, fontSize: 14, bold: true, objectName: "clean heading" });
   s.addChart(pres.charts.BAR, [{ name: "Delivery rate", labels: T.map((r) => NAME[r.method] ?? r.method), values: T.map((r) => r.throughput) }], {
@@ -299,7 +299,7 @@ function layoutTest() {
   const { s, top } = content({
     title: "The layout test had 72 trials",
     take: `Frames delivered ranged from ${lo} to ${hi} of ${per}, and no comparison gave p below ${pmin.toFixed(1)}.`,
-    notes: `This slide shows the layout test, which was one recorded session in which we sent six layouts through the link, two as first built and four that use the new layouts. We sent 12 trials of each, 72 in all, over 109 minutes. The columns then give the count out of 12, a 95 percent interval, the Fisher p value against the baseline, and the channel BER, the bit error rate. The baselines are repetition 3 and depth 8, and p is the chance of a gap this large if the layout made no difference. The counts ran from 9 to 12, and the four p values are 0.48, 0.22, 1.00 and 0.48.`,
+    notes: `This slide shows the layout test, which was one recorded session in which we sent six layouts through the link, two as first built and four that use the new layouts. We sent 12 trials of each over 109 minutes. The columns then give the count out of 12, a 95 percent interval, the Fisher p value against the baseline, and the channel BER, the bit error rate. The baselines are repetition 3 and depth 8, and p is the chance of a gap this large if the layout made no difference. The counts ran from 9 to 12, and the four p values are 0.48, 0.22, 1.00 and 0.48.`,
   });
   const cs = 0.19, pitch = 0.215, x0 = 2.85, rp = 0.42, y0 = top + 0.4;
   const cx = x0 + per * pitch + 0.1, ix = 6.4, iw = 1.2, px = 7.8, bx = 8.65;

@@ -46,7 +46,7 @@ const X = { ink: "111111", white: "FFFFFF", g1: "4D4D4D", g2: "8C8C8C", g3: "CFC
 const pres = new pptxgen();
 pres.layout = "LAYOUT_16x9"; // 10 x 5.625 in
 pres.title = "Error correction over a screen-to-camera optical channel";
-pres.author = "Muhammad Maaz, Kanav Mehta";
+pres.author = "Muhammad Maaz, Kanav Mehta, Daniel Helmi";
 pres.subject = "COMP0228 Coursework 1";
 pres.company = "University College London";
 pres.theme = { headFontFace: THEME.headFontFace, bodyFontFace: THEME.bodyFontFace };
@@ -55,7 +55,7 @@ const SH = pres.shapes;
 const M = 0.6; // slide margin
 const WHITE = "FFFFFF";
 
-const state = { speaker: "Maaz", section: "Opening", tag: "", count: 0, secs: [] };
+const state = { speaker: "Maaz", section: "Opening", tag: "", count: 0, secs: [], title: "" };
 
 
 // Display names of the setups, chosen by the user. The stats files may still carry older names, so every
@@ -238,8 +238,23 @@ function section(name, no) {
   state.tag = no ? `${no} ${name}` : name;
 }
 function speaker(name) { state.speaker = name; }
-// the speakers alternate slide by slide, Maaz on the odd numbers and Kanav on the even ones, and the last slide is both
-function who() { return state.speaker === "Both" ? "Both" : (state.count + 1) % 2 ? "Maaz" : "Kanav"; }
+// Who speaks on each slide, by slide title. Daniel Helmi takes the plainest slides, and Maaz and Kanav share the technical ones in runs of
+// two or three. The last slide is for all three. A slide that is not in this table stops the build, so a new slide has to be given a speaker.
+const SPEAKERS = {
+  Daniel: ["Error Correction over a Screen-to-Camera Optical Channel", "What we will cover", "How the channel is built", "How we ran an experiment", "One recorded run",
+    "Demonstration of one run", "The recording sessions", "Three changes we made", "Lost frames and failed runs", "What to send for each kind of noise", "Conclusion and limitations"],
+  Maaz: ["How the two laptops work", "Which pixels we measure", "The three codes and their rates", "How repetition coding works", "Plugging in and checking a code", "Four numbers for every trial",
+    "Two kinds of noise", "Which bits go wrong", "Why the order of the bits matters", "Simulating bursts and layouts", "Spreading the header cost frames", "What the layout test shows"],
+  Kanav: ["What the camera sees", "Samples per bit at each speed", "One message is one frame", "How Hamming finds a flipped bit", "When 2-D parity fails", "Clean channel against high noise",
+    "What 3 trials can tell us", "A two-state model of glare", "Repetition does worse than theory", "The three new layouts", "The layout test had 72 trials", "Delivery rate against code rate", "How close we are to the limit"],
+};
+const ALL = "Maaz, Kanav and Daniel";
+function who() {
+  if (state.speaker === "Both") return ALL;
+  const name = Object.keys(SPEAKERS).find((n) => SPEAKERS[n].includes(state.title));
+  if (!name) throw new Error(`no speaker is set for the slide ${state.title}, add it to SPEAKERS in deck/kit.js`);
+  return name;
+}
 function note(s, t) {
   // the speaker's name alone on the first line, a blank line, then only the words to say
   s.addNotes(`${who()}\n\n${t}`);
@@ -252,6 +267,7 @@ function count(secs) { const w = who(); state.count += 1; state.secs.push({ n: s
 function content({ title, take, notes, secs, fixed = false, dark = false }) {
   const s = pres.addSlide({ masterName: dark ? "Content Dark" : "Content", sectionTitle: state.section });
   s.addText(title, { placeholder: "title" });
+  state.title = title;
   if (state.tag) text(s, state.tag, { x: 6.9, y: 0.08, w: 2.5, h: 0.24, fontSize: 12, color: dark ? C.accent4 : C.text2, align: "right", objectName: "section tag" });
   let top = 1.2;
   if (take) {
@@ -314,7 +330,7 @@ async function finish(file) {
   const by = (who) => sum(main.filter((x) => x.who === who));
   if (missing.length) console.log("placeholders for", [...new Set(missing)].join(", "));
   console.log(`wrote ${file}, ${state.count} slides, talk ${main.length} slides about ${(sum(main) / 60).toFixed(1)} min `
-    + `(Maaz ${(by("Maaz") / 60).toFixed(1)}, Kanav ${(by("Kanav") / 60).toFixed(1)})`);
+    + `(Maaz ${(by("Maaz") / 60).toFixed(1)}, Kanav ${(by("Kanav") / 60).toFixed(1)}, Daniel ${(by("Daniel") / 60).toFixed(1)})`);
 }
 
 module.exports = {
