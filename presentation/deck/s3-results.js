@@ -11,7 +11,7 @@ async function wilson() {
   const { s, top } = content({
     title: "What 3 trials can tell us",
     take: `With 3 trials per method, no method differs from the best one, p of ${pmin} or more.`,
-    notes: `Okay so, a word on statistics. The dot is the share of frames delivered out of 3, the line is a 95 percent Wilson interval, which stays sensible even at 0 of 3, and the label is the count. A p value asks one thing. If the methods made no difference, how often would chance alone give a gap this big? Below about 0.05, chance is unlikely, and a Fisher exact test works p out for small counts. Our biggest gap, repetition 7 against Hamming at 8 bits per second, gives p of ${RSTATS.fisher_fast_rep7_vs_hamming.toFixed(2)}, so we read these as trends.`,
+    notes: `This slide explains how we handle having only 3 trials per method. The dot is the share of frames delivered, the line is a 95 percent Wilson interval, which remains sensible even at 0 of 3, and the label gives the count. A p value answers one question. If the methods made no difference, how often would chance alone give a gap this large? A value below about 0.05 means that chance is unlikely, and a Fisher exact test calculates it for small counts. Our largest gap, between repetition 7 and Hamming at 8 bits per second, gives p equal to ${RSTATS.fisher_fast_rep7_vs_hamming.toFixed(2)}, so we read these results as trends.`,
   });
   await plot(s, "wilson.png", { y: top, maxW: 9.4, maxH: 5.15 - top, name: "frames delivered with Wilson intervals", alt: "Frames delivered per method with 95 percent Wilson intervals for three setups" });
 }
@@ -26,7 +26,7 @@ function pattern() {
   const { s, top } = content({
     title: "Which bits go wrong",
     take: "At 8 bps black bits fail after white ones. In glare, later bits of a run fail more.",
-    notes: `And here's which bits fail. The left chart plots error rate by position in a run of one colour. At 8 bits per second, ${fd["black read white"]} of the ${fd["black read white"] + fd["white read black"]} errors are a black bit read as white. On the right, a black bit fails ${pct(r(F8.black_after_white))} percent of the time right after a white bit, against ${pct(r(F8.black_after_black))} percent after a black one, because brightness carries over. In glare errors are rare in the first two bits of a run, ${pct(el[0] / el[1])} percent, and common from the third, ${pct(el[2] / el[3])} percent, which fits exposure drift.`,
+    notes: `This slide shows which bits go wrong. At 8 bits per second, ${fd["black read white"]} of the ${fd["black read white"] + fd["white read black"]} errors are a black bit read as white. A second chart shows that a black bit fails ${pct(r(F8.black_after_white))} percent of the time right after a white bit, compared with ${pct(r(F8.black_after_black))} percent after a black bit, because brightness carries over. In glare, errors are rare in the first two bits of a run, at ${pct(el[0] / el[1])} percent, and common from the third bit, at ${pct(el[2] / el[3])} percent. The errors depend on the pattern we send.`,
   });
   s.addChart(pres.charts.LINE, [
     { name: "Normal light, 8 bps", labels: L, values: rate(F8) },
@@ -51,7 +51,7 @@ async function twoState() {
   const { s, top } = content({
     title: "A two-state model of glare",
     take: `The bad state lasts ${g.mean_bad_length.toFixed(1)} bits on average and covers ${pct(g.bad_fraction, 0)} percent of the time.`,
-    notes: `Right, so we modelled it. The model has two states. In the good state it flips about ${pct(g.error_good, 0)} percent of bits, in the bad state almost all of them. The bad state lasts ${g.mean_bad_length.toFixed(1)} bits on average and covers ${pct(g.bad_fraction, 0)} percent of the time. BIC, the Bayesian information criterion, is a score where lower is better. No memory scores ${Math.round(GL.bic_bsc)} and the two-state model ${Math.round(GL.bic_ge)}. It also predicts what we did not fit, ${pct(MC.GE[0], 0)} percent of errors in runs of 3 or more, against ${pct(GL.burst_share, 0)} percent observed and ${pct(MC.memoryless[0], 0)} percent with no memory.`,
+    notes: `This slide presents a two state model of the glare. In the good state the model flips about ${pct(g.error_good, 0)} percent of bits, and in the bad state it flips almost all of them. The bad state lasts ${g.mean_bad_length.toFixed(1)} bits on average and covers ${pct(g.bad_fraction, 0)} percent of the time. We compare the models using BIC, the Bayesian information criterion, where a lower score is better. The model with no memory scores ${Math.round(GL.bic_bsc)}, and the two state model scores ${Math.round(GL.bic_ge)}. It also predicts that ${pct(MC.GE[0], 0)} percent of errors fall in runs of 3 or more, against ${pct(GL.burst_share, 0)} percent observed and ${pct(MC.memoryless[0], 0)} percent with no memory.`,
   });
   const p = await plot(s, "fig-ge-fit.png", { y: top, maxW: 9.4, maxH: 5.15 - top - 0.75, name: "recorded glare frame against the fitted model", alt: "One recorded glare frame, three frames from the two state model and one draw with no memory" });
   const by = p.y + p.h + 0.14;
@@ -66,7 +66,7 @@ async function repetitionTheory() {
   const { s, top } = content({
     title: "Repetition does worse than theory",
     take: `In glare rep-3 left ${R.G25.decoded.toFixed(3)} of bits wrong. Theory for independent flips says ${R.G25.theory.toFixed(3)}.`,
-    notes: `So, if flips were independent, majority voting would follow these curves, the theory for repetition 3, 5 and 7. Each dot is a measured run, red for glare, black for normal light. In glare our runs sit far above the curves. One recording left ${R.G25.decoded.toFixed(3)} of the bits wrong where theory says ${R.G25.theory.toFixed(3)}, because neighbouring copies share one burst. Of ${RSTATS.rep3_all_copies.groups} bits sent three times in glare, ${RSTATS.rep3_all_copies.observed} lost all three copies, where we'd expect ${RSTATS.rep3_all_copies.memoryless.toFixed(0)}. So our extension had to deal with bursts.`,
+    notes: `This slide compares repetition coding with theory. If bit flips were independent, majority voting would follow the curves for repetition 3, 5 and 7. In glare our runs lie far above the curves. One recording left ${R.G25.decoded.toFixed(3)} of the bits wrong, where theory predicts ${R.G25.theory.toFixed(3)}, because neighbouring copies share one burst. Of ${RSTATS.rep3_all_copies.groups} bits sent three times in glare, ${RSTATS.rep3_all_copies.observed} lost all three copies, where we would expect ${RSTATS.rep3_all_copies.memoryless.toFixed(0)}. For this reason our extension had to deal with bursts.`,
   });
   await plot(s, "repetition-theory.png", { x: M, y: top, h: Math.min(3.6, 5.15 - top), name: "repetition theory against measured runs", alt: "Majority vote theory curves for repetition 3, 5 and 7 with every measured repetition run overlaid" });
   text(s, String(RSTATS.rep3_all_copies.observed), { x: 6.65, y: top + 0.1, w: 2.8, h: 1.2, fontSize: 80, bold: true, color: C.accent2, fontFace: FONT.head, objectName: "lost copies callout" });

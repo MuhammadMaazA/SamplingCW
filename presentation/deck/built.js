@@ -42,7 +42,7 @@ function txrx() {
   const { s, top } = content({
     title: "How the two laptops work",
     take: "Laptop 1 turns the message into timed colours, and laptop 2 turns them back.",
-    notes: `Right, so what runs on those laptops? The transmitter takes our two byte message, ${E.message_bits} bits, adds a CRC, short for cyclic redundancy check, a check value, making ${E.protected_bits}, and the code adds extra bits, making ${E.coded_bits}. In front go the sync word, which marks the start, and the header, sent three times. That is one frame of ${E.frame_bits} bits, taking ${frameSecs} seconds at ${bps} bps, bits per second. The receiver keeps the median brightness inside our box for each camera frame, and brighter than the threshold, halfway between black and white, means 1. It finds the sync word, even with up to ${CODE.max_sync_mismatches} of its ${CODE.sync_bits} bits wrong, samples each symbol, votes on the header, and decodes the payload, checking both CRCs.`,
+    notes: `This slide shows what each laptop does, with the transmitter in the top row and the receiver in the bottom row. The transmitter takes our two byte message of ${E.message_bits} bits and adds a CRC, short for cyclic redundancy check. This gives ${E.protected_bits} bits, and the code then adds extra bits to reach ${E.coded_bits}. In front go the sync word, which marks the start, and the header, sent three times. Together they form one frame of ${E.frame_bits} bits, and at ${bps} bps, meaning bits per second, one frame takes ${frameSecs} seconds. The receiver takes the median brightness inside our box for each camera frame, and a value above the threshold, which is halfway between black and white, means a 1. It then finds the sync word, even with up to ${CODE.max_sync_mismatches} of its ${CODE.sync_bits} bits wrong, and decodes the payload.`,
   });
   const r1 = top - 0.05, r2 = r1 + 1.82;
   deviceBand(s, r1, "Laptop 1", "runs the transmitter", { patch: true });
@@ -81,7 +81,7 @@ function plugAndCheck() {
   const { s, top } = content({
     title: "Plugging in and checking a code",
     take: TS.passed === TS.total ? `A coding id picks the code, and every check on the decoder passes, ${TS.total} of ${TS.total} tests.` : `A coding id picks the code, and ${TS.passed} of ${TS.total} tests pass.`,
-    notes: `Yes, plugging in on top, checking below. The header carries a coding identifier, or id, from ${ids[0].id} to ${ids[ids.length - 1].id}, and both laptops look it up in one table. The new layouts are in red, id 5 spread repetition and id 6 interleaved Hamming at depth 16. Below, the grids run every Hamming codeword through every single flip, then every double flip, black if decoded right. It fixed ${one[0]} of ${one[1]} single flips and ${two[0]} of ${two[1]} double flips. The CRC, the cyclic redundancy check, gives the standard value two nine B one, ${RT.passed} of ${RT.total} frames decode back, all ${TS.total} tests pass, and our simulation matches the theory.`,
+    notes: `This slide shows how a code plugs into the link, in the top half, and how we checked it, in the bottom half. The header carries a coding identifier, or id, from ${ids[0].id} to ${ids[ids.length - 1].id}, and both laptops look it up in one table of codes. The two new layouts, in red, are id 5, spread repetition, and id 6, interleaved Hamming at depth 16. In the bottom half, the grids test every single flip and every double flip. The decoder fixed ${one[0]} of ${one[1]} single flips and ${two[0]} of ${two[1]} double flips. The CRC, the cyclic redundancy check, gives the standard value two nine B one, and ${RT.passed} of ${RT.total} frames decode correctly for every code and both header layouts, with all ${TS.total} tests passing.`,
   });
   // the top half, the header picks a row of the table, every code has the same two functions
   const rh = 0.28, ty = top + 0.3, tx = 2.35, idw = 0.42, nws = [2.15, 2.6], colGap = 0.1;
@@ -137,7 +137,7 @@ function experiment() {
   const { s, top } = content({
     title: "How we ran an experiment",
     take: `One calibration, then ${n} shuffled trials in an order both laptops get from one seed.`,
-    notes: `On to the experiments. One, calibration. Laptop 1 shows black, then white, and laptop 2 sets the threshold halfway, between ${thr[0]} and ${thr[1]} out of 255. Two, a trial. Laptop 1 flashes one frame, ${E.frame_bits} bits, ${frameSecs} seconds at ${bps} bits per second, and laptop 2 records the brightness with timestamps and decodes it. Three, the plan. A session is ${n} trials, ${per} of each of our ${codes} methods, shuffled. Laptop 1 builds the same order as laptop 2 from the same seed, a number that makes a shuffle repeatable, so nothing is sent back.`,
+    notes: `This slide describes how we ran every experiment, in three steps from left to right. In step one, calibration, laptop 1 shows black and then white, and laptop 2 sets the threshold halfway. In step two, a trial, laptop 1 flashes one frame of ${E.frame_bits} bits, which takes ${frameSecs} seconds at ${bps} bits per second, and laptop 2 records the brightness with timestamps and decodes it. In step three, the plan, a session has ${n} trials, ${per} for each of our ${codes} methods, in a shuffled order. Laptop 1 builds the same order from the same seed.`,
   });
   const gap = 0.15, pws = [2.55, 2.55, 3.4], pxs = [M, M + pws[0] + gap * 2, M + pws[0] + pws[1] + gap * 4];
   const heads = [["1", "Calibration"], ["2", "A trial"], ["3", "The plan"]];
@@ -195,7 +195,7 @@ async function demo() {
   const N = replay ? clip.replaySpeed() : 0;
   const { s, top } = content(replay ? {
     title: "One recorded run",
-    notes: `Okay so, here's a replay. It isn't a live run, and it isn't a video of us filming. It's a picture we drew from the data of one of our recordings, normal light at 4 bits per second, played about ${N} times faster. Watch the patch flash and the brightness line follow it. Dots above the dashed threshold are read as 1, dots below as 0, and they fill the squares. At the end it checks the sync word, the header CRC and the payload CRC, and the decoded message matches what we sent.`,
+    notes: `This clip is a replay of one of our recordings. It is not a live run, and it is not a video of the equipment. We drew it from the recorded data for normal light at 4 bits per second, and we play it about ${N} times faster than it happened. Each dot above the dashed threshold line is read as a 1, each dot below it is read as a 0, and these readings fill the squares underneath. At the end the clip checks the sync word, the header CRC and the payload CRC, and the decoded message matches the message we sent.`,
     secs: Math.round(info.secs + 15), fixed: true,
   } : {
     title: "Demonstration of one run",
