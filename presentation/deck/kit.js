@@ -238,12 +238,12 @@ function section(name, no) {
   state.tag = no ? `${no} ${name}` : name;
 }
 function speaker(name) { state.speaker = name; }
-// Who speaks on each slide, by slide title. Daniel Helmi takes the plainest slides, and Maaz and Kanav share the technical ones in runs of
+// Who speaks on each slide, by slide title. Maaz takes the plainest slides, and Kanav and Daniel Helmi share the technical ones in runs of
 // two or three. The last slide is for all three. A slide that is not in this table stops the build, so a new slide has to be given a speaker.
 const SPEAKERS = {
-  Daniel: ["Error Correction over a Screen-to-Camera Optical Channel", "What we will cover", "How the channel is built", "How we ran an experiment", "One recorded run",
+  Maaz: ["Error Correction over a Screen-to-Camera Optical Channel", "What we will cover", "How the channel is built", "How we ran an experiment", "One recorded run",
     "Demonstration of one run", "The recording sessions", "Three changes we made", "Lost frames and failed runs", "What to send for each kind of noise", "Conclusion and limitations"],
-  Maaz: ["How the two laptops work", "Which pixels we measure", "The three codes and their rates", "How repetition coding works", "Plugging in and checking a code", "Four numbers for every trial",
+  Daniel: ["How the two laptops work", "Which pixels we measure", "The three codes and their rates", "How repetition coding works", "Plugging in and checking a code", "Four numbers for every trial",
     "Two kinds of noise", "Which bits go wrong", "Why the order of the bits matters", "Simulating bursts and layouts", "Spreading the header cost frames", "What the layout test shows"],
   Kanav: ["What the camera sees", "Samples per bit at each speed", "One message is one frame", "How Hamming finds a flipped bit", "When 2-D parity fails", "Clean channel against high noise",
     "What 3 trials can tell us", "A two-state model of glare", "Repetition does worse than theory", "The three new layouts", "The layout test had 72 trials", "Delivery rate against code rate", "How close we are to the limit"],
