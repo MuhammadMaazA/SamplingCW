@@ -16,7 +16,7 @@ function metrics() {
   const { s, top } = content({
     title: "Four numbers for every trial",
     take: `In this example ${wrongChannel} of 12 bits arrive wrong, but all 4 message bits decode correctly.`,
-    notes: `This slide defines the four numbers that we record for every trial. The channel BER is the share of bits that arrive wrong, and BER means bit error rate. In our small example, ${wrongChannel} of the 12 received bits are wrong. The decoded BER is the share of message bits that are still wrong after the majority vote, which here is ${wrongDecoded} of 4. The delivery rate is the number of message bits delivered per second, and the frame success is the share of frames that decode correctly.`,
+    notes: `This slide defines the four numbers that we record for every trial, using a small example with red for wrong bits. The channel BER is the share of bits that arrive wrong, and BER means bit error rate. Here 2 of the 12 received bits are wrong. The decoded BER is the share of message bits still wrong after the majority vote, which here is 0 of 4. The delivery rate is the number of message bits delivered per second, and the frame success is the share of frames that decode correctly.`,
   });
   const size = 0.4, gap = 0.06, gg = 0.14, pitch = size + gap, x0 = 1.95, y = top + 0.2;
   const gx = (g, j) => x0 + g * (3 * pitch + gg) + j * pitch;
@@ -48,7 +48,7 @@ async function timeline() {
   const { s, top } = content({
     title: "The recording sessions",
     take: "Each dot is one session, by light and speed. Grey dots gave nothing we could use.",
-    notes: `This slide lists every recording session that we made. Each row is a setup, grouped by light and speed, and each dot is one session. Black dots delivered most of their frames, red dots lost most of them, and grey dots gave us nothing we could use. Normal light at 4 bits per second delivered 20 of 21 frames, whereas glare at 4 bits per second delivered only 2 of 15.`,
+    notes: `This slide lists every recording session. Each row is a setup, grouped by light and speed, and each dot is one session. Black dots delivered most of their frames, red dots lost most of them, and grey dots gave us nothing we could use. Normal light at 4 bits per second has three sessions, and its largest delivered 20 of 21 frames. Glare at 4 bits per second delivered only 2 of 15. The grey dots are a run that stopped at 16.7 seconds and a run recorded in a different place.`,
   });
   await plot(s, "fig-sessions-timeline.png", { y: top, maxW: 9.4, maxH: 5.15 - top, ar: 2.5, name: "all recording sessions", alt: "Every session grouped by light and speed, with frames delivered and the sessions that gave nothing usable" });
 }
