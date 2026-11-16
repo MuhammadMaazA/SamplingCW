@@ -51,7 +51,7 @@ function chain() {
   const { s, top } = content({
     title: "How the channel is built",
     take: "Laptop 1 flashes a patch, the iPad shows it live and laptop 2 films the iPad.",
-    notes: `This slide shows how the channel is built. Laptop 1 flashes a black or white patch. The iPad has its front camera open, so its screen shows laptop 1 live, and laptop 2 films the iPad screen with its webcam. The iPad adds glare, which is room light bouncing off its glass, and exposure drift, meaning that its camera keeps changing the brightness. None of this noise is simulated, and it arrives in bursts, meaning runs of wrong bits.`,
+    notes: `This slide shows how the channel is built. Laptop 1 flashes a black or white patch. The iPad has its front camera open, so its screen shows laptop 1 live, and laptop 2 films the iPad screen with its webcam. The iPad adds glare, which is room light bouncing off its glass, and exposure drift, meaning that its camera keeps changing the brightness. None of this noise is simulated. In the dim room the errors arrive in bursts, meaning runs of wrong bits, while in normal light they are mostly single flips.`,
   });
   const y0 = top + 0.3, lw = 1.5;
   // laptop 1, the iPad and laptop 2 in the order the light travels
@@ -79,7 +79,7 @@ function chain() {
   // why it is built this way
   const wy = cy + 1.0;
   hline(s, M, wy, 8.8, { name: "why rule" });
-  [["Cheap", "Two laptops and an iPad, no other hardware.", M, 2.5], ["Hardware noise", "Glare and two auto exposure cameras add noise that is not simulated.", 3.55, 2.9], ["Bursts", "Errors come in bursts, which are hard to correct.", 6.95, 2.45]].forEach(([h, t, x, w], i) => {
+  [["Cheap", "Two laptops and an iPad, no other hardware.", M, 2.5], ["Hardware noise", "Glare and two auto exposure cameras add noise that is not simulated.", 3.55, 2.9], ["Bursts", "In the dim room, errors come in bursts.", 6.95, 2.45]].forEach(([h, t, x, w], i) => {
     text(s, h, { x, y: wy + 0.07, w, h: 0.3, fontSize: 16, fontFace: FONT.semi, objectName: `why ${i + 1} head` });
     text(s, t, { x, y: wy + 0.37, w, h: 0.55, fontSize: 14, color: C.text2, objectName: `why ${i + 1} text` });
   });

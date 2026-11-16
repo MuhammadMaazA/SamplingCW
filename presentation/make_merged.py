@@ -135,8 +135,8 @@ def fig_noise():
 def fig_camera():
     W, H = 9.4, 3.4
     fig = new_fig(W, H)
-    cases = [("reflect4", "full1b-000", "(a)", f"{NORMAL}, 4 bps"), ("glare_b", "quiet1-001", "(b)", f"{GLARE}, 4 bps")]
-    lv = [("reflect4", f"{NORMAL}"), ("glare_c", f"{GLARE}")]
+    cases = [("reflect4", "full1b-000", "(a)", f"{NORMAL}, 4 bps"), ("glare_b", "quiet1-001", "(b)", "One glare frame")]
+    lv = [("reflect4", f"{NORMAL}"), ("glare_c", "One glare run")]
     ax_h, tops = 1.0, [0.4, 1.75]
     t0, t1 = 10, 40
     for n, (key, rid, letter, desc) in enumerate(cases):

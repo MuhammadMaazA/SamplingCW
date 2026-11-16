@@ -11,7 +11,7 @@ async function wilson() {
   const { s, top } = content({
     title: "What 3 trials can tell us",
     take: `With 3 trials per method, no method differs from the best one, p of ${pmin} or more.`,
-    notes: `This slide explains how we handle having only 3 trials per method. The dot is the share of frames delivered, the line is a 95 percent Wilson interval, which remains sensible even at 0 of 3, and the label gives the count. A p value answers one question. If the methods made no difference, how often would chance alone give a gap this large? A value below about 0.05 means that chance is unlikely, and a Fisher exact test calculates it for small counts. Our largest gap, between repetition 7 and Hamming at 8 bits per second, gives p equal to ${RSTATS.fisher_fast_rep7_vs_hamming.toFixed(2)}, so we read these results as trends.`,
+    notes: `This slide explains how we handle having only 3 trials per method. The dot is the share of frames delivered, the line is a 95 percent Wilson interval, which remains sensible even at 0 of 3, and the label gives the count. A p value answers one question. If the methods made no difference, how often would chance alone give a gap this large? A value below about 0.05 means that chance is unlikely, and a Fisher exact test calculates it for small counts. The p value on the slide compares each code with the best one, repetition 5, using the trials pooled across sessions. That is a different test from the 8 bits per second session alone, where repetition 7 delivered 3 of 3 frames and Hamming 0 of 3, giving p equal to ${RSTATS.fisher_fast_rep7_vs_hamming.toFixed(2)}. Neither is below 0.05, so we read both as trends.`,
   });
   await plot(s, "wilson.png", { y: top, maxW: 9.4, maxH: 5.15 - top, name: "frames delivered with Wilson intervals", alt: "Frames delivered per method with 95 percent Wilson intervals for three setups" });
 }
@@ -65,7 +65,7 @@ async function repetitionTheory() {
   const R = Object.fromEntries(STATS.repetition.map((r) => [r.group, r]));
   const { s, top } = content({
     title: "Repetition does worse than theory",
-    take: `In glare rep-3 left ${R.G25.decoded.toFixed(3)} of bits wrong. Theory for independent flips says ${R.G25.theory.toFixed(3)}.`,
+    take: `One glare recording: rep-3 left ${R.G25.decoded.toFixed(3)} of bits wrong, theory says ${R.G25.theory.toFixed(3)}.`,
     notes: `This slide compares repetition coding with theory. If bit flips were independent, majority voting would follow the curves for repetition 3, 5 and 7. In glare our runs lie far above the curves. One recording left ${R.G25.decoded.toFixed(3)} of the bits wrong, where theory predicts ${R.G25.theory.toFixed(3)}, because neighbouring copies share one burst. Of ${RSTATS.rep3_all_copies.groups} bits sent three times in glare, ${RSTATS.rep3_all_copies.observed} lost all three copies, where we would expect ${RSTATS.rep3_all_copies.memoryless.toFixed(0)}. For this reason our extension had to deal with bursts.`,
   });
   await plot(s, "repetition-theory.png", { x: M, y: top, h: Math.min(3.6, 5.15 - top), name: "repetition theory against measured runs", alt: "Majority vote theory curves for repetition 3, 5 and 7 with every measured repetition run overlaid" });
