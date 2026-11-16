@@ -55,7 +55,7 @@ const SH = pres.shapes;
 const M = 0.6; // slide margin
 const WHITE = "FFFFFF";
 
-const state = { speaker: "Maaz", section: "Opening", tag: "", count: 0, secs: [], backupWords: 0 };
+const state = { speaker: "Maaz", section: "Opening", tag: "", count: 0, secs: [] };
 
 
 // Display names of the setups, chosen by the user. The stats files may still carry older names, so every
@@ -241,12 +241,11 @@ function speaker(name) { state.speaker = name; }
 // the speakers alternate slide by slide, Maaz on the odd numbers and Kanav on the even ones, and the last slide is both
 function who() { return state.speaker === "Both" ? "Both" : (state.count + 1) % 2 ? "Maaz" : "Kanav"; }
 function note(s, t) {
-  const rest = t.split(/\r?\n\r?\nIf asked/).slice(1).join(" ");
-  if (rest) state.backupWords += rest.split(/\s+/).length + 2; // the backup paragraph is optional, so it is counted apart from the spoken time
-  s.addNotes(`${who()}. ${t}`.replace(/\r\n/g, "\n"));
+  // the speaker's name alone on the first line, a blank line, then only the words to say
+  s.addNotes(`${who()}\n\n${t}`);
 }
 // speaking time in seconds for a note, at 150 words a minute
-function words(t) { return Math.round(t.split(/\r?\n\r?\nIf asked/)[0].split(/\s+/).length / 2.5); }
+function words(t) { return Math.round(t.split(/\s+/).length / 2.5); }
 function count(secs) { const w = who(); state.count += 1; state.secs.push({ n: state.count, who: w, secs }); }
 
 // a content slide, title and an optional one sentence takeaway. Returns the slide and the y where visuals can start.
@@ -315,7 +314,7 @@ async function finish(file) {
   const by = (who) => sum(main.filter((x) => x.who === who));
   if (missing.length) console.log("placeholders for", [...new Set(missing)].join(", "));
   console.log(`wrote ${file}, ${state.count} slides, talk ${main.length} slides about ${(sum(main) / 60).toFixed(1)} min `
-    + `(Maaz ${(by("Maaz") / 60).toFixed(1)}, Kanav ${(by("Kanav") / 60).toFixed(1)}), backup paragraphs ${state.backupWords} words`);
+    + `(Maaz ${(by("Maaz") / 60).toFixed(1)}, Kanav ${(by("Kanav") / 60).toFixed(1)})`);
 }
 
 module.exports = {
