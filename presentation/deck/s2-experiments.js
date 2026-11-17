@@ -16,7 +16,7 @@ function metrics() {
   const { s, top } = content({
     title: "Four numbers for every trial",
     take: `In this example ${wrongChannel} of 12 bits arrive wrong, but all 4 message bits decode correctly.`,
-    notes: `Once a trial has been recorded, we score it with four numbers. In the small example, red is a wrong bit. The channel BER is the share of bits that arrive wrong, and BER means bit error rate. Here 2 of the 12 received bits are wrong. The decoded BER is the share of message bits still wrong after the majority vote, which here is 0 of 4. The delivery rate is the number of message bits delivered per second, and the frame success is the share of frames that decode correctly.`,
+    notes: `Once a trial has been recorded, we score it with four numbers. In this small example 2 of the 12 bits that arrive are wrong, so the channel BER, where BER means bit error rate, is the share of bits wrong before any decoding. After the majority vote all 4 message bits are right, so the decoded BER, the share of message bits still wrong after decoding, is zero. The other two numbers measure speed. The delivery rate counts the message bits delivered per second, and frame success is the share of frames that decode correctly.`,
   });
   const size = 0.4, gap = 0.06, gg = 0.14, pitch = size + gap, x0 = 1.95, y = top + 0.2;
   const gx = (g, j) => x0 + g * (3 * pitch + gg) + j * pitch;
@@ -48,7 +48,7 @@ async function timeline() {
   const { s, top } = content({
     title: "The recording sessions",
     take: "Each dot is one session, by light and speed. Grey dots gave nothing we could use.",
-    notes: `Across the whole project, these are the sessions those numbers come from. Each row is a setup, grouped by light and speed, and each dot is one session. Black dots delivered most of their frames, red dots lost most of them, and grey dots gave us nothing we could use. Normal light at 4 bits per second has three sessions, and its largest delivered 20 of 21 frames. Glare at 4 bits per second delivered only 2 of 15. The grey dots are a run that stopped at 16.7 seconds and a run recorded in a different place.`,
+    notes: `These are the sessions that our numbers come from, grouped by lighting and speed. In normal light at 4 bits per second the picture is good, and the best of the three sessions delivered 20 of its 21 frames. In the dim room with glare, at the same speed, only 2 of 15 frames were delivered, so lighting made the biggest difference we saw. Two sessions, shown in grey, gave us nothing usable, one because the run stopped early and one because it was recorded in a different place.`,
   });
   await plot(s, "fig-sessions-timeline.png", { y: top, maxW: 9.4, maxH: 5.15 - top, ar: 2.5, name: "all recording sessions", alt: "Every session grouped by light and speed, with frames delivered and the sessions that gave nothing usable" });
 }

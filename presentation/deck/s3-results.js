@@ -11,7 +11,7 @@ async function wilson() {
   const { s, top } = content({
     title: "What 3 trials can tell us",
     take: `With 3 trials per method, no method differs from the best one, p of ${pmin} or more.`,
-    notes: `With only 3 trials per method, this is as much as those gaps can tell us. The dot is the share of frames delivered, and the line is a 95 percent Wilson interval. A p value asks how often chance alone would give a gap this large if the methods made no difference. A value below about 0.05 means that chance is unlikely, and a Fisher exact test calculates it for small counts. The p value on the slide compares each code with the best one, repetition 5, using trials pooled across sessions, and the smallest is 0.13. For the 8 bits per second session alone, repetition 7 against Hamming gives 0.10. Neither is below 0.05, so we read both as trends.`,
+    notes: `Before reading too much into those differences, we should be honest about how little data we have. With only 3 trials per method, our error bars are wide. We used a 95 percent Wilson interval, which stays sensible even at 0 of 3 or 3 of 3. A p value asks how often chance alone would give a gap this large if the methods made no difference, and below about 0.05 we treat chance as unlikely. Comparing each code with the best one, repetition 5, on pooled trials, the smallest p value is 0.13, and for repetition 7 against Hamming at 8 bits per second it is 0.10. Neither is below 0.05, so we read these results as trends.`,
   });
   await plot(s, "wilson.png", { y: top, maxW: 9.4, maxH: 5.15 - top, name: "frames delivered with Wilson intervals", alt: "Frames delivered per method with 95 percent Wilson intervals for three setups" });
 }
@@ -26,7 +26,7 @@ function pattern() {
   const { s, top } = content({
     title: "Which bits go wrong",
     take: "At 8 bps black bits fail after white ones. In glare, later bits of a run fail more.",
-    notes: `Looking inside a frame, the same positions keep going wrong. The left chart plots the error rate by position in a run of one colour, and the right chart compares four rates for black bits. At 8 bits per second, 256 of the 260 errors are a black bit read as white. A black bit fails 15.3 percent of the time right after a white bit, compared with 3.3 percent after a black bit, because brightness carries over. In glare, errors are rare in the first two bits of a run, at 3.5 percent, and common from the third bit, at 17.8 percent, which fits exposure drift.`,
+    notes: `Looking inside a frame, the same positions keep going wrong, which tells us why. At 8 bits per second, 256 of the 260 errors are a black bit read as white. A black bit fails 15.3 percent of the time after a white bit, against 3.3 percent after a black bit, because the screen and camera have not finished fading from white. In glare the first two bits of a run of one colour are mostly fine, with 3.5 percent errors, but from the third bit on the error rate is 17.8 percent, which fits the camera slowly drifting its exposure. So the errors depend on what was sent just before.`,
   });
   s.addChart(pres.charts.LINE, [
     { name: "Normal light, 8 bps", labels: L, values: rate(F8) },
@@ -51,7 +51,7 @@ async function twoState() {
   const { s, top } = content({
     title: "A two-state model of glare",
     take: `The bad state lasts ${g.mean_bad_length.toFixed(1)} bits on average and covers ${pct(g.bad_fraction, 0)} percent of the time.`,
-    notes: `For the glare, a two-state model matches that pattern. The top row is a measured glare frame, then model draws, then a model with no memory. In the good state the model flips about 1 percent of bits, and in the bad state it flips almost all of them. Fitted to all the dim glare frames at 4 bits per second, the bad state lasts 4.4 bits on average and covers 12 percent of the time. We compare the models using BIC, the Bayesian information criterion, where a lower score is better. The model with no memory scores 3824, and the two state model scores 2261. It also predicts that 81 percent of errors fall in runs of 3 or more, against 87 percent observed and 5 percent with no memory.`,
+    notes: `To describe those bursts, we use a model with two states. In the good state about 1 percent of bits flip, and in the bad state almost every bit flips. Fitted to our dim glare frames at 4 bits per second, the bad state lasts 4.4 bits on average and covers 12 percent of the time. We compare it with a model that has no memory using BIC, the Bayesian information criterion, where a lower score is better, and the two-state model wins, with 2261 against 3824. It also predicts that 81 percent of errors fall in runs of 3 or more, close to the 87 percent we observed, where the model with no memory predicts 5 percent.`,
   });
   const p = await plot(s, "fig-ge-fit.png", { y: top, maxW: 9.4, maxH: 5.15 - top - 0.75, name: "recorded glare frame against the fitted model", alt: "One recorded glare frame, three frames from the two state model and one draw with no memory" });
   const by = p.y + p.h + 0.14;
@@ -66,7 +66,7 @@ async function repetitionTheory() {
   const { s, top } = content({
     title: "Repetition does worse than theory",
     take: `One glare recording: rep-3 left ${R.G25.decoded.toFixed(3)} of bits wrong, theory says ${R.G25.theory.toFixed(3)}.`,
-    notes: `That same clumping pushes repetition off the textbook curve. The horizontal axis is the channel BER, where BER means bit error rate, and the vertical axis is the decoded BER, the error rate after decoding. The curves are the theory for repetition 3, 5 and 7 if flips were independent, and each dot is a measured run. One glare recording left 0.198 of the bits wrong, where theory predicts 0.015, because neighbouring copies share one burst. Of 624 bits sent three times in glare, 77 lost all three copies, where we would expect 3.`,
+    notes: `This clustering explains why repetition does worse than the textbook says. Theory assumes each copy flips independently, so for repetition 3 the decoded error should be tiny. But in one glare recording, repetition 3 left 0.198 of the bits wrong, where theory predicts 0.015. The three copies of a bit are sent next to each other, so a single burst hits all of them. Across the dim runs, 77 of 624 bits sent three times lost all three copies, where independent flips would have lost about 3. So our extension had to deal with bursts.`,
   });
   await plot(s, "repetition-theory.png", { x: M, y: top, h: Math.min(3.6, 5.15 - top), name: "repetition theory against measured runs", alt: "Majority vote theory curves for repetition 3, 5 and 7 with every measured repetition run overlaid" });
   text(s, String(RSTATS.rep3_all_copies.observed), { x: 6.65, y: top + 0.1, w: 2.8, h: 1.2, fontSize: 80, bold: true, color: C.accent2, fontFace: FONT.head, objectName: "lost copies callout" });

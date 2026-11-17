@@ -11,7 +11,7 @@ async function tradeoff() {
   const { s, top } = content({
     title: "Delivery rate against code rate",
     take: "Delivery rate is the message bits delivered per second. In normal light it follows the code rate.",
-    notes: `Coming back to speed, delivery rate against code rate counts only frames that arrived intact. In the left panel, normal light at 4 bits per second, the delivery rate follows the code rate, and uncoded transmission is fastest at 0.235. In the right panel, at 8 bits per second, uncoded transmission and Hamming delivered nothing, and repetition 7 delivered the most, at 0.276. With only 3 trials this is a trend and not a ranking.`,
+    notes: `Coming back to speed, the delivery rate counts the message bits delivered per second, and only frames that arrived intact count. In normal light at 4 bits per second it follows the code rate, and uncoded transmission is fastest at 0.235. At 8 bits per second the picture flips. Uncoded transmission and Hamming delivered nothing, and repetition 7 delivered the most, at 0.276. So protection costs speed when the channel is clean, and pays for itself when it is not. With only 3 trials per method, this is a trend and not a ranking.`,
   });
   await plot(s, "tradeoff.png", { y: top, maxW: 9.4, maxH: 5.15 - top, name: "delivery rate against code rate", alt: "Delivery rate against code rate for every code, in normal light at 4 bps and at 8 bps" });
 }
@@ -28,7 +28,7 @@ function context() {
   const { s, top } = content({
     title: "How close we are to the limit",
     take: `At 8 bps the measured error rate allows a rate of ${cap[3].toFixed(2)}, and Hamming uses ${(4 / 7).toFixed(2)}.`,
-    notes: `Even the best of those rates is still short of what the channel could carry. The bars show capacity, which is the highest rate any code could reach and still decode reliably when bits flip independently. It is 0.77 at 8 bits per second, which is above the Hamming rate of 0.57, shown by the dashed line. The dotted line is repetition 3, at 0.33. The glare value of 0.45 is pessimistic because glare has memory. For sampling, we obtained about 4 samples per bit at 8 bits per second and 14 at 2. For compression, only 16 of the 336 bits we sent were the message. For degree, CRC framing is used by Ethernet, and our burst model is a Markov chain. CDs, meaning compact discs, and QR, meaning quick response, codes use Reed-Solomon codes with interleaving.`,
+    notes: `How close are we to the limit? Capacity, from information theory, is the highest rate any code could use and still decode reliably when bits flip independently. At 8 bits per second the measured error rate allows a rate of 0.77, while Hamming uses 0.57, so the channel could have carried a better code than ours. For glare the limit is 0.45, but that is pessimistic, because glare has memory and the formula assumes none. This links to the module. Sampling gave us about 4 readings per bit at 8 bits per second and 14 at 2. For compression, only 16 of the 336 bits we sent were the message. For our degree, CRC framing is used by Ethernet, and our burst model is a Markov chain. Beyond the module, CDs, meaning compact discs, and QR, meaning quick response, codes use Reed-Solomon codes with interleaving.`,
   });
   s.addChart([
     { type: pres.charts.BAR, data: [{ name: "Capacity", labels, values: cap }], options: { chartColors: [X.ink], barGapWidthPct: 50, showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.00" } },
@@ -61,7 +61,7 @@ function whatToSend() {
   const { s, top } = content({
     title: "What to send for each kind of noise",
     take: "The best code depends on how the errors are arranged, not only how many there are.",
-    notes: `Putting the rooms together, the code we would send depends on the kind of noise. On a clean channel we should not code, because the extra bits only slow the link down. With isolated flips we should use repetition or 2-D, which means two-dimensional, parity, because at 8 bits per second Hamming made more errors than no code. With bursts we should spread the copies and interleave. This helped in simulation, but we did not test heavy bursts, and spreading the header cost frames. The best code therefore depends on how the errors are arranged, not only on how many there are.`,
+    notes: `Putting the rooms together, the best code depends on how the errors are arranged, and not only on how many there are. On a clean channel we should not code at all, because the extra bits only slow the link down. When flips are isolated, repetition or two-dimensional parity did better than Hamming, which at 8 bits per second made more errors than no code. When errors arrive in bursts, we should spread the copies and interleave. We need to be careful here, though, because that advice comes from simulation. We did not test heavy bursts on the link, and spreading the header cost frames.`,
   });
   const zones = [
     { w: 2.6, fill: HEX.accent5, ink: C.text1, name: "Clean channel", send: "Do not code", why: "Every code decoded with no errors, so extra bits only slowed it down." },
@@ -84,7 +84,7 @@ function limits() {
   const N = RSTATS.noise, GL = N[k.findKey(N, 4, true)], share = Math.round(GL.burst_share * 100);
   const { s } = content({
     title: "Conclusion and limitations",
-    notes: `Which leaves the conclusion, and the limit on it. Coding only helps if it fits the noise. On a clean channel it only costs speed, and with bursts the order of the bits matters as much as the number of extra bits. We built a working link with the three required codes, 2-D parity and three new layouts, and we reported every recording, including the failures. In our glare recordings, 87 percent of errors come in runs of 3 or more. The limitation on the slide is that room light changed between sessions, so we compare codes only within a session. The other limits are the 3 trials per method, the mild glare in the layout test, and a simulation that does not model glare switching.`,
+    notes: `To conclude, coding only helps if it matches the noise. On a clean channel it simply costs speed, and with bursts the order of the bits matters as much as the number of extra bits. We built a working link with the three required codes, two-dimensional parity and three new layouts, and we reported every recording, including the failures. There are limits to what we can claim. Room light changed between sessions, so we compare codes only within a session. We had only 3 trials per method, the glare in the layout test was mild, and our simulation does not model glare switching on and off. Thank you for listening, and we are happy to take questions.`,
   });
   text(s, "Conclusion", { x: M, y: 1.3, w: 8.8, h: 0.4, fontSize: 22, bold: true, fontFace: FONT.head, objectName: "conclusion heading" });
   text(s, "Coding only helps if it fits the noise. On a clean channel it just costs speed, and with bursts the order of the bits matters as much as how many extra bits we add.", { x: M, y: 1.82, w: 8.2, h: 1.0, fontSize: 20, bold: true, objectName: "conclusion sentence" });

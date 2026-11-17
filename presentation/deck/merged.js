@@ -26,7 +26,7 @@ function frameAndHeader() {
   const { s, top } = content({
     title: "One message is one frame",
     take: `The sync word and header take ${over} of ${total} bits, and a CRC checks the header.`,
-    notes: `Those readings are packed into one frame. For our two byte message that frame is 336 bits. The top bar starts with the 48 bit sync word, which marks the start, then the header with 192 bits, three copies of 64 bits, then the 96 bit payload. The red bracket shows that 240 of the 336 bits come before the payload. The lower row opens one copy of the header, which ends with a CRC, short for cyclic redundancy check, a 16 bit check value. If the receiver calculates a different value, the header is discarded.`,
+    notes: `Those readings are packed into one frame. For our two byte message the frame is 336 bits, and 240 of them are overhead that arrives before the message does. First comes a 48 bit start marker, then a 192 bit header that tells the receiver which code was used, sent as three copies of 64 bits so that a little damage does not ruin it, and then the 96 bit payload. The header ends with a CRC, short for cyclic redundancy check, which is a check value computed from the header. If the receiver calculates a different value, it throws the header away rather than guess.`,
   });
   const scale = 8.8 / total, y = top + 0.5, h = 0.75;
   const segs = [
@@ -72,7 +72,7 @@ async function camera() {
   const { s, top } = content({
     title: "What the camera sees",
     take: `One glare recording: ${(glareKey.wrong_side_share * 100).toFixed(1)} percent of its symbols are on the wrong side.`,
-    notes: `With the box chosen, the trace is what the camera actually recorded. Charts a and b show the brightness over thirty seconds, in normal light above and in one glare frame below. The grey bands are white symbols, the dashed line is the threshold and the red ticks are bit errors. In normal light this window has no errors. In the glare frame the brightness sags after each white flash, and this window has 47 errors. Charts c and d show the brightness at the centre of each symbol. In normal light the black and white groups are far apart, so only 0.04 percent of symbols fall on the wrong side of the threshold. Chart d is one glare recording, not all of them, and there the groups overlap and 8.7 percent fall on the wrong side.`,
+    notes: `So what does the camera actually record? In normal light the brightness jumps cleanly between two levels, and only 0.04 percent of the symbols land on the wrong side of the threshold, the dividing line between black and white. In one glare recording, after each white flash the brightness sags slowly instead of dropping, so black and white readings overlap and 8.7 percent of the symbols fall on the wrong side. That is one recording and not every glare run, but across our five dim runs the channel error rate ranged from 7.3 to 31.5 percent.`,
   });
   const p = await plot(s, "fig-camera.png", { full: path.join(FIGS, "fig-camera.png"), x: 0.3, y: top - 0.05, maxW: 9.4, maxH: 4.98 - top, name: "brightness traces and levels", alt: "Camera brightness over 30 seconds and the brightness at symbol centres, in normal light and in dim light with glare, with the threshold and the bit errors marked" });
   text(s, "Grey bands are white sent, the dashed line is the threshold, red ticks are bit errors.", { x: M, y: p.y + p.h + 0.02, w: 8.0, h: 0.24, fontSize: 12, color: C.text2, objectName: "camera key" });
@@ -84,7 +84,7 @@ async function noise() {
   const { s, top } = content({
     title: "Two kinds of noise",
     take: `At 8 bps most errors are alone. In glare ${pct(GL.burst_share, 0)} percent are in runs of 3 or more.`,
-    notes: `Under those results, the noise comes in two shapes. In panel a, each row is one trial and each tick is a wrong bit. The setups are stacked by channel BER, the bit error rate. At 8 bits per second the wrong bits mostly occur on their own, whereas in glare they come in bursts of up to 16 bits. A run is several wrong bits in a row, the bars give the share of runs of each length, and the dashed lines show what independent flips would give. In glare, 87 percent of errors lie in runs of 3 or more, compared with 12 percent for independent flips, and a shuffle test gives a p value, the chance of such a result by luck, below 0.001. This describes our glare recordings.`,
+    notes: `Now that we have the results, what did the noise itself look like? It has two shapes. At 8 bits per second in normal light, wrong bits mostly occur on their own, scattered at random. In our glare recordings they arrive in bursts, with the longest run of wrong bits reaching 16. To measure this, we count errors that sit in runs of 3 or more wrong bits. If flips were independent, only 12 percent of errors would fall in such runs, but in glare it is 87 percent, and a shuffle test gives a p value below 0.001, which is the chance of seeing this by luck. This describes our glare recordings, and it tells us that bit flips in glare are not independent.`,
   });
   await plot(s, "fig-noise.png", { full: path.join(FIGS, "fig-noise.png"), x: 0.3, y: top - 0.05, maxW: 9.4, maxH: 5.12 - top, name: "error positions in every trial and error run lengths", alt: "Error positions in every trial, and the share of error runs by length against the independent flip expectation" });
 }
@@ -100,7 +100,7 @@ async function changes() {
   const { s, top } = content({
     title: "Three changes we made",
     take: "Going faster or dimmer lost frames. Going slower in glare may have helped.",
-    notes: `We then changed one thing at a time. The left charts show frames delivered, and the right charts show channel BER, the bit error rate. In the first panel the speed rises from 3 to 8 bits per second, and the frames delivered fall from 14 of 21 to 9 of 21. The likely reason is that at 8 bits per second there are only about 4 samples per bit, but the two sessions were on different days, so speed may not be the only difference. In the second panel the light is dimmer, and at 4 bits per second the frames delivered fall from 20 of 21 to 2 of 15, with channel BER between 7.3 and 31.5 percent, and the likely reason is that glare raises the black level after each white flash. The glare runs only used repetition 3, so the fair comparison is 3 of 3 against 2 of 15. In the third panel the speed falls to 2 bits per second in glare, 2 of 3 frames were delivered, and channel BER fell to 0.4 percent, which may come from more samples per bit or from milder glare that day, and one session cannot tell us which.`,
+    notes: `We then changed one thing at a time to see what mattered, and the answers were mixed. Going faster in normal light, from 3 to 8 bits per second, cut the frames delivered from 14 of 21 to 9 of 21, probably because 8 bits per second leaves only about 4 camera readings per bit, although the two sessions were on different days. Making the room dim with glare was far worse. At 4 bits per second the frames delivered fell from 20 of 21 to 2 of 15, and the channel BER, meaning the bit error rate before decoding, rose to between 7.3 and 31.5 percent. Going slower in glare, to 2 bits per second, delivered 2 of 3 frames and cut the channel BER to 0.4 percent, but that may be milder glare that day, and one session cannot tell us which.`,
   });
   const pw = 2.95, px = (i) => 0.4 + i * 3.2;
   const panels = [
@@ -125,7 +125,7 @@ function lostAndFailed() {
   const { s, top } = content({
     title: "Lost frames and failed runs",
     take: `In glare ${glare.header_crc_failures} of ${glare.trials} frames fail the header CRC. Two failed runs were our fault.`,
-    notes: `Alongside the frames we delivered, these are the ones that failed, and why. The left chart counts the 86 planned trials. Black is a frame that decoded correctly, red is a payload CRC failure, pink is a header CRC failure, and the greys are the other failures. In glare at 4 bits per second, 9 of 15 frames failed the header CRC. At 8 bits per second, 10 of 21 failed the payload CRC, and at 3 bits per second 6 frames were cut short. On the right are two failures of our own. In one session, recorded in a different place at 2 bits per second, the plan needed 60 minutes but we stopped after 8, so only 3 of 21 trials were filmed. In the other, laptop 1 was started with the codes in a different order, so 12 of 21 trials, in red, did not match. A third run stopped after 16.7 seconds, when the camera repeated timestamps.`,
+    notes: `Not every planned trial delivered a frame, and we want to be open about why. In glare at 4 bits per second, 9 of 15 frames failed at the header, so the receiver could not even tell which code had been sent. At 8 bits per second, 10 of 21 failed the payload check, which means the header was fine but the message was damaged. Two failures were our own fault. One session ran in a different place at 2 bits per second, and the plan needed 60 minutes but we stopped after 8, so only 3 of 21 trials were filmed. In another, laptop 1 was started with the codes in a different order, so 12 of 21 trials did not match.`,
   });
   const labels = F.map((r) => r.display), maxTrials = Math.max(...F.map((r) => r.trials));
   const series = [
@@ -187,7 +187,7 @@ function normalLight() {
   const { s, top } = content({
     title: "Clean channel against high noise",
     take: `At 8 bps Hamming made more errors than no code, ${F.Hamming.decoded_ber.toFixed(3)} against ${F.none.decoded_ber.toFixed(3)}.`,
-    notes: `The same codes, first in a clean room and then in a noisy one. The left panel is normal light at 4 bits per second, where each bar is the delivery rate. Uncoded transmission is highest at 0.235. Every code decoded with zero errors, so the extra bits only slowed the link down. The right panel is 8 bits per second, where each bar is the decoded BER, the share of message bits still wrong after decoding, and BER means bit error rate. Uncoded transmission scores 0.042 and Hamming scores 0.073, which is worse. The squares show why, because two flips in one codeword make Hamming flip a third, correct bit.`,
+    notes: `The same codes behave very differently in a clean room and a noisy one. In normal light at 4 bits per second, every code, including no code at all, decoded with zero errors, so the extra bits only slowed the link down, and uncoded transmission was fastest at a delivery rate of 0.235. At 8 bits per second the picture changes. Hamming left 0.073 of the message bits wrong, which is worse than the 0.042 with no code, where this number is the decoded BER, the bit error rate after decoding. The reason is that when two bits flip inside one Hamming block, the decoder flips a third, correct bit, turning two errors into three.`,
   });
   text(s, "Normal light at 4 bps, 3 trials per code", { x: M, y: top - 0.04, w: 4.1, h: 0.3, fontSize: 14, bold: true, objectName: "clean heading" });
   s.addChart(pres.charts.BAR, [{ name: "Delivery rate", labels: T.map((r) => NAME[r.method] ?? r.method), values: T.map((r) => r.throughput) }], {
@@ -225,7 +225,7 @@ function order() {
   const { s, top } = content({
     title: "Why the order of the bits matters",
     take: "The same bits in a new order, so one burst cannot wipe out a bit or a codeword.",
-    notes: `Because the errors arrive together, the order of the same bits changes the result. When the copies of each bit sit side by side, a burst of 3 bits takes all three copies of bit a, and the vote goes wrong. With spread repetition, the whole message is sent three times in a row, so the same burst flips at most one copy of each bit. The bottom row shows interleaving, which means sending the bits in a shuffled order. If we send one codeword at a time, a burst of 8 gives 7 errors in one codeword, and Hamming cannot fix it. If we send one column at a time, each codeword takes 1 error, and Hamming fixes it. We chose depth 8 because 93 percent of our glare error runs were 8 bits or shorter.`,
+    notes: `That leads to our central idea. We keep the same bits, but change their order, so that one burst cannot wipe out everything that protects a bit. If the three copies of a bit sit side by side, a burst of just 3 bits destroys all of them. If we send the whole message three times in a row, the same burst damages at most one copy of each bit, and the vote still wins. The same idea works for Hamming through interleaving, which means sending bits in a shuffled order. Sent one codeword at a time, a burst of 8 puts 7 errors into one codeword, which Hamming cannot fix. Sent one column at a time, every codeword takes at most one error. We chose depth 8 because 93 percent of our glare error runs were 8 bits or shorter.`,
   });
   const size = 0.3, pitch = 0.35;
   [{ name: "Copies side by side", sub: "as first built", seq: "aaabbbccc", x: M, out: "Bit a loses all three copies, so it is wrong.", bad: true },
@@ -269,7 +269,7 @@ function simulations() {
   const { s, top } = content({
     title: "Simulating bursts and layouts",
     take: `Depth 8 fixes bursts up to ${zeroTo} bits. Spreading raises rep-3 from ${pct(D["rep-3 adjacent"].payload, 0)} to ${pct(D["rep-3 spread"].payload, 0)} percent.`,
-    notes: `The recorded glare runs were too short to test a new order, so we simulated them. The left chart plots decoded errors per bit against burst length. Up to 8 bits of burst, depth 8 makes no errors, whereas plain Hamming already fails at 2. From 9 bits some codewords take two hits, and beyond 13 bits interleaving does worse. The right chart shows the share of payloads that decode for nine layouts, each from 3000 frames. With the copies side by side, more copies make things worse, with 0.033, 0.018 and 0.015 for 3, 5 and 7 copies. Spreading the copies gives 0.375 with three copies and 0.81 with seven. Spreading the header lifted header survival from 1 to 22 percent and whole frame survival from 0 to 9 percent.`,
+    notes: `Our glare recordings were too short to test new orders, so we first simulated them, using the two-state model fitted to our own glare data, with 3000 frames per layout. Interleaving at depth 8 corrects bursts of up to 8 bits perfectly, whereas plain Hamming already fails at 2, but beyond 13 bits interleaving does worse. Spreading the copies is the big win for repetition. It lifts the share of payloads that decode, for repetition 3, from 0.033 to 0.375, and repetition 7 reaches 0.81. All of this is simulated, so the next step was to test it on the link.`,
   });
   s.addChart(pres.charts.LINE, [
     { name: "Hamming", labels: L, values: ham },
@@ -299,7 +299,7 @@ function layoutTest() {
   const { s, top } = content({
     title: "The layout test had 72 trials",
     take: `Frames delivered ranged from ${lo} to ${hi} of ${per}, and no comparison gave p below ${pmin.toFixed(1)}.`,
-    notes: `We then ran one session on the real link, with six layouts, two as first built and four with a new order. We sent 12 trials of each over 109 minutes. The columns then give the count out of 12, a 95 percent interval, the Fisher p value against the baseline, and the channel BER, the bit error rate. The baselines are repetition 3 and depth 8, and p is the chance of a gap this large if the layout made no difference. The counts ran from 9 to 12, and the four p values are 0.48, 0.22, 1.00 and 0.48.`,
+    notes: `We then tested all of this in one session on the link, with six layouts and 12 trials each, which is 72 trials over 109 minutes. The result is modest. Frames delivered ranged from 9 to 12 out of 12, and none of the comparisons with the baselines was significant, with p values of 0.48, 0.22, 1.00 and 0.48. So this session did not show one layout beating another. We also need to say why. The channel BER was well under 3 percent, so the glare was mild, and we come back to that shortly.`,
   });
   const cs = 0.19, pitch = 0.215, x0 = 2.85, rp = 0.42, y0 = top + 0.4;
   const cx = x0 + per * pitch + 0.1, ix = 6.4, iw = 1.2, px = 7.8, bx = 8.65;

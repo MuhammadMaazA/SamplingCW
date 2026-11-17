@@ -14,7 +14,7 @@ function layoutsAndFlow() {
   const { s, top } = content({
     title: "The three new layouts",
     take: "Each layout only reorders the bits, and the receiver tries the normal header first.",
-    notes: `From that simulation we built three new orders, and the receiver has to recognise each one. A layout is a way of ordering the same bits. Spread repetition sends the whole message three times in a row. Interleaving at depth 16 mixes 16 Hamming codewords instead of 8, so a burst of up to 16 bits hits each codeword once. The spread header sends its three copies a whole header apart. The receiver reads the 192 header bits and tries the normal layout first. If the header CRC fails, it undoes the spread and tries again, and if that also fails, the frame is lost.`,
+    notes: `From the simulation we built three new layouts, each of which only reorders the bits and adds none. Spread repetition sends the whole message three times, instead of each bit three times. Interleaving at depth 16 mixes 16 Hamming codewords instead of 8, so a burst of up to 16 bits hits each codeword once. The spread header sends its three copies a whole header apart. The receiver does not know in advance which layout was used, so it tries the normal header first, and if the header CRC fails it undoes the spread and tries again. Only if both fail is the frame lost.`,
   });
   const cw = 2.8, cx = (i) => M + i * 3.0, cs = 0.2, pitch = 0.22;
   const strips = (x, y, a, b, la, lb) => {
@@ -64,7 +64,7 @@ async function headerFinding() {
   const { s, top } = content({
     title: "Spreading the header cost frames",
     take: `The header CRC failed in ${H.spread.failed} of ${H.spread.frames} spread header frames and ${H.other.failed} of ${H.other.frames} others.`,
-    notes: `In that session, one effect was clear, and it went against what we expected. The four layouts with the header together had 0 failures in 48 frames, and the two layouts with a spread header, in red, failed 3 of 12 and 2 of 12, which is 5 of 24. If spreading made no difference, a gap this large would occur by chance about 3 times in 1000, which is a p value of 0.003. In simulation spreading the header helped, and we have not found the reason for this difference.`,
+    notes: `The one effect that was clear went against what we expected, because spreading the header cost us frames. The four layouts that kept the header copies together had no header failures in 48 frames, but the two layouts with a spread header failed 5 of 24. If spreading made no difference, a gap this large would happen by chance only about 3 times in 1000, which is a p value of 0.003. Our simulation predicted the opposite, and we have not yet found the reason, so we report it as it is.`,
   });
   const trimmed = await k.withoutLastLine("fig-physical-header.png");
   const pic = await plot(s, "fig-physical-header.png", { full: trimmed, y: top - 0.08, maxW: 9.4, maxH: 5.15 - top - 0.55, ar: 2.2, name: "header CRC failures by layout", alt: "Header CRC failures for the layouts with the header together and with the header spread" });
@@ -78,7 +78,7 @@ async function physicalReading() {
     const { s, top } = content({
     title: "What the layout test shows",
     take: "Glare was mild, so heavy bursts went untested. The one clear effect was negative.",
-    notes: `Set beside the earlier glare runs, that session was much quieter. The bars are channel BER, the bit error rate, in percent. The red bars at the top are the five earlier glare runs, from 7.3 to 31.5 percent, and the grey bars are the six layouts, from 0.39 to 2.54 percent. The glare was therefore mild, so heavy bursts went untested, and the one clear effect was negative. Whether spreading helps against heavy bursts still rests on the simulation, and the two sets of runs were recorded on different days.`,
+    notes: `That session also needs some context. Its channel error rate was only 0.39 to 2.54 percent, compared with 7.3 to 31.5 percent in the earlier glare runs, and the two sets were recorded on different days. So the glare was mild, and heavy bursts, the case our layouts were designed for, went untested. The honest conclusion is that the benefit of spreading and interleaving still rests on the simulation, and the one clear result from the link was negative.`,
   });
   s.addChart(pres.charts.BAR, [{ name: "Channel BER", labels: rows.map((r) => r[0]), values: rows.map((r) => r[1]) }], {
     x: M, y: top, w: 5.7, h: 5.15 - top, barDir: "bar", barGapWidthPct: 35, chartColors: rows.map((r) => r[2]), catAxisOrientation: "maxMin", showLegend: false,
