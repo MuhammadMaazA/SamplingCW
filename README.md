@@ -88,7 +88,7 @@ In plans and `--configs`, write these as `repetition-spread:3` and `hamming-inte
 
 These layouts come from the burst model of the glare channel (`report/design_sim.py`). It predicts that adjacent repetition copies fail together, that deeper interleaving helps, and that the header is the main bottleneck under glare.
 
-The grid method is based on the [Kurose and Ross two-dimensional parity exercise](https://gaia.cs.umass.edu/kurose_ross/interactive/2d_parity.php). Its full-block rate is 16/25, compared with 4/7 for Hamming and 1/N for repetition-N. Padding and framing reduce the useful rate further.
+The grid method is two-dimensional parity, the simplest product code, introduced by Elias in 1954 (the report cites it). The Kurose and Ross two-dimensional parity exercise shows the same idea. Its full-block rate is 16/25, compared with 4/7 for Hamming and 1/N for repetition-N. Padding and framing reduce the useful rate further.
 
 ## How the link works
 
@@ -138,7 +138,7 @@ For manual capture and analysis, the original `capture OUTPUT --plan PLAN` and `
 
 Repeat with one changed physical condition, such as lighting, distance or partial obstruction. Use `--name noise1` and accurate notes; `--distance`, `--obstruction` and `--glare` record those conditions. For a speed comparison, generate another plan with the same seed and settings but a different bit rate, and share that exact plan with B.
 
-Keep both the raw capture and analysed CSV. Capture refuses to overwrite recordings. Back up `experiments/results/` separately because Git ignores it. Plans under `experiments/plans/` can be committed.
+Keep both the raw capture and analysed CSV. Capture refuses to overwrite recordings. The raw captures and analysed CSVs of every recorded session are committed under `experiments/results/`, so keep a second backup copy of new recordings as well. Plans under `experiments/plans/` can be committed.
 
 ## Tables and plots
 
@@ -150,7 +150,7 @@ gridlink report experiments/results/quiet1-TIMESTAMP/results.csv experiments/res
 
 Replace the example folder names with the actual paths printed by `record`. The output directory must be new. It contains a summary CSV, comparison charts, error-location maps, error-run histograms, full error positions and notes on the metrics. Different recorded conditions and speeds stay in separate groups. Duplicate recordings are rejected to avoid counting the same run twice.
 
-BER uses observed bits. Decoded BER uses complete, decodable trials, including their payload CRC bits; unavailable data and rejected codewords are excluded. Always report failure counts alongside BER. Throughput is delivered payload bits divided by nominal frame airtime, excluding gaps and setup. Counts and rates describe the collected sample; they do not establish statistical significance.
+BER uses observed bits. Decoded BER uses complete, decodable trials, including their payload CRC bits; unavailable data and rejected codewords are excluded. Always report failure counts alongside BER. Delivery rate (called throughput in the code and the CSV columns) is the delivered payload bits divided by nominal frame airtime, excluding gaps and setup. Counts and rates describe the collected sample; they do not establish statistical significance.
 
 Maps display at most 20 trials and 2000 bits per group; CSVs retain the full data. An unavailable tail means sampling stopped. Offline alignment can be wrong under severe noise, so check the raw recording when results look suspicious.
 
@@ -166,7 +166,7 @@ Without a burst interval, each encoded bit flips independently. With `--burst-le
 
 ## Rebuilding the report
 
-Every table row, figure and quoted statistic in `report/report.tex` is generated from the per-trial CSVs. Unpack the results archive into `experiments/results/` (it is not in Git), then:
+Every table row, figure and quoted statistic in `report/report.tex` is generated from the per-trial CSVs. The recorded sessions are already in `experiments/results/`, so from a fresh clone you can go straight to:
 
 ```bash
 python -m pip install -e ".[dev,analysis]"
@@ -206,4 +206,4 @@ python make_replay.py        # media/replay.mp4, a replay of one recording (need
 node build_deck.js
 ```
 
-`build_deck.js` reads those files and the report's `report/generated/stats.json`, so every number on the slides comes from the data. The slide code is in `deck/`. The deck has 35 slides, plus one that plays `media/demo.mp4` if you add a recording of a full run, or otherwise `media/replay.mp4`, a replay of one of our recordings that is labelled as not live. The slides and figures use the Gill Sans MT font, which comes with Microsoft Office.
+`build_deck.js` reads those files and the report's `report/generated/stats.json`, so every number on the slides comes from the data. The slide code is in `deck/`. The deck has 36 slides. Slide 15 plays `media/demo.mp4` if you add a recording of a full run, or otherwise `media/replay.mp4`, a replay of one of our recordings that is labelled as not live. The slides and figures use the Gill Sans MT font, which comes with Microsoft Office.

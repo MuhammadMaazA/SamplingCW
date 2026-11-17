@@ -423,13 +423,13 @@ colour, and there the position of the redundancy matters more than the amount. I
 spreading copies give large gains in the simulation without adding bits, but the mild layout test did not confirm them, and spreading the header cost frames. Both error mechanisms also point beyond
 error correction. A run-length-limited, DC-balanced line code such as 8b/10b~\cite{widmer}, or
 Manchester coding, limits how long a colour is held, and an adaptive threshold would follow the
-drift. 
+drift.
 
 \textbf{Wider context.} If we treat each slice as a binary symmetric channel at its pooled BER, the
 Shannon capacity~\cite{shannon} is 0.94 at 3\,bps in normal light, 0.77 at 8\,bps and 0.45 in
 glare, and glare has memory, so its true capacity is higher~\cite{gilbert}. At 8\,bps the Hamming
 rate of 0.57 is well below capacity and Hamming still fails, so our codes are the weak part and the
-channel would allow better ones.  The frame overhead of 240 bits is 240 of 272 bits for a 2-byte payload, a rate trade-off seen from
+channel would allow better ones. The frame overhead is 240 of the 272 bits sent for an uncoded 2-byte payload, a rate trade-off seen from
 the compression side. In the wider degree, CRC framing is part of the Ethernet
 link layer, the Gilbert-Elliott model is a Markov chain, and filtering the brightness trace would
 use DSP.
