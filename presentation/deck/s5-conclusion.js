@@ -61,12 +61,12 @@ function whatToSend() {
   const { s, top } = content({
     title: "What to send for each kind of noise",
     take: "The best code depends on how the errors are arranged, not only how many there are.",
-    notes: `Putting the rooms together, the best code depends on how the errors are arranged, and not only on how many there are. On a clean channel we should not code at all, because the extra bits only slow the link down. When flips are isolated, repetition or two-dimensional parity did better than Hamming, which at 8 bits per second made more errors than no code. When errors arrive in bursts, we should spread the copies and interleave. We need to be careful here, though, because that advice comes from simulation. We did not test heavy bursts on the link, and spreading the header cost frames.`,
+    notes: `Putting the rooms together, the best code depends on how the errors are arranged, and not only on how many there are. On a clean channel we should not code at all, because the extra bits only slow the link down. When flips are isolated, repetition or two-dimensional parity did better than Hamming, which at 8 bits per second made more errors than no code. When errors arrive in bursts, we should spread the copies and interleave. We need to be careful here, though, because we did not test heavy bursts on the link, and spreading the header cost frames.`,
   });
   const zones = [
     { w: 2.6, fill: HEX.accent5, ink: C.text1, name: "Clean channel", send: "Do not code", why: "Every code decoded with no errors, so extra bits only slowed it down." },
     { w: 3.0, fill: HEX.lt2, ink: C.text1, name: "Isolated flips", send: "Repetition or 2-D parity", why: "At 8 bps Hamming made more errors than no code at all." },
-    { w: 3.2, fill: HEX.accent2, ink: C.background1, name: "Bursts", send: "Spread the copies and interleave", why: "This helped in simulation. We did not test heavy bursts, and spreading the header cost frames." },
+    { w: 3.2, fill: HEX.accent2, ink: C.background1, name: "Bursts", send: "Spread the copies and interleave", why: "We did not test heavy bursts, and spreading the header cost frames." },
   ];
   arrow(s, M, top + 0.3, M + 8.8, top + 0.3, { color: C.text2, w: 1.5, name: "burstiness arrow" });
   text(s, "the errors arrive in longer bursts", { x: M, y: top - 0.1, w: 4, h: 0.3, fontSize: 14, color: C.text2, objectName: "burstiness label" });
@@ -84,7 +84,7 @@ function limits() {
   const N = RSTATS.noise, GL = N[k.findKey(N, 4, true)], share = Math.round(GL.burst_share * 100);
   const { s } = content({
     title: "Conclusion and limitations",
-    notes: `To conclude, coding only helps if it matches the noise. On a clean channel it simply costs speed, and with bursts the order of the bits matters as much as the number of extra bits. We built a working link with the three required codes, two-dimensional parity and three new layouts, and we reported every recording, including the failures. There are limits to what we can claim. Room light changed between sessions, so we compare codes only within a session. We had only 3 trials per method, the glare in the layout test was mild, and our simulation does not model glare switching on and off. Thank you for listening, and we are happy to take questions.`,
+    notes: `To conclude, coding only helps if it matches the noise. On a clean channel it simply costs speed, and with bursts the order of the bits matters as much as the number of extra bits. We built a working link with the three required codes, two-dimensional parity and three new layouts, and we reported every recording, including the failures. There are limits to what we can claim. Room light changed between sessions, so we compare codes only within a session. We had only 3 trials per method, and the glare in the layout test was mild. Thank you for listening, and we are happy to take questions.`,
   });
   text(s, "Conclusion", { x: M, y: 1.3, w: 8.8, h: 0.4, fontSize: 22, bold: true, fontFace: FONT.head, objectName: "conclusion heading" });
   text(s, "Coding only helps if it fits the noise. On a clean channel it just costs speed, and with bursts the order of the bits matters as much as how many extra bits we add.", { x: M, y: 1.82, w: 8.2, h: 1.0, fontSize: 20, bold: true, objectName: "conclusion sentence" });
