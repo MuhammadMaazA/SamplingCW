@@ -42,7 +42,7 @@ function txrx() {
   const { s, top } = content({
     title: "How the two laptops work",
     take: "Laptop 1 turns the message into timed colours, and laptop 2 turns them back.",
-    notes: `This slide shows what each laptop does, with the transmitter above and the receiver below. Our message is 16 bits. We add a CRC, short for cyclic redundancy check, a check value, which makes 32 bits, and the code adds extra bits to reach 96. With the sync word and the header, sent three times, this gives 48 plus 192 plus 96, one frame of 336 bits, and at 8 bps, meaning bits per second, it takes 42 seconds. In the bottom row, the webcam gives 23 to 30 camera frames a second, and for each one we keep the median brightness inside our box. Brighter than the threshold means a 1. The receiver then finds the sync word, even with up to 9 of its 48 bits wrong, votes on the header, and decodes the payload, checking both CRCs.`,
+    notes: `Taking that picture into the software, laptop 1 is the top row and laptop 2 is the bottom. Our message is 16 bits. We add a CRC, short for cyclic redundancy check, a check value, which makes 32 bits, and the code adds extra bits to reach 96. With the sync word and the header, sent three times, this gives 48 plus 192 plus 96, one frame of 336 bits, and at 8 bps, meaning bits per second, it takes 42 seconds. In the bottom row, the webcam gives 23 to 30 camera frames a second, and for each one we keep the median brightness inside our box. Brighter than the threshold means a 1. The receiver then finds the sync word, even with up to 9 of its 48 bits wrong, votes on the header, and decodes the payload, checking both CRCs.`,
   });
   const r1 = top - 0.05, r2 = r1 + 1.82;
   deviceBand(s, r1, "Laptop 1", "runs the transmitter", { patch: true });
@@ -81,7 +81,7 @@ function plugAndCheck() {
   const { s, top } = content({
     title: "Plugging in and checking a code",
     take: TS.passed === TS.total ? `A coding id picks the code, and every check on the decoder passes, ${TS.total} of ${TS.total} tests.` : `A coding id picks the code, and ${TS.passed} of ${TS.total} tests pass.`,
-    notes: `This slide shows how a code plugs into the link and how we checked it. The header carries a coding identifier, or id, from 0 to 6, and both laptops look it up in one table of codes. The two new layouts, in red, are id 5, spread repetition, and id 6, interleaved Hamming at depth 16. In the bottom half, the grids test all 16 Hamming codewords with every single flip and every double flip, and the decoder fixed 112 of 112 single flips and 0 of 336 double flips. The CRC gives the standard value two nine B one, 14 of 14 frames decode back for every code and both header layouts, and all 84 tests pass.`,
+    notes: `With the three codes set out, each one plugs into the link the same way, and we checked the decoder before any recording. The header carries a coding identifier, or id, from 0 to 6, and both laptops look it up in one table of codes. The two new layouts, in red, are id 5, spread repetition, and id 6, interleaved Hamming at depth 16. In the bottom half, the grids test all 16 Hamming codewords with every single flip and every double flip, and the decoder fixed 112 of 112 single flips and 0 of 336 double flips. The CRC gives the standard value two nine B one, 14 of 14 frames decode back for every code and both header layouts, and all 84 tests pass.`,
   });
   // the top half, the header picks a row of the table, every code has the same two functions
   const rh = 0.28, ty = top + 0.3, tx = 2.35, idw = 0.42, nws = [2.15, 2.6], colGap = 0.1;
@@ -137,7 +137,7 @@ function experiment() {
   const { s, top } = content({
     title: "How we ran an experiment",
     take: `One calibration, then ${n} shuffled trials in an order both laptops get from one seed.`,
-    notes: `This slide describes how we ran every experiment, in three steps from left to right. In step one, calibration, laptop 1 shows black and then white, and laptop 2 sets the threshold halfway, between 59 and 188. In step two, a trial, laptop 1 flashes one frame of 336 bits, which takes 42 seconds at 8 bits per second, and laptop 2 records the brightness with timestamps. In step three, the plan, a session has 21 trials, 3 for each of our 7 methods, in a shuffled order. Laptop 1 builds the same order from the same seed.`,
+    notes: `With the codes checked, every experiment ran in three steps, left to right. In step one, calibration, laptop 1 shows black and then white, and laptop 2 sets the threshold halfway, between 59 and 188. In step two, a trial, laptop 1 flashes one frame of 336 bits, which takes 42 seconds at 8 bits per second, and laptop 2 records the brightness with timestamps. In step three, the plan, a session has 21 trials, 3 for each of our 7 methods, in a shuffled order. Laptop 1 builds the same order from the same seed.`,
   });
   const gap = 0.15, pws = [2.55, 2.55, 3.4], pxs = [M, M + pws[0] + gap * 2, M + pws[0] + pws[1] + gap * 4];
   const heads = [["1", "Calibration"], ["2", "A trial"], ["3", "The plan"]];
@@ -195,7 +195,7 @@ async function demo() {
   const N = replay ? clip.replaySpeed() : 0;
   const { s, top } = content(replay ? {
     title: "One recorded run",
-    notes: `This clip is a replay of one of our recordings. It is not a live run, and it is not a video of the equipment. We drew it from the recorded data for normal light at 4 bits per second, and we play it about 6 times faster than it happened. Each dot above the dashed threshold line is read as a 1, each dot below it is read as a 0, and these readings fill the squares underneath. At the end the clip checks the sync word, the header CRC, which stands for cyclic redundancy check, and the payload CRC, and the decoded message matches the message we sent.`,
+    notes: `Rather than run one live, this is a replay of one of our recordings. It is not a live run, and it is not a video of the equipment. We drew it from the recorded data for normal light at 4 bits per second, and we play it about 6 times faster than it happened. Each dot above the dashed threshold line is read as a 1, each dot below it is read as a 0, and these readings fill the squares underneath. At the end the clip checks the sync word, the header CRC, which stands for cyclic redundancy check, and the payload CRC, and the decoded message matches the message we sent.`,
     secs: Math.round(info.secs + 15), fixed: true,
   } : {
     title: "Demonstration of one run",
