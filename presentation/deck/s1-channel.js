@@ -21,7 +21,7 @@ function opening() {
     { text: "Muhammad Maaz, Kanav Mehta and Daniel Helmi", options: { breakLine: true } },
     { text: "COMP0228 Coursework 1, University College London", options: { fontSize: 14, color: C.accent4 } },
   ], { placeholder: "body" });
-  const intro = `We are Maaz, Kanav and Daniel, and we will take turns presenting. Our project is an optical link that sends bits from one laptop screen to another through an iPad. We tested whether basic error correcting codes can cope with the noise on this link. In the dim room that noise arrives in bursts, so the order in which we send the bits matters as much as the number of extra bits.`;
+  const intro = `Hello everyone. We are Muhammad Maaz, Kanav Mehta and Daniel Helmi, and this is our COMP0228 coursework talk, in which we will take turns presenting. Our project is an optical link that sends bits from one laptop screen to another through an iPad. We tested whether basic error correcting codes can cope with the noise on this link. In the dim room that noise arrives in bursts, so the order in which we send the bits matters as much as the number of extra bits.`;
   k.state.title = "Error Correction over a Screen-to-Camera Optical Channel";
   note(s, intro);
   count(Math.round(intro.split(/\s+/).length / 2.5));
