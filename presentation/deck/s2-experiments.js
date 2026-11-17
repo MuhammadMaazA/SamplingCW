@@ -47,10 +47,10 @@ function metrics() {
 async function timeline() {
   const { s, top } = content({
     title: "The recording sessions",
-    take: "Each dot is one session, by light and speed. Grey dots gave nothing we could use.",
-    notes: `These are the sessions that our numbers come from, grouped by lighting and speed. In normal light at 4 bits per second the picture is good, and the best of the three sessions delivered 20 of its 21 frames. In the dim room with glare, at the same speed, only 2 of 15 frames were delivered, so lighting made the biggest difference we saw. Two sessions, shown in grey, gave us nothing usable, one because the run stopped early and one because it was recorded in a different place.`,
+    take: "Each dot is one session, by light and speed.",
+    notes: `Our results come from these recordings, grouped by lighting and speed, and one pattern stands out. In normal light at 4 bits per second the best session delivered 20 of its 21 frames. In the dim room with glare, at the same speed, only 2 of 15 frames got through. So lighting mattered more than anything else we changed.`,
   });
-  await plot(s, "fig-sessions-timeline.png", { y: top, maxW: 9.4, maxH: 5.15 - top, ar: 2.5, name: "all recording sessions", alt: "Every session grouped by light and speed, with frames delivered and the sessions that gave nothing usable" });
+  await plot(s, "fig-sessions-timeline.png", { y: top, maxW: 9.4, maxH: 5.15 - top, ar: 2.5, name: "all recording sessions", alt: "Every session grouped by light and speed, with the share of frames delivered" });
 }
 
 async function build() {

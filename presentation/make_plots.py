@@ -690,9 +690,9 @@ DIFFERENT_PLACE = "A different place, 2 bps"
 
 
 def fig_sessions_timeline():
-    recs = recordings()
-    lanes = [f"{GLARE_LIGHT}, 4 bps", f"{GLARE_LIGHT}, 2 bps", f"{NORMAL}, 3 bps", f"{NORMAL}, 4 bps", f"{NORMAL}, 8 bps",
-             "Pipeline test", DIFFERENT_PLACE]
+    all_recs = recordings()
+    recs = [r for r in all_recs if r["kind"] != "unusable"]  # the slide shows only the sessions that gave usable data
+    lanes = [f"{GLARE_LIGHT}, 4 bps", f"{GLARE_LIGHT}, 2 bps", f"{NORMAL}, 3 bps", f"{NORMAL}, 4 bps", f"{NORMAL}, 8 bps"]
     seen = {}
     for r in recs:  # chronological order within each lane, evenly spaced slots, no time axis
         r["slot"] = seen.get(r["lane"], 0)
@@ -734,12 +734,12 @@ def fig_sessions_timeline():
             start = max(start, b)
         if start < AW:
             ax.plot([start, AW], [y, y], color=GREY3, lw=0.6, zorder=0, solid_capstyle="butt")
-    stats["sessions"] = recs
+    stats["sessions"] = all_recs
     ax.set_yticks(range(len(lanes))); ax.set_yticklabels(lanes); ax.tick_params(axis="y", length=0)
     ax.set_xticks([]); ax.spines["left"].set_visible(False); ax.spines["bottom"].set_visible(False)
     ov.text(L, 0.37, "marker area is the number of planned trials", ha="left", va="center", fontsize=13, color=GREY1)
     x = L
-    for kind, text in (("delivered", "mostly delivered"), ("lost", "mostly lost"), ("unusable", "not usable")):
+    for kind, text in (("delivered", "mostly delivered"), ("lost", "mostly lost")):
         ov.plot(x + 0.06, 0.1, "o", color=KIND_COLOUR[kind], ms=8, mec="none")
         ov.text(x + 0.2, 0.1, text, ha="left", va="center", fontsize=13, color=GREY1)
         x += 0.45 + 0.085 * len(text)

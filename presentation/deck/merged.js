@@ -100,7 +100,7 @@ async function changes() {
   const { s, top } = content({
     title: "Three changes we made",
     take: "Going faster or dimmer lost frames. Going slower in glare may have helped.",
-    notes: `We then changed one thing at a time to see what mattered, and the answers were mixed. Going faster in normal light, from 3 to 8 bits per second, cut the frames delivered from 14 of 21 to 9 of 21, probably because 8 bits per second leaves only about 4 camera readings per bit, although the two sessions were on different days. Making the room dim with glare was far worse. At 4 bits per second the frames delivered fell from 20 of 21 to 2 of 15, and the channel BER, meaning the bit error rate before decoding, rose to between 7.3 and 31.5 percent. Going slower in glare, to 2 bits per second, delivered 2 of 3 frames and cut the channel BER to 0.4 percent, but that may be milder glare that day, and one session cannot tell us which.`,
+    notes: `We changed one thing at a time to see what mattered. Going faster, from 3 to 8 bits per second, cut the frames delivered from 14 of 21 to 9 of 21. Dimming the room with glare was far worse, with delivery falling to 2 of 15 and the channel error rate, meaning the share of bits wrong before decoding, rising to between 7.3 and 31.5 percent. Going slower in glare looked better, but that was one short session, so we cannot say that speed was the cause.`,
   });
   const pw = 2.95, px = (i) => 0.4 + i * 3.2;
   const panels = [
@@ -125,7 +125,7 @@ function lostAndFailed() {
   const { s, top } = content({
     title: "Lost frames and failed runs",
     take: `In glare ${glare.header_crc_failures} of ${glare.trials} frames fail the header CRC. Two failed runs were our fault.`,
-    notes: `Not every planned trial delivered a frame, and we want to be open about why. In glare at 4 bits per second, 9 of 15 frames failed at the header, so the receiver could not even tell which code had been sent. At 8 bits per second, 10 of 21 failed the payload check, which means the header was fine but the message was damaged. Two failures were our own fault. One session ran in a different place at 2 bits per second, and the plan needed 60 minutes but we stopped after 8, so only 3 of 21 trials were filmed. In another, laptop 1 was started with the codes in a different order, so 12 of 21 trials did not match.`,
+    notes: `Some planned trials never produced a frame, and we want to be open about why. In glare at 4 bits per second, 9 of 15 frames failed at the header, so the receiver could not tell which code had been sent. Two failures were our own fault, because one session was stopped early and in another the codes were started in the wrong order. We kept all of these in the results.`,
   });
   const labels = F.map((r) => r.display), maxTrials = Math.max(...F.map((r) => r.trials));
   const series = [
