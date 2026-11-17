@@ -299,7 +299,7 @@ function layoutTest() {
   const { s, top } = content({
     title: "The layout test had 72 trials",
     take: `Frames delivered ranged from ${lo} to ${hi} of ${per}, and no comparison gave p below ${pmin.toFixed(1)}.`,
-    notes: `We then ran one session on the real link: six layouts, two as first built and four with a new order. We sent 12 trials of each over 109 minutes. The columns then give the count out of 12, a 95 percent interval, the Fisher p value against the baseline, and the channel BER, the bit error rate. The baselines are repetition 3 and depth 8, and p is the chance of a gap this large if the layout made no difference. The counts ran from 9 to 12, and the four p values are 0.48, 0.22, 1.00 and 0.48.`,
+    notes: `We then ran one session on the real link, with six layouts, two as first built and four with a new order. We sent 12 trials of each over 109 minutes. The columns then give the count out of 12, a 95 percent interval, the Fisher p value against the baseline, and the channel BER, the bit error rate. The baselines are repetition 3 and depth 8, and p is the chance of a gap this large if the layout made no difference. The counts ran from 9 to 12, and the four p values are 0.48, 0.22, 1.00 and 0.48.`,
   });
   const cs = 0.19, pitch = 0.215, x0 = 2.85, rp = 0.42, y0 = top + 0.4;
   const cx = x0 + per * pitch + 0.1, ix = 6.4, iw = 1.2, px = 7.8, bx = 8.65;
