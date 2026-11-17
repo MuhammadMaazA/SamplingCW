@@ -58,13 +58,12 @@ def main():
                 f"{num(row['channel_ber'], 3)} & {num(row['decoded_ber'], 3)} & "
                 f"{thr_s} & {valid}/{trials} \\\\"
             )
-    OUT.write_text("\n".join(lines))
     # Three blocks so the appendix table can sit side by side and fit the page limit.
     third = (len(lines) + 2) // 3
     for name, chunk in (("a", lines[:third]), ("b", lines[third:2 * third]),
                         ("c", lines[2 * third:])):
         OUT.with_name(f"allruns-rows-{name}.tex").write_text("\n".join(chunk))
-    print(f"wrote {len(lines)} rows to {OUT}")
+    print(f"wrote {len(lines)} rows in three blocks next to {OUT.name}")
 
 
 if __name__ == "__main__":

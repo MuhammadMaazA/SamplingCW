@@ -34,3 +34,7 @@ report/*.synctex.gz
 presentation/plots/_done.txt
 presentation/media/_replay_done.txt
 presentation/_text_dump.txt
+
+# derived and scratch files
+report/generated/burst-results.csv
+*.tmp

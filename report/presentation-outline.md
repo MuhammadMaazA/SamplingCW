@@ -66,13 +66,13 @@ Target running total is shown in brackets after each slide.
 ### 7. Results of the basic codes (K), 3 min  [13.5]  *(brief point 5)*
 - Low noise slice (Table 1): every code reaches zero decoded BER, so only delivery rate differs
   and it ranks by code rate. Message: on a clean channel, do not code.
-- High noise slice (`figures/highnoise-bars.png`): Hamming goes above the uncoded baseline
+- High noise slice (`figures/highnoise-bars.pdf`): Hamming goes above the uncoded baseline
   because many codewords take two flips and it miscorrects. Repetition-7 and 2-D parity reach
   zero error, but parity delivers only 1 frame in 3. Message: more correction is not always
   better.
 
 ### 8. What the noise actually looks like (K), 3 min  [16.5]  *(brief point 6)*
-- `figures/noise-regimes.png`. Regime 2 is isolated flips, every run length 1. Regime 3 is
+- `figures/noise-regimes.pdf`. Regime 2 is isolated flips, every run length 1. Regime 3 is
   bursts, 91 percent of errors in runs of 3 or more, up to 16 bits, worse late in the frame.
 - Name the cause: sampling jitter gives flips, drift and glare give bursts, and whole frames are
   sometimes lost outright.
@@ -88,7 +88,7 @@ Target running total is shown in brackets after each slide.
   failure we measured, it is explainable, and it isolates the effect of ordering alone.
 
 ### 11. Extension results (M), 2 min  [21.5]  *(brief point 8)*
-- `figures/extension-burst.png`, the controlled experiment, 400 trials per burst length.
+- `figures/extension-burst.pdf`, the controlled experiment, 400 trials per burst length.
   Interleaving holds zero decoded BER up to a burst of 8, its depth, while plain Hamming and
   repetition fail from a burst of 2.
 - Honest limit: beyond about 13 bits interleaving is slightly worse, because each word then
