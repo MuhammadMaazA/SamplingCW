@@ -16,9 +16,7 @@ function metrics() {
   const { s, top } = content({
     title: "Four numbers for every trial",
     take: `In this example ${wrongChannel} of 12 bits arrive wrong, but all 4 message bits decode correctly.`,
-    notes: `Right, so what do we measure? The example sends each message bit three times, red for wrong. ${wrongChannel} of the 12 received bits are wrong, the channel BER, short for bit error rate. After the majority vote ${wrongDecoded} of the 4 message bits are wrong, the decoded BER. Channel BER is the share of bits that arrive wrong. Decoded BER is the share of message bits wrong after decoding. Delivery rate is message bits delivered per second. Frame success is the share of frames decoded correctly. Maaz, your turn.
-
-If asked how to read them, we always read these numbers together with the failure counts, and we only compare methods within one matched condition, because room light changed between sessions. Delivery rate counts only frames that arrived intact. Decoded BER counts the payload bits of frames we could decode, so a lost frame does not count as zero errors.`,
+    notes: `This slide defines the four numbers that we record for every trial, using a small example with red for wrong bits. The channel BER is the share of bits that arrive wrong, and BER means bit error rate. Here 2 of the 12 received bits are wrong. The decoded BER is the share of message bits still wrong after the majority vote, which here is 0 of 4. The delivery rate is the number of message bits delivered per second, and the frame success is the share of frames that decode correctly.`,
   });
   const size = 0.4, gap = 0.06, gg = 0.14, pitch = size + gap, x0 = 1.95, y = top + 0.2;
   const gx = (g, j) => x0 + g * (3 * pitch + gg) + j * pitch;
@@ -50,9 +48,7 @@ async function timeline() {
   const { s, top } = content({
     title: "The recording sessions",
     take: "Each dot is one session, by light and speed. Grey dots gave nothing we could use.",
-    notes: `So which sessions did we record? Each row is a setup, grouped by light and speed, and each dot is one session. A bigger dot means more planned trials. Black dots delivered most of their frames, red dots lost most, and grey dots gave nothing we could use. Normal light at 4 bits per second delivered 20 of 21 frames, glare only 2 of 15. Some grey ones were our own mistakes, and we'll come back to them. Kanav, what did we change?
-
-If asked about the sessions, they are grouped by light and speed, and the chart also shows a pipeline test and a run recorded in a different place that we could not use. We keep every recording, report the failures, and never overwrite a recording. The sessions were recorded on different days, so day and light are mixed, which is why we compare codes only within one session.`,
+    notes: `This slide lists every recording session. Each row is a setup, grouped by light and speed, and each dot is one session. Black dots delivered most of their frames, red dots lost most of them, and grey dots gave us nothing we could use. Normal light at 4 bits per second has three sessions, and its largest delivered 20 of 21 frames. Glare at 4 bits per second delivered only 2 of 15. The grey dots are a run that stopped at 16.7 seconds and a run recorded in a different place.`,
   });
   await plot(s, "fig-sessions-timeline.png", { y: top, maxW: 9.4, maxH: 5.15 - top, ar: 2.5, name: "all recording sessions", alt: "Every session grouped by light and speed, with frames delivered and the sessions that gave nothing usable" });
 }
