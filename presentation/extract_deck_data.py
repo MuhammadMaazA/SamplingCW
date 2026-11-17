@@ -26,8 +26,17 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from gridlink import protocol  # noqa: E402
 from gridlink.coding import hamming  # noqa: E402
-from gridlink.coding.pipeline import CODING_IDS, REPETITION_SCHEMES, CodingConfig, encoded_length  # noqa: E402
-from gridlink.experiments.simulation import repetition_error_probability, run_trials, summarise_trials  # noqa: E402
+from gridlink.coding.pipeline import (  # noqa: E402
+    CODING_IDS,
+    REPETITION_SCHEMES,
+    CodingConfig,
+    encoded_length,
+)
+from gridlink.experiments.simulation import (  # noqa: E402
+    repetition_error_probability,
+    run_trials,
+    summarise_trials,
+)
 
 PLAN_SESSION = "final-comparison-20261031-150350-900428Z"          # 8 bps facing, G08 to G14
 BUG_SESSION = "full1b-lab-comparison-20261027-174408-573804Z"       # 4 bps reflection, G15 to G21

@@ -8,8 +8,8 @@ names to redraw only some of them, for example: make_plots.py traces wilson
 """
 from __future__ import annotations
 
-import csv
 import collections
+import csv
 import itertools
 import json
 import math
@@ -19,16 +19,13 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-import numpy as np
-from PIL import Image
-
-import plotstyle as ps
-from plotstyle import ACCENT, GREY1, GREY2, GREY3, GREY4, INK, WHITE, box, new_fig, overlay, panel
-
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
+import numpy as np
+import plotstyle as ps
 from matplotlib.patches import Rectangle
+from PIL import Image
+from plotstyle import ACCENT, GREY1, GREY2, GREY3, GREY4, INK, box, new_fig, overlay, panel
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
@@ -38,9 +35,14 @@ OUT = HERE / "plots"
 OUT.mkdir(exist_ok=True)
 
 sys.path.insert(0, str(REPO / "report"))
-from data import by_slice, load as load_trials  # noqa: E402  same loader and groups as the report
+from data import by_slice  # noqa: E402  same loader and groups as the report
+from data import load as load_trials
+
 from gridlink.experiments.channel_model import (  # noqa: E402
-    GilbertElliott, fit_gilbert_elliott, memoryless_log_likelihood, sample_errors)
+    fit_gilbert_elliott,
+    memoryless_log_likelihood,
+    sample_errors,
+)
 from gridlink.experiments.stats import fisher_exact, wilson_interval  # noqa: E402
 
 SESS = {
@@ -697,12 +699,10 @@ def fig_sessions_timeline():
     for r in recs:  # chronological order within each lane, evenly spaced slots, no time axis
         r["slot"] = seen.get(r["lane"], 0)
         seen[r["lane"]] = r["slot"] + 1
-    slots = max(seen.values())
     W, H, L, TOP, AW, AH = 9.0, 3.6, 2.4, 0.15, 6.5, 2.85
     fig = new_fig(W, H); ov = overlay(fig)
     ax = box(fig, L, TOP, AW, AH)
     ax.set_xlim(0, AW); ax.set_ylim(len(lanes) - 0.5, -0.5)
-    pitch = AW / slots
     anns, gaps = [], {i: [] for i in range(len(lanes))}
     for r in recs:
         r["x"] = 0.3 + r["slot"] * 2.1
@@ -753,7 +753,7 @@ def grp(a, b):
 
 CHANGES = [
     ("fig-change-speed-normal.png", "speed-normal", ("3 bps", grp(1, 7)), ("8 bps", grp(8, 14)),
-     f"speed in normal light, 3 bps to 8 bps", f"{NORMAL}, 3 bps to 8 bps"),
+     "speed in normal light, 3 bps to 8 bps", f"{NORMAL}, 3 bps to 8 bps"),
     ("fig-change-lighting.png", "lighting", (NORMAL.replace(" ", chr(10)), grp(15, 21)), (GLARE_LIGHT.replace(" with ", " with" + chr(10)), grp(22, 26)),
      "lighting at 4 bps, normal light to dim with glare", f"{NORMAL} to {GLARE_LIGHT}, 4 bps"),
     ("fig-change-speed-glare.png", "speed-glare", ("4 bps", grp(22, 26)), ("2 bps", ["G27"]),
@@ -917,7 +917,7 @@ def fig_error_raster():
                 ax.broken_barh([(p - 0.5, 1.0) for p in t["pos"]], (y + 0.05, 0.9), facecolors=col, zorder=2)
             y += 1
         mid = (start + y) / 2
-        yy = H - top - (mid / total) * ah if False else H - top - ah + (1 - mid / total) * ah
+        yy = H - top - ah + (1 - mid / total) * ah
         ov.text(ax_l - 0.12, yy, f"{name}" + chr(10) + f"{len(trials)} trials", ha="right", va="center", fontsize=13, color=col)
         ov.text(ax_l + ax_w + 0.08, yy, ("0%" if rate == 0 else f"{rate * 100:.1f}%" if rate >= 0.01 else f"{rate * 100:.2f}%"), ha="left", va="center", fontsize=13, color=GREY1)
         stats["raster"].append({"setup": name, "display": name, "trials": len(trials), "errors": errors, "observed_bits": bits, "channel_ber": round(rate, 5)})

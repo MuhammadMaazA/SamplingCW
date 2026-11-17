@@ -22,12 +22,11 @@ mpl.use("Agg")
 import burst_experiment
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np
-from matplotlib.patches import Patch
 from data import DISPLAY, METHOD_ORDER, RESULTS, by_slice, load
 from design_sim import Layout, frame_success
+from matplotlib.patches import Patch
 
 from gridlink.experiments.analysis import summarise_records
-from gridlink.experiments.recording import read_csv
 from gridlink.experiments.channel_model import (
     bic,
     fit_gilbert_elliott,
@@ -35,6 +34,7 @@ from gridlink.experiments.channel_model import (
     run_position_context,
     sample_errors,
 )
+from gridlink.experiments.recording import read_csv
 from gridlink.experiments.stats import (
     bootstrap_ratio_interval,
     burst_share,
@@ -63,8 +63,6 @@ GREY2 = "#8C8C8C"
 GREY3 = "#CFCFCF"
 GREY4 = "#EDEDED"
 ACCENT = "#D9381E"
-BLACK = INK
-LIGHT = GREY3
 
 
 def tint(colour, amount):
@@ -110,9 +108,8 @@ def panel_label(ax, text):
 
 
 def save(fig, name):
-    """Write vector PDF for the report and a PNG copy for slides."""
+    """Write the vector PDF that the report includes."""
     fig.savefig(FIGDIR / f"{name}.pdf", bbox_inches="tight", pad_inches=0.02)
-    fig.savefig(FIGDIR / f"{name}.png", bbox_inches="tight", pad_inches=0.02, dpi=300)
     plt.close(fig)
 
 
@@ -135,7 +132,7 @@ def ci_text(low, high, places=3):
     return f"[{low:.{places}f}, {high:.{places}f}]"
 
 
-# ---------------------------------------------------------------- slice tables
+# slice tables
 def method_stats(trials):
     records = [t.record for t in trials]
     summary = summarise_records(records)[0]
@@ -208,7 +205,7 @@ def write_tables(slices):
         f["Hamming"]["ok"], f["Hamming"]["trials"] - f["Hamming"]["ok"])
 
 
-# ---------------------------------------------------------------- noise structure
+# noise structure
 def context_rates(trials, cap=6):
     """Error rate by (symbol colour, position within a run of identical symbols)."""
     hits, seen = Counter(), Counter()
@@ -318,7 +315,7 @@ def noise_analysis(slices):
     return models, run_hist
 
 
-# ---------------------------------------------------------------- design what-ifs
+# design what-ifs
 LAYOUTS = [
     Layout("rep-3 adjacent", "repetition", 3),
     Layout("rep-5 adjacent", "repetition", 5),
@@ -346,7 +343,7 @@ def design_study(models):
             STATS["design"][name][key] = frame_success(models[name], layout, payload, 3000, 11)
 
 
-# ---------------------------------------------------------------- figures
+# figures
 BAR = {"edgecolor": INK, "lw": 0.5, "zorder": 2}
 WORSE = {"facecolor": "white", "edgecolor": ACCENT, "hatch": "//////", "lw": 0.7, "zorder": 2}
 
@@ -529,7 +526,7 @@ def fig_extension():
     save(fig, "extension")
 
 
-# ---------------------------------------------------------------- diagrams drawn as figures
+# diagrams drawn as figures
 def _cell(ax, x, y, size, text="", fill="white", fontsize=7.5, lw=0.5):
     ax.add_patch(plt.Rectangle((x, y), size, size, facecolor=fill, edgecolor=INK, lw=lw,
                                zorder=2))
@@ -619,7 +616,7 @@ def fig_layouts():
     save(fig, "layouts")
 
 
-# ---------------------------------------------------------------- what changed between sessions
+# what changed between sessions
 def group_bers(trials):
     """Pooled channel BER of each recorded group inside a slice."""
     out = {}
@@ -688,7 +685,7 @@ def write_contrast_tex():
     (GENDIR / "contrasts.tex").write_text(NL.join(lines) + NL)
 
 
-# ---------------------------------------------------------------- physical test of the new layouts
+# physical test of the new layouts
 PHYS_DIR = "glare-layouts-room-comparison-20261106-021921-294106Z"
 # (scheme, repetitions, spread header), label, index of the as-built baseline in this list
 PHYS_LAYOUTS = [

@@ -9,15 +9,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import numpy as np
-
 import make_plots as mp
-import plotstyle as ps
-from plotstyle import ACCENT, GREY1, GREY2, GREY3, GREY4, INK, WHITE, box, new_fig, overlay, panel
-
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
+import plotstyle as ps
 from matplotlib.patches import Rectangle
+from plotstyle import ACCENT, GREY1, GREY2, GREY4, INK, box, new_fig, overlay, panel
 
 OUT = Path(__file__).resolve().parent / "deck" / "figs"
 OUT.mkdir(parents=True, exist_ok=True)
@@ -31,7 +29,7 @@ def save(fig, name):
     print("wrote", name, fig.get_size_inches())
 
 
-# ------------------------------------------------------------------ three changes, one picture
+# three changes, one picture
 def fig_changes():
     W, H = 9.4, 1.95
     fig = new_fig(W, H)
@@ -70,7 +68,7 @@ def fig_changes():
     save(fig, "fig-changes.png")
 
 
-# ------------------------------------------------------------------ two kinds of noise and the run lengths
+# two kinds of noise and the run lengths
 def fig_noise():
     setups = [(f"{NORMAL}, 4 bps", ["reflect4", "reflect4b", "facing4"], INK), (f"{GLARE}, 2 bps", ["glare2"], ACCENT),
               (f"{NORMAL}, 3 bps", ["facing3"], INK), (f"{NORMAL}, 8 bps", ["facing8"], INK),
@@ -131,7 +129,7 @@ def fig_noise():
     save(fig, "fig-noise.png")
 
 
-# ------------------------------------------------------------------ brightness over time next to the levels
+# brightness over time next to the levels
 def fig_camera():
     W, H = 9.4, 3.4
     fig = new_fig(W, H)

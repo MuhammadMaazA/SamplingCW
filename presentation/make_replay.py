@@ -10,22 +10,26 @@ from __future__ import annotations
 
 import subprocess
 import sys
-from bisect import bisect_right
 from pathlib import Path
 
+import make_plots as mp
+import matplotlib.pyplot as plt
 import numpy as np
-
 import plotstyle
+from matplotlib.patches import Circle, FancyBboxPatch, Polygon, Rectangle
 from plotstyle import ACCENT, GREY1, GREY2, GREY3, GREY4, INK, WHITE
 
-import matplotlib.pyplot as plt
-from matplotlib.patches import Circle, FancyBboxPatch, Polygon, Rectangle
-
-import make_plots as mp
 from gridlink.optical.detection import classify_intensity
 from gridlink.optical.synchronization import TimedSample, _Timeline, sample_symbols
 from gridlink.protocol import (
-    HEADER_CODED_BITS, SYNC_BITS, SYNC_WORD, _decode_header, bytes_to_bits, find_sync, parse_frame)
+    HEADER_CODED_BITS,
+    SYNC_BITS,
+    SYNC_WORD,
+    _decode_header,
+    bytes_to_bits,
+    find_sync,
+    parse_frame,
+)
 
 HERE = Path(__file__).resolve().parent
 MEDIA = HERE / "media"
@@ -92,7 +96,7 @@ class Scene:
         self._trace()
         self._bits()
         self._results()
-        for text, y, size, col in ((f"Animation of one recorded run,", 2.75, 38, INK), (f"shown {speed_label} times faster.", 3.4, 38, INK),
+        for text, y, size, col in (("Animation of one recorded run,", 2.75, 38, INK), (f"shown {speed_label} times faster.", 3.4, 38, INK),
                                    ("Not a live run.", 4.1, 38, ACCENT), (f"{CONDITION}. Not a video of the setup.", 4.95, 22, GREY1)):
             self.title.append(ov.text(W / 2, y, text, fontsize=size, fontweight="bold" if size > 30 else "normal", color=col, ha="center", va="center"))
 
