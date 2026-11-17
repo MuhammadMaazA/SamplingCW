@@ -130,7 +130,7 @@ async function sampling() {
   const { s, top } = content({
     title: "Samples per bit at each speed",
     take: `At 8 bps the camera gives about ${spb8} samples per bit, at 2 bps about ${spb2}.`,
-    notes: `How many camera readings we get for each bit depends on the speed, because the camera runs at a fixed 23 to 30 frames a second. For each bit we use the timestamped frame closest to the middle of its time slot. At 2 bits per second that gives about 14 readings per bit, but at 8 bits per second only about 4. With so few readings, a white flash that has not fully faded can still look bright when the next bit is black, so going faster directly costs reliability.`,
+    notes: `How many camera readings we get for each bit depends on the speed, because the camera ran at between 23 and 30 frames a second depending on the session, since a webcam rate drifts and is slower in dim light. For each bit we use the timestamped frame closest to the middle of its time slot. At 2 bits per second that gives about 14 readings per bit, but at 8 bits per second only about 4. With so few readings, a white flash that has not fully faded can still look bright when the next bit is black, so going faster directly costs reliability.`,
   });
   await plot(s, "fig-sampling.png", { y: top + 0.05, maxW: 9.4, maxH: 5.15 - top - 0.05, name: "camera frames against symbol centres", alt: "Camera frame timestamps against the centre of each symbol at three bit rates" });
 }
