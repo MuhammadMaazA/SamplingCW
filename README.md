@@ -1,4 +1,4 @@
-# GridLink
+# Error correction over a screen-to-camera optical channel
 
 COMP0228 coursework: send binary messages from a laptop screen to a camera using black and white flashes. The flashes are protected with error correcting codes, and every run is recorded and analysed.
 
@@ -157,7 +157,7 @@ Maps display at most 20 trials and 2000 bits per group; CSVs retain the full dat
 ## Software simulations
 
 ```bash
-gridlink simulate "GridLink" --coding repetition --repetitions 3 --flip-probability 0.1 --trials 100 --seed 1
+gridlink simulate "Hello" --coding repetition --repetitions 3 --flip-probability 0.1 --trials 100 --seed 1
 gridlink simulate "Grid" --coding hamming --burst-length 8 --flip-probability 1 --trials 1
 gridlink simulate "Grid" --coding hamming-interleaved --burst-length 8 --flip-probability 1 --trials 1
 ```

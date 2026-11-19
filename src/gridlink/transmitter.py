@@ -38,7 +38,7 @@ def _show_bits(cv2, window: str, bits: list[int], symbol_duration: float, start:
         _hold_until(cv2, start + (index + 1) * symbol_duration)
 
 
-def transmit(frame: Frame, symbol_duration: float = 0.25, window: str = "GridLink") -> None:
+def transmit(frame: Frame, symbol_duration: float = 0.25, window: str = "Transmitter") -> None:
     if symbol_duration <= 0:
         raise ValueError("symbol duration must be positive")
     bits = build_frame(frame)
@@ -52,7 +52,7 @@ def transmit(frame: Frame, symbol_duration: float = 0.25, window: str = "GridLin
 
 
 def transmit_plan(
-    plan: ExperimentPlan, lead_in: float = 5.0, window: str = "GridLink experiment"
+    plan: ExperimentPlan, lead_in: float = 5.0, window: str = "Experiment"
 ) -> bool:
     """Show every trial on one clock with black gaps between them. Returns False if stopped early."""
     if lead_in < plan.gap:
@@ -77,7 +77,7 @@ def transmit_plan(
         cv2.destroyWindow(window)
 
 
-def display_reference(bit: int, duration: float = 5.0, window: str = "GridLink reference") -> None:
+def display_reference(bit: int, duration: float = 5.0, window: str = "Reference") -> None:
     """Display one known level while the receiver measures its reflected intensity."""
     if bit not in (0, 1) or duration <= 0:
         raise ValueError("reference bit must be 0 or 1 and duration must be positive")

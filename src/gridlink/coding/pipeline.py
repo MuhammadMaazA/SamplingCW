@@ -1,4 +1,4 @@
-"""Small dispatcher for the coding modes used by GridLink frames."""
+"""Small dispatcher for the coding modes used by our frames."""
 
 from __future__ import annotations
 

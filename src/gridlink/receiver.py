@@ -46,7 +46,7 @@ def receive(
             intensity = sample_roi(gray, roi)
             text = f"intensity={intensity:.1f} threshold={threshold:.1f}"
             cv2.putText(frame, text, (10, 30), 0, 0.7, (0, 255, 0), 2)
-            cv2.imshow("GridLink receiver (q to quit)", frame)
+            cv2.imshow("Receiver (q to quit)", frame)
             samples.append(
                 TimedSample(
                     timestamp=time.perf_counter(),
@@ -85,7 +85,7 @@ def _select_roi(cv2, frame) -> tuple[int, int, int, int]:
 
 def _confirm_capture_region(cv2, camera, roi):
     """Show the live region before starting the recording clock."""
-    window = "GridLink ready: Space=start, R=select again, Q=cancel"
+    window = "Ready: Space=start, R=select again, Q=cancel"
     cv2.namedWindow(window, cv2.WINDOW_NORMAL)
     cv2.resizeWindow(window, 960, 540)
     while True:
@@ -154,7 +154,7 @@ def capture(
             print(f"RECORDING: start the transmitter now. Saving to {destination}")
             started = time.perf_counter()
             stopped_by_user = False
-            window = "GridLink recording: Q stops and saves"
+            window = "Recording: Q stops and saves"
             cv2.namedWindow(window, cv2.WINDOW_NORMAL)
             cv2.resizeWindow(window, 960, 540)
             while time.perf_counter() - started < duration:
@@ -224,7 +224,7 @@ def calibrate(
                     continue
                 text = f"Ready for {label}: press Space"
                 cv2.putText(frame, text, (10, 30), 0, 0.7, (0, 255, 0), 2)
-                cv2.imshow("GridLink calibration", frame)
+                cv2.imshow("Calibration", frame)
                 key = cv2.waitKey(1) & 0xFF
                 if key == ord("q"):
                     raise RuntimeError("calibration stopped by user")
