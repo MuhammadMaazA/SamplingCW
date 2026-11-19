@@ -1,6 +1,6 @@
 
-from gridlink.coding.pipeline import CodingConfig
-from gridlink.experiments.plan import (
+from screencam.coding.pipeline import CodingConfig
+from screencam.experiments.plan import (
     make_plan,
     parse_config,
     plan_method_labels,

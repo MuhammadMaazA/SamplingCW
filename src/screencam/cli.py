@@ -176,7 +176,7 @@ def _run_experiment_command(args) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(prog="gridlink")
+    parser = argparse.ArgumentParser(prog="screencam")
     subparsers = parser.add_subparsers(dest="command", required=True)
     send = subparsers.add_parser("transmit")
     send.add_argument("message")

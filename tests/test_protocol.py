@@ -1,6 +1,6 @@
 import pytest
 
-from gridlink.protocol import (
+from screencam.protocol import (
     FRAME_OVERHEAD_BITS,
     SYNC_BITS,
     Frame,

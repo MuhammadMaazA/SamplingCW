@@ -9,7 +9,7 @@ Laptop 1 transmits (A) in front of the iPad, whose front camera is open and show
 `glare-layouts.json` was made with:
 
 ```bash
-gridlink plan experiments/plans/glare-layouts.json --name glare-layouts --configs repetition:3,repetition-spread:3,repetition-spread:3+sh,hamming-interleaved,hamming-interleaved-16,hamming-interleaved-16+sh --repeats 12 --payload-bytes 4 --bit-rate 4 --gap 2 --seed 1
+screencam plan experiments/plans/glare-layouts.json --name glare-layouts --configs repetition:3,repetition-spread:3,repetition-spread:3+sh,hamming-interleaved,hamming-interleaved-16,hamming-interleaved-16+sh --repeats 12 --payload-bytes 4 --bit-rate 4 --gap 2 --seed 1
 ```
 
 | Layout | Role | Trials | Frame bits | Seconds per frame |
@@ -26,7 +26,7 @@ gridlink plan experiments/plans/glare-layouts.json --name glare-layouts --config
 ## Before you start
 
 - Both laptops pull the same new code and reinstall: `git pull --ff-only` then `python -m pip install -e .`. Old code cannot send or decode these layouts.
-- Check on both: `gridlink transmit --help` lists `repetition-spread` and `--spread-header`.
+- Check on both: `screencam transmit --help` lists `repetition-spread` and `--spread-header`.
 - Both laptops plugged in. Sleep, screen saver and screen dimming off for at least two hours.
 - iPad auto-lock off (Settings, Display and Brightness, Auto-Lock, Never). iPad charging.
 - Same dim room, same lamp and glare position, same iPad set-up as the earlier glare runs. Do not change the lighting, the devices or the threshold during the session.
@@ -37,19 +37,19 @@ gridlink plan experiments/plans/glare-layouts.json --name glare-layouts --config
 On laptop 2 (B):
 
 ```bash
-gridlink calibrate --camera 0
+screencam calibrate --camera 0
 ```
 
 Select a tight box inside the screen patch and press Enter. When B asks for black, run on laptop 1 (A):
 
 ```bash
-gridlink reference black --duration 15
+screencam reference black --duration 15
 ```
 
 Press Space on B while black is showing. When B asks for white, run on A:
 
 ```bash
-gridlink reference white --duration 15
+screencam reference white --duration 15
 ```
 
 Press Space on B while white is showing. Check `valid=True` and write down the threshold. Use this one threshold for the whole session.
@@ -59,25 +59,25 @@ Press Space on B while white is showing. Check `valid=True` and write down the t
 Replace `143` with the calibrated threshold and `0` with the camera index:
 
 ```bash
-gridlink record experiments/plans/glare-layouts.json --name glare-layouts --camera 0 --threshold 143 --venue lab --lighting "indoor dim" --glare --notes "ipad live view; glare; auto-lock off; glare-layouts"
+screencam record experiments/plans/glare-layouts.json --name glare-layouts --camera 0 --threshold 143 --venue lab --lighting "indoor dim" --glare --notes "ipad live view; glare; auto-lock off; glare-layouts"
 ```
 
 Select the box inside A's screen, check the preview, then press Space. Wait for **RECORDING**.
 
-`gridlink setup` also works: name it `glare-layouts`, choose methods `2,8,9,7,10,11` in that order, 12 trials per method, 4 bits/s, 4 payload bytes, the calibrated threshold, lighting `indoor dim`, glare `y`, and type the notes above. It builds the same 72 trials.
+`screencam setup` also works: name it `glare-layouts`, choose methods `2,8,9,7,10,11` in that order, 12 trials per method, 4 bits/s, 4 payload bytes, the calibrated threshold, lighting `indoor dim`, glare `y`, and type the notes above. It builds the same 72 trials.
 
 ## 3. Transmit on laptop 1 (A)
 
 Straight after B says RECORDING (within 20 s, so the last frame is not cut off):
 
 ```bash
-gridlink transmit-plan experiments/plans/glare-layouts.json
+screencam transmit-plan experiments/plans/glare-layouts.json
 ```
 
 If A does not have the JSON, this rebuilds the identical plan from the seed. Keep the `--configs` order exactly as written:
 
 ```bash
-gridlink transmit-plan --name glare-layouts --configs repetition:3,repetition-spread:3,repetition-spread:3+sh,hamming-interleaved,hamming-interleaved-16,hamming-interleaved-16+sh --repeats 12 --payload-bytes 4 --bit-rate 4 --gap 2 --seed 1
+screencam transmit-plan --name glare-layouts --configs repetition:3,repetition-spread:3,repetition-spread:3+sh,hamming-interleaved,hamming-interleaved-16,hamming-interleaved-16+sh --repeats 12 --payload-bytes 4 --bit-rate 4 --gap 2 --seed 1
 ```
 
 It should print `rebuilt plan: 72 trials, 6514.0s airtime, seed=1`. If the numbers differ, stop and check the code version.

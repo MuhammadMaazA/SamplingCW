@@ -9,7 +9,7 @@ const { label } = require("./built");
 const FIGS = path.join(__dirname, "figs");
 const pct = (x, d = 1) => (x * 100).toFixed(d);
 
-// Hamming (7,4) with even parity at positions 1 to 7, the same arrangement as src/gridlink/coding/hamming.py
+// Hamming (7,4) with even parity at positions 1 to 7, the same arrangement as src/screencam/coding/hamming.py
 function hammingWord(data) {
   const code = [0, 0, 0, 0, 0, 0, 0, 0];
   [3, 5, 6, 7].forEach((pos, i) => { code[pos] = data[i]; });
@@ -19,7 +19,7 @@ function hammingWord(data) {
 
 // ---------- the frame and the header ----------
 function frameAndHeader() {
-  const SYNC = 48, HEADER = 192; // bits, from src/gridlink/protocol.py, SYNC_BITS and HEADER_CODED_BITS
+  const SYNC = 48, HEADER = 192; // bits, from src/screencam/protocol.py, SYNC_BITS and HEADER_CODED_BITS
   const total = RSTATS.design[findKey(RSTATS.design, 8, false)]["rep-3 adjacent"].bits;
   const payload = total - SYNC - HEADER, over = SYNC + HEADER;
   const fields = [["Version", 8], ["Coding id", 8], ["Repeats", 8], ["Sequence", 8], ["Payload length", 16], ["CRC-16", 16]];

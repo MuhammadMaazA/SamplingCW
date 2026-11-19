@@ -2,7 +2,7 @@
 
 The figures job owns make_plots.py and plots/, so this script only reads from them. It reuses the loaders and the
 style from there and writes its own PNGs into deck/figs/, each drawn at the size it is placed on the slide so the
-text stays at 12 to 13 pt. Run with gridlink/.venv/Scripts/python.exe make_merged.py from presentation/.
+text stays at 12 to 13 pt. Run with .venv/Scripts/python.exe make_merged.py from presentation/.
 """
 from __future__ import annotations
 

@@ -3,7 +3,7 @@
 Everything drawn comes from a single recorded frame: the symbols sent, the camera brightness
 samples with their timestamps, the threshold, the sampled symbol centres, the decoded bits and
 the CRC results, all read with the same loaders as make_plots.py and checked against the saved
-analysis. Nothing is simulated. Run from presentation/ with gridlink/.venv/Scripts/python.exe.
+analysis. Nothing is simulated. Run from presentation/ with .venv/Scripts/python.exe.
 Writes media/replay.mp4 (1280x720, 30 fps, H.264 yuv420p, no audio), then media/_replay_done.txt.
 """
 from __future__ import annotations
@@ -19,9 +19,9 @@ import plotstyle
 from matplotlib.patches import Circle, FancyBboxPatch, Polygon, Rectangle
 from plotstyle import ACCENT, GREY1, GREY2, GREY3, GREY4, INK, WHITE
 
-from gridlink.optical.detection import classify_intensity
-from gridlink.optical.synchronization import TimedSample, _Timeline, sample_symbols
-from gridlink.protocol import (
+from screencam.optical.detection import classify_intensity
+from screencam.optical.synchronization import TimedSample, _Timeline, sample_symbols
+from screencam.protocol import (
     HEADER_CODED_BITS,
     SYNC_BITS,
     SYNC_WORD,

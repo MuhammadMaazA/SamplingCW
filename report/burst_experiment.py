@@ -16,9 +16,9 @@ from pathlib import Path
 
 import numpy as np
 
-from gridlink.coding.pipeline import CodingConfig, decode, encode, encoded_length
-from gridlink.experiments.metrics import bit_error_rate
-from gridlink.experiments.noise import burst_noise
+from screencam.coding.pipeline import CodingConfig, decode, encode, encoded_length
+from screencam.experiments.metrics import bit_error_rate
+from screencam.experiments.noise import burst_noise
 
 HERE = Path(__file__).resolve().parent
 

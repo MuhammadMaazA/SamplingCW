@@ -2,7 +2,7 @@
 
 Writes deck/data.js, a plain module the deck builder requires (a .js file, because *.json is git-ignored).
 Run from anywhere. It needs experiments/results/ (unpack the results archive there first, see the README)
-and it imports the gridlink package from src/, so the diagrams of the transmitter, receiver and checks
+and it imports the screencam package from src/, so the diagrams of the transmitter, receiver and checks
 quote the real sizes and ids. It also runs the whole pytest suite, which takes about 40 seconds, to read
 how many tests there are and how many pass. Everything else the deck shows comes from
 plots/stats.json and report/generated/stats.json.
@@ -24,15 +24,15 @@ ROOT = HERE.parent
 RES = ROOT / "experiments" / "results"
 sys.path.insert(0, str(ROOT / "src"))
 
-from gridlink import protocol  # noqa: E402
-from gridlink.coding import hamming  # noqa: E402
-from gridlink.coding.pipeline import (  # noqa: E402
+from screencam import protocol  # noqa: E402
+from screencam.coding import hamming  # noqa: E402
+from screencam.coding.pipeline import (  # noqa: E402
     CODING_IDS,
     REPETITION_SCHEMES,
     CodingConfig,
     encoded_length,
 )
-from gridlink.experiments.simulation import (  # noqa: E402
+from screencam.experiments.simulation import (  # noqa: E402
     repetition_error_probability,
     run_trials,
     summarise_trials,

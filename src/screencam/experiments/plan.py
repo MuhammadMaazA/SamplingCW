@@ -114,7 +114,7 @@ def transmitter_command(
     labels = [config_label(config) for config in configs] if configs else plan_method_labels(plan)
     configs = ",".join(labels)
     command = (
-        "gridlink transmit-plan "
+        "screencam transmit-plan "
         f"--name {plan.name} "
         f"--configs {configs} "
         f"--repeats {repeats_per_method(plan)} "

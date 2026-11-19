@@ -5,11 +5,11 @@ from pathlib import Path
 
 import pytest
 
-from gridlink.coding.pipeline import CODING_IDS, REPETITION_SCHEMES, CodingConfig, decode, encode
-from gridlink.coding.spreading import spread, unspread
-from gridlink.experiments.analysis import analyse_capture, summarise_records
-from gridlink.experiments.capture import Capture, load_capture
-from gridlink.experiments.plan import (
+from screencam.coding.pipeline import CODING_IDS, REPETITION_SCHEMES, CodingConfig, decode, encode
+from screencam.coding.spreading import spread, unspread
+from screencam.experiments.analysis import analyse_capture, summarise_records
+from screencam.experiments.capture import Capture, load_capture
+from screencam.experiments.plan import (
     config_label,
     load_plan,
     make_plan,
@@ -18,8 +18,8 @@ from gridlink.experiments.plan import (
     transmitter_command,
     trial_offsets,
 )
-from gridlink.experiments.recording import read_csv, write_csv
-from gridlink.protocol import (
+from screencam.experiments.recording import read_csv, write_csv
+from screencam.protocol import (
     HEADER_CODED_BITS,
     SYNC_BITS,
     Frame,

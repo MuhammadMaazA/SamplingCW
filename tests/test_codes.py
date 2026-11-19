@@ -2,10 +2,10 @@ import itertools
 
 import pytest
 
-from gridlink.coding import hamming, parity2d, repetition
-from gridlink.coding.errors import UncorrectableError
-from gridlink.coding.interleaving import deinterleave, interleave
-from gridlink.coding.pipeline import CodingConfig, decode, encode, encoded_length
+from screencam.coding import hamming, parity2d, repetition
+from screencam.coding.errors import UncorrectableError
+from screencam.coding.interleaving import deinterleave, interleave
+from screencam.coding.pipeline import CodingConfig, decode, encode, encoded_length
 
 ALL_NIBBLES = [list(bits) for bits in itertools.product((0, 1), repeat=4)]
 CONFIGS = [

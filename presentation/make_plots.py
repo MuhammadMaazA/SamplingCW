@@ -3,7 +3,7 @@
 Reads the recorded measurements in ../experiments/results (and the backup folder for the one
 short pipeline test kept only there) and writes PNG figures, plots/stats.json and
 plots/manifest.json into plots/. Every figure is drawn at the size it is placed on the slide.
-Run with gridlink/.venv/Scripts/python.exe make_plots.py from presentation/, or pass figure
+Run with .venv/Scripts/python.exe make_plots.py from presentation/, or pass figure
 names to redraw only some of them, for example: make_plots.py traces wilson
 """
 from __future__ import annotations
@@ -30,7 +30,7 @@ from plotstyle import ACCENT, GREY1, GREY2, GREY3, GREY4, INK, box, new_fig, ove
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
 RES = REPO / "experiments" / "results"
-BACKUP = REPO.parent / "gridlink-results-backup" / "results"
+BACKUP = REPO.parent / "screencam-results-backup" / "results"
 OUT = HERE / "plots"
 OUT.mkdir(exist_ok=True)
 
@@ -38,12 +38,12 @@ sys.path.insert(0, str(REPO / "report"))
 from data import by_slice  # noqa: E402  same loader and groups as the report
 from data import load as load_trials
 
-from gridlink.experiments.channel_model import (  # noqa: E402
+from screencam.experiments.channel_model import (  # noqa: E402
     fit_gilbert_elliott,
     memoryless_log_likelihood,
     sample_errors,
 )
-from gridlink.experiments.stats import fisher_exact, wilson_interval  # noqa: E402
+from screencam.experiments.stats import fisher_exact, wilson_interval  # noqa: E402
 
 SESS = {
     "facing3": "monitor-room-comparison-20261030-180441-714350Z",

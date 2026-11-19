@@ -1,5 +1,5 @@
 # ruff: isort: skip_file
-from gridlink.cli import main
+from screencam.cli import main
 
 
 if __name__ == "__main__":

@@ -13,13 +13,13 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from gridlink.coding import hamming, repetition
-from gridlink.coding.errors import UncorrectableError
-from gridlink.coding.interleaving import deinterleave, interleave
-from gridlink.coding.pipeline import CodingConfig, decode, encode
-from gridlink.coding.spreading import spread, unspread
-from gridlink.experiments.channel_model import GilbertElliott, sample_errors
-from gridlink.protocol import (
+from screencam.coding import hamming, repetition
+from screencam.coding.errors import UncorrectableError
+from screencam.coding.interleaving import deinterleave, interleave
+from screencam.coding.pipeline import CodingConfig, decode, encode
+from screencam.coding.spreading import spread, unspread
+from screencam.experiments.channel_model import GilbertElliott, sample_errors
+from screencam.protocol import (
     HEADER_CRC_LENGTH,
     HEADER_LENGTH,
     MAX_SYNC_MISMATCHES,

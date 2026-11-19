@@ -1,14 +1,14 @@
 import numpy as np
 import pytest
 
-from gridlink.experiments.channel_model import (
+from screencam.experiments.channel_model import (
     GilbertElliott,
     fit_gilbert_elliott,
     memoryless_log_likelihood,
     run_position_context,
     sample_errors,
 )
-from gridlink.experiments.stats import (
+from screencam.experiments.stats import (
     bootstrap_ratio_interval,
     burst_share,
     burstiness_permutation_test,

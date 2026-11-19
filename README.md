@@ -40,19 +40,19 @@ For plots, install `python -m pip install -e ".[analysis]"` on the laptop doing 
 Laptop A transmits; laptop B receives. Keep the screen and camera still. On B:
 
 ```bash
-gridlink calibrate --camera 0
+screencam calibrate --camera 0
 ```
 
 Select a tight box inside the screen patch and press Enter. When B asks for black, run on A:
 
 ```bash
-gridlink reference black --duration 15
+screencam reference black --duration 15
 ```
 
 While black is visible, focus B's calibration window and press Space. Wait for B to ask for white, then run on A:
 
 ```bash
-gridlink reference white --duration 15
+screencam reference white --duration 15
 ```
 
 Press Space on B while white is visible. Note the threshold and check `valid=True`. If contrast is too low, adjust brightness, lighting or alignment and repeat.
@@ -60,13 +60,13 @@ Press Space on B while white is visible. Note the threshold and check `valid=Tru
 Start B's receiver, replacing `127` with the calibrated threshold:
 
 ```bash
-gridlink receive --bit-rate 10 --threshold 127 --timeout 120
+screencam receive --bit-rate 10 --threshold 127 --timeout 120
 ```
 
 Select the screen region again. Once B is receiving, run on A:
 
 ```bash
-gridlink transmit "hi" --coding parity2d --bit-rate 10
+screencam transmit "hi" --coding parity2d --bit-rate 10
 ```
 
 This takes about 29 seconds. B should print `hi`. Restart B's receiver for each message. Press `q` in an active window to stop. Try `--camera 1` if the default camera will not open.
@@ -101,7 +101,7 @@ The receiver finds the sync pattern, samples symbol centres using camera timesta
 For guided setup, run this on B:
 
 ```bash
-gridlink setup
+screencam setup
 ```
 
 It asks for the run name, venue/room, camera index, coding methods, repeats, speed, payload size, threshold and physical conditions. Choose methods by number (for example `2` for repetition-3, or `2,5,6` for repetition-3, Hamming and grid parity). Numbers 8 to 11 are the spread and deep-interleaving layouts. The choice sets the actual transmission plan. Date/time is recorded automatically, with local and UTC timestamps.
@@ -115,19 +115,19 @@ For scripts or a previously prepared plan, use the commands below. `record` and 
 Single-message `receive` prints the result but does not save experiment data. For comparisons, create a plan on A and copy the exact file to B:
 
 ```bash
-gridlink plan experiments/plans/comparison.json --name comparison --configs none,repetition:3,repetition:5,repetition:7,hamming,parity2d,hamming-interleaved --repeats 5 --payload-bytes 4 --bit-rate 10 --gap 2 --seed 1
+screencam plan experiments/plans/comparison.json --name comparison --configs none,repetition:3,repetition:5,repetition:7,hamming,parity2d,hamming-interleaved --repeats 5 --payload-bytes 4 --bit-rate 10 --gap 2 --seed 1
 ```
 
 The plan compares the same payloads across modes in shuffled order. It has 35 trials and prints the expected transmission time. On B, replace `127` with your calibrated threshold and `0` with the camera index:
 
 ```bash
-gridlink record experiments/plans/comparison.json --name quiet1 --camera 0 --threshold 127 --lighting "indoor" --notes "iPad front camera shown live; laptop webcam films the iPad screen" --plots
+screencam record experiments/plans/comparison.json --name quiet1 --camera 0 --threshold 127 --lighting "indoor" --notes "iPad front camera shown live; laptop webcam films the iPad screen" --plots
 ```
 
 Select a box inside A's screen and press Enter. The next window shows a live preview with a green box: press **R** to select again, **Space** to start recording, or **Q** to cancel. The clock does not run while you are choosing the box. Once B says **RECORDING**, start A within 20 seconds:
 
 ```bash
-gridlink transmit-plan experiments/plans/comparison.json
+screencam transmit-plan experiments/plans/comparison.json
 ```
 
 Recording stops automatically after the planned airtime plus 30 seconds to allow time to start A. Press **Q** in the recording window to stop early and keep the samples. An early stop can leave incomplete or missing trials, which remain in the results.
@@ -145,7 +145,7 @@ Keep both the raw capture and analysed CSV. Capture refuses to overwrite recordi
 Use analysed CSVs, not raw captures:
 
 ```bash
-gridlink report experiments/results/quiet1-TIMESTAMP/results.csv experiments/results/noise1-TIMESTAMP/results.csv --output experiments/results/report1
+screencam report experiments/results/quiet1-TIMESTAMP/results.csv experiments/results/noise1-TIMESTAMP/results.csv --output experiments/results/report1
 ```
 
 Replace the example folder names with the actual paths printed by `record`. The output directory must be new. It contains a summary CSV, comparison charts, error-location maps, error-run histograms, full error positions and notes on the metrics. Different recorded conditions and speeds stay in separate groups. Duplicate recordings are rejected to avoid counting the same run twice.
@@ -157,9 +157,9 @@ Maps display at most 20 trials and 2000 bits per group; CSVs retain the full dat
 ## Software simulations
 
 ```bash
-gridlink simulate "Hello" --coding repetition --repetitions 3 --flip-probability 0.1 --trials 100 --seed 1
-gridlink simulate "Grid" --coding hamming --burst-length 8 --flip-probability 1 --trials 1
-gridlink simulate "Grid" --coding hamming-interleaved --burst-length 8 --flip-probability 1 --trials 1
+screencam simulate "Hello" --coding repetition --repetitions 3 --flip-probability 0.1 --trials 100 --seed 1
+screencam simulate "Grid" --coding hamming --burst-length 8 --flip-probability 1 --trials 1
+screencam simulate "Grid" --coding hamming-interleaved --burst-length 8 --flip-probability 1 --trials 1
 ```
 
 Without a burst interval, each encoded bit flips independently. With `--burst-length`, only bits inside that interval can flip; `--burst-start` sets its first bit. Simulations report decoded BER and rejection counts. Repetition runs also print the theoretical majority-vote BER for comparison with the lab example.
@@ -193,7 +193,7 @@ Timing recovery uses a sorted list and a binary search to find the camera frame 
 
 ## Presentation
 
-The slides are in `presentation/gridlink-presentation.pptx` (and a PDF copy). There is no live demo. To rebuild them from the recorded data:
+The slides are in `presentation/screencam-presentation.pptx` (and a PDF copy). There is no live demo. To rebuild them from the recorded data:
 
 ```bash
 cd presentation

@@ -23,16 +23,16 @@ from data import DISPLAY, METHOD_ORDER, RESULTS, by_slice, load
 from design_sim import Layout, frame_success
 from matplotlib.patches import Patch
 
-from gridlink.experiments.analysis import summarise_records
-from gridlink.experiments.channel_model import (
+from screencam.experiments.analysis import summarise_records
+from screencam.experiments.channel_model import (
     bic,
     fit_gilbert_elliott,
     memoryless_log_likelihood,
     run_position_context,
     sample_errors,
 )
-from gridlink.experiments.recording import read_csv
-from gridlink.experiments.stats import (
+from screencam.experiments.recording import read_csv
+from screencam.experiments.stats import (
     bootstrap_ratio_interval,
     burst_share,
     burstiness_permutation_test,
@@ -40,7 +40,7 @@ from gridlink.experiments.stats import (
     run_lengths,
     wilson_interval,
 )
-from gridlink.protocol import FRAME_OVERHEAD_BITS, HEADER_CRC_LENGTH, HEADER_LENGTH
+from screencam.protocol import FRAME_OVERHEAD_BITS, HEADER_CRC_LENGTH, HEADER_LENGTH
 
 HERE = Path(__file__).resolve().parent
 FIGDIR = HERE / "figures"

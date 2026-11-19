@@ -5,13 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from gridlink.experiments.recording import ExperimentRecord, read_csv
-from gridlink.experiments.report import group_records
+from screencam.experiments.recording import ExperimentRecord, read_csv
+from screencam.experiments.report import group_records
 
 REPO = Path(__file__).resolve().parent.parent
 RESULTS = REPO / "experiments" / "results"
 
-# The analysed CSVs combined by `gridlink report` into report-final, in the same order,
+# The analysed CSVs combined by `screencam report` into report-final, in the same order,
 # so group_records reproduces the G01-G29 numbering of the appendix table.
 SOURCES = [
     "monitor-room-comparison-20261030-180441-714350Z/results-t114.csv",
