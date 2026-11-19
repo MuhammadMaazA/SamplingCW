@@ -1,13 +1,10 @@
 """Regenerate every report figure, table row and quoted statistic from the per-trial data.
 
-Inputs are the analysed results CSVs listed in data.SOURCES, read from experiments/results
-or, if that is missing, from ../gridlink-results-backup/results, plus the layouts session in
-PHYS_DIR. Outputs go to report/figures/ (IEEE-style vector PDF plus a PNG copy) and
-report/generated/, which report.tex includes directly. Numbers in the new physical-test text
-come from generated/physical.tex macros.
+Reads the analysed results CSVs listed in data.SOURCES from experiments/results, plus the
+layout test session in PHYS_DIR. Figures go to report/figures/ and the table rows and number
+macros go to report/generated/, which report.tex includes directly.
 
-Run from the repository root with the project venv:
-    .venv/bin/python report/make_figures.py
+Run it from the repository root with python report/make_figures.py
 """
 from __future__ import annotations
 
@@ -685,7 +682,7 @@ def write_contrast_tex():
     (GENDIR / "contrasts.tex").write_text(NL.join(lines) + NL)
 
 
-# physical test of the new layouts
+# layout test of the new layouts
 PHYS_DIR = "glare-layouts-room-comparison-20261106-021921-294106Z"
 # (scheme, repetitions, spread header), label, index of the as-built baseline in this list
 PHYS_LAYOUTS = [
@@ -869,7 +866,7 @@ def physical_test(slices):
 
 
 def write_physical_tex():
-    """Table rows and number macros for the physical-test text, so no figure is typed by hand."""
+    """Table rows and number macros for the layout test text, so no figure is typed by hand."""
     P = STATS["physical"]
 
     def pct(x, places=2):

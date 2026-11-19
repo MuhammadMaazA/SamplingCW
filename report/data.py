@@ -10,8 +10,6 @@ from gridlink.experiments.report import group_records
 
 REPO = Path(__file__).resolve().parent.parent
 RESULTS = REPO / "experiments" / "results"
-if not RESULTS.exists():
-    RESULTS = REPO.parent / "gridlink-results-backup" / "results"
 
 # The analysed CSVs combined by `gridlink report` into report-final, in the same order,
 # so group_records reproduces the G01-G29 numbering of the appendix table.

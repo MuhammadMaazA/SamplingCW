@@ -6,8 +6,6 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 RESULTS = HERE.parent / "experiments" / "results"
-if not RESULTS.exists():
-    RESULTS = HERE.parent.parent / "gridlink-results-backup" / "results"
 SUMMARY = RESULTS / "report-final" / "summary.csv"
 OUT = HERE / "generated" / "allruns-rows.tex"
 
