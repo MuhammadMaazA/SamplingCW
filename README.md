@@ -180,7 +180,7 @@ The report uses the IEEEtran class (two columns, A4) and the Gill Sans MT font i
 
 `report/data.py` lists the exact results files behind the report and reproduces its G01–G29 grouping. `make_figures.py` computes Wilson intervals, trial-bootstrap BER intervals, Fisher tests, burstiness permutation tests, and fits the Gilbert–Elliott burst models (`experiments/channel_model.py`). `design_sim.py` replays whole frames through a fitted model to compare layouts (spread repetition, interleaver depth, spread header).
 
-## Reading the code
+## Where the transmitter, receiver and experiment code is
 
 - `cli.py`: command arguments and calls to the relevant functions.
 - `transmitter.py` and `receiver.py`: screen display, camera capture and calibration.
