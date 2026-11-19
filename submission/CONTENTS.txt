@@ -4,7 +4,7 @@ The five files are the group report PDF, the code zip, the slides, the data zip 
 The code zip was made from the committed code with git archive, so the same code is in src, tests and report in this repo.
 The data zip holds the recorded sessions that are also in experiments/results.
 
-Contents of gridlink-code.zip
+Contents of group06-code.zip
   .gitignore
   README.md
   experiments/extra-analysis/full1-A-thr81.5-results.csv
@@ -78,6 +78,6 @@ Contents of gridlink-code.zip
   tests/test_protocol.py
   tests/test_stats.py
 
-Top level of gridlink-data.zip
+Top level of group06-data.zip
   results/
   DATA-README.txt
