@@ -41,7 +41,7 @@ rests on the simulation alone.
 \end{abstract}
 
 \section{The Channel and the Frame}
-\textbf{Channel.} We built a one-way optical link that sends binary messages from a laptop screen
+We built a one-way optical link that sends binary messages from a laptop screen
 to a camera. The brief suggests this kind of channel, and it is a small version of visible-light
 communication and of screen-camera links such as PixNet and COBRA~\cite{haas,pixnet,cobra}. Laptop
 1 is the transmitter. It fills a patch of its screen with one colour per symbol, white for 1 and
@@ -65,7 +65,7 @@ strip is not to scale.}
 \label{fig:system}
 \end{figure}
 
-\textbf{Receiver.} The software measures the median brightness inside a marked region of the iPad
+The software measures the median brightness inside a marked region of the iPad
 screen and compares it with a threshold halfway between a reference black and a reference white. It
 warns at calibration if the contrast is too low. The webcam and the screen run on separate clocks,
 and the webcam delivers only 22.6 to 30 frames per second in our recordings, so reading the picture is a
@@ -74,7 +74,7 @@ samples per symbol, and at 2\,bps about fourteen. The software timestamps every 
 picks the one nearest the centre of each symbol by binary search over the sorted timestamps. If the
 observations run out, decoding stops, so missing data never becomes bits.
 
-\textbf{Frame.} Each message is a frame that describes itself. It starts with a 48-bit sync word,
+Each message is a frame that describes itself. It starts with a 48-bit sync word,
 an alternating preamble followed by fixed magic bytes. Next comes a 6-byte header with the version,
 code, repetition factor, sequence number and length, followed by its own CRC-16~\cite{peterson}. A CRC
 is a short checksum that detects damage. The coded payload comes last, with its own CRC-16. The header is
@@ -90,15 +90,15 @@ miscorrects every double error. Each code trades rate for reliability. Shannon's
 possible at any rate below the channel capacity~\cite{shannon}, and our simple codes sit far below
 that limit.
 
-\textbf{Repetition.} Repetition with N = 3, 5 or 7 sends each bit N times in a row and takes a
+Repetition with N = 3, 5 or 7 sends each bit N times in a row and takes a
 majority vote at the receiver. The rate is 1/N. It corrects up to $\lfloor N/2\rfloor$ flips per
 bit, provided they do not all fall in the same group.
 
-\textbf{Hamming (7,4).} Hamming's code~\cite{hamming} adds three parity bits to every four data
+Hamming's code~\cite{hamming} adds three parity bits to every four data
 bits, so the rate is 4/7. The 3-bit syndrome gives the position of a flipped bit, so one error per
 codeword is corrected. Two errors in one codeword are always miscorrected into three.
 
-\textbf{Two-dimensional parity.} Our third code is two-dimensional parity, the simplest product
+Our third code is two-dimensional parity, the simplest product
 code, introduced by Elias~\cite{elias}. Sixteen data bits form a $4\times4$ grid, and an even
 parity bit on every row and column makes a $5\times5$ grid, so the rate is 16/25. A single flipped
 bit makes one row check and one column check fail, and that pair locates it. Any other failing
@@ -108,7 +108,7 @@ check, so only the CRC can catch them. The code corrects less than Hamming does 
 larger damage.
 
 \section{How We Ran the Experiments}
-\textbf{Plans.} We script every experiment with the commands plan, record, transmit-plan and
+We script every experiment with the commands plan, record, transmit-plan and
 analyse. A plan fixes the payloads, codes, repeats, bit rate and a random seed. The seed rebuilds
 the same shuffled schedule on laptop 1, so the laptops never exchange files, and the shuffling
 spreads slow drift over all methods. One command per laptop runs a session. Laptop 2 saves the raw
@@ -118,7 +118,7 @@ symbol) as baselines, 8\,bps to test what happens with only about four, and 2\,b
 about fourteen help in glare. We ran 3 trials per method because a 21-trial plan already takes 40 minutes at
 3\,bps and an hour at 2\,bps, and we wanted each session to stay under stable light.
 
-\textbf{Metrics.} Channel BER, where BER means bit error rate, is the share of observed frame bits
+Channel BER, where BER means bit error rate, is the share of observed frame bits
 that are wrong. Decoded BER is the share of payload bits that are wrong after decoding. It takes
 the header from the plan, as if the receiver knew it, and counts only frames whose payload could be
 decoded. It must therefore be read next to frame success, the number of frames decoded correctly
@@ -126,7 +126,7 @@ out of the number planned. Delivery rate is the delivered payload bits per secon
 one payload size and one lighting condition. One script, \texttt{make\_figures.py}, computes every
 table, figure and statistic in this report from the per-trial CSV files.
 
-\textbf{Statistics.} With only three trials per cell we chose the statistics with care. Wilson 95\%
+With only three trials per cell we chose the statistics with care. Wilson 95\%
 intervals for frame success~\cite{wilson} stay meaningful at 0/3 and 3/3, where the usual normal
 interval shrinks to a point. For BER we use a bootstrap that resamples whole trials~\cite{efron},
 because the errors within one frame are correlated (Section~\ref{sec:noise}) and treating every bit
@@ -135,7 +135,7 @@ stays exact at counts this small. For the structure of the noise we use thousand
 permutation tests and a likelihood comparison by BIC~\cite{schwarz}, a score that penalises extra
 parameters and is lower for a better model.
 
-\textbf{What changed between sessions.} We changed one condition at a time where we could, and
+We changed one condition at a time where we could, and
 Table~\ref{tab:all} lists every group. Raising the speed in normal light from 3\,bps (G01 to G07,
 30 October) to 8\,bps (G08 to G14, 31 October) changed the channel BER of the groups from the range \speedBerA{} to the range \speedBerB{} and cut
 the frames delivered from \speedOkA{} to \speedOkB{} of \speedN{}. These
@@ -148,7 +148,7 @@ delivered from \lightOkA{} of \lightNA{} to \lightOkB{} of
 was more likely milder, although the extra samples per symbol may also have helped. We cannot
 separate the two. The sessions also differ in payload, so we compare codes only within one slice.
 
-\textbf{Runs that did not work.} We kept every recording. The session of
+We kept every recording. The session of
 27 October that we recorded in a different place (dim with glare, 2\,bps, 21 trials) needed 3571 s
 of airtime, but the recording stopped after 480 s, so only the first few trials were filmed. This
 was a planning mistake and says nothing about the channel. A bug in how the transmit command was
@@ -177,7 +177,7 @@ Method & Rate & Delivery rate & Frames [95\% CI] & Ch.\ BER & Dec.\ BER [95\% CI
 \end{tabular}
 \end{table*}
 
-\textbf{Low noise (normal light, 4\,bps, Table~\ref{tab:slices}).} The channel BER is close to zero
+At low noise (normal light, 4\,bps, Table~\ref{tab:slices}), the channel BER is close to zero
 and every code, including uncoded, reaches a decoded BER of 0. The delivery rate then follows the code rate, except that Hamming lost one of three frames. On a clean channel, redundancy therefore only
 costs rate.
 
@@ -190,7 +190,7 @@ worse than sending nothing.}
 \label{fig:fastbars}
 \end{figure*}
 
-\textbf{High noise (normal light, 8\,bps, Table~\ref{tab:slices}, Fig.~\ref{fig:fastbars}).} The
+At high noise (normal light, 8\,bps, Table~\ref{tab:slices}, Fig.~\ref{fig:fastbars}), the
 channel BER rises to 3 to 5\%. Repetition-7 delivers 3/3 frames at zero decoded BER, but at one
 seventh of the rate. Hamming has a higher decoded BER (0.073) than uncoded (0.042), because a
 16-bit payload plus its 16-bit CRC makes eight Hamming codewords, and at 5\% BER some of them
@@ -213,7 +213,7 @@ for glare. (c) Error rate by the position of a symbol within a run of one colour
 \label{fig:noise}
 \end{figure*}
 
-\textbf{Bursty or memoryless?} For each slice we measure the share of errors that lie in runs of
+For each slice we measure the share of errors that lie in runs of
 three or more, and we compare it with a null model that scatters each trial's errors uniformly over
 its observed bits (5000 permutations). In glare, 87\% of the errors are in such runs, against 12\%
 under the null ($p<0.001$). At 8\,bps the errors are mostly isolated, but even there 7.3\% are in
@@ -228,7 +228,7 @@ range 0.75 to 0.85), close to the observed 0.87, while a memoryless channel with
 0.05 (Fig.~\ref{fig:noise}b). At 3\,bps BIC also prefers the two-state model, but its bad state
 lasts 923 bits, longer than a frame, so some trials were simply noisier than others.
 
-\textbf{Two mechanisms.} Splitting the errors by what we sent separates the two kinds
+Splitting the errors by what we sent separates the two kinds
 (Fig.~\ref{fig:noise}c). At 8\,bps, 256 of 260 errors are a black symbol read as white, and a black
 symbol fails 15.3\% of the time (130/850) right after a white one, against 3.3\% (126/3794) after
 another black (Fisher $p<10^{-10}$). The camera takes only about four frames per symbol, so an
@@ -241,7 +241,7 @@ fixed threshold. A Gilbert-Elliott model whose error rate depends on the positio
 glare better still (BIC 2116). In its bad state the early symbols of a run flip with probability
 0.23 and the later ones almost always.
 
-\textbf{Are repetition and Hamming appropriate?} Both codes assume that errors inside a codeword
+Both codes assume that errors inside a codeword
 are independent. The 8\,bps channel nearly meets that assumption, but its error rate is high enough
 that (7,4) Hamming often sees two errors in one codeword. Glare breaks the assumption. Of 624
 repetition-3 groups, 77 had all three copies flipped, against 3.0 expected from a memoryless
@@ -254,7 +254,7 @@ often the data changes colour, so repetition-7 has a low channel BER (0.016) par
 changes colour less often.
 
 \section{Extension to Place Redundancy Away from Bursts}\label{sec:ext}
-\textbf{Hamming interleaving.} Our first extension follows from the burst finding. It sends up to
+Our first extension follows from the burst finding. It sends up to
 eight (7,4) codewords column by column, so a burst of $b\le8$ consecutive bits hits each codeword at
 most once. It adds no bits. It is the same idea as the cross-interleaved Reed-Solomon coding that
 lets a compact disc play through scratches~\cite{reed,immink}. On the link in normal light,
@@ -279,18 +279,18 @@ count changes.}
 \label{fig:ext}
 \end{figure*}
 
-\textbf{Design study.} A single synthetic burst is not our channel, so we also simulated whole
+A single synthetic burst is not our channel, so we also simulated whole
 frames with the fitted glare model, through sync word, header and payload, and decoded them the way
 the receiver does (Fig.~\ref{fig:ext}b). We found three things.
 \begin{itemize}\setlength{\itemsep}{0pt}
-\item \textbf{Copy placement.} When the copies of each bit sit next to each other, more redundancy
+\item When the copies of each bit sit next to each other, more redundancy
 makes things worse. Payload success is 0.033, 0.018 and 0.015 for repetition-3, 5 and 7, because
 more copies make longer runs and so longer bursts. Sending the whole message three times instead, at
 the same rate, gives 0.375, and seven copies of the whole message give 0.81.
-\item \textbf{Interleaver depth.} Payload success rises from 0.114 with no interleaving to 0.246,
+\item With deeper interleaving, payload success rises from 0.114 with no interleaving to 0.246,
 0.285 and 0.317 at depths 4, 8 and 16. The bad state averages 4.4 bits, so the gains shrink beyond
 depth 8, which supports our choice.
-\item \textbf{Header.} As built, only 0.8\% of headers decode correctly in the fitted glare channel. Spreading
+\item For the header, as built, only 0.8\% of headers decode correctly in the fitted glare channel. Spreading
 the header copies in the same way raises this to 22\% and raises whole-frame success for spread
 repetition-3 from 0.2\% to 8.6\%.
 \end{itemize}
@@ -300,7 +300,7 @@ but we observed 2/15 (Wilson 0.04 to 0.38), because glare switches on and off be
 (session G22 had two nearly clean frames and one with 80 errors). We therefore use the model only to
 rank designs.
 
-\textbf{Three layouts built into the link.} We added three rearrangements to the transmitter and
+We added three rearrangements to the transmitter and
 receiver (Fig.~\ref{fig:layouts}), and none adds a bit. The original layouts put the three copies
 of each bit next to each other and interleave to a depth of 8. Spread repetition sends the whole
 coded message N times in a row, so the copies of one bit are a whole message apart and a burst
@@ -318,7 +318,7 @@ copies. (b) The interleaver, in which one column of the grid is one burst.}
 \label{fig:layouts}
 \end{figure}
 
-\textbf{Layout test.} We ran all six layouts on the link in one session of
+We ran all six layouts on the link in one session of
 \physTrials{} trials, \physPerLayout{} per layout in shuffled order, over \physMinutes{} minutes at
 4\,bps with a 32-bit payload and one threshold of \physThreshold{}. Two earlier starts, stopped by
 hand after 106 s and 14 s, are kept but not counted. The layouts delivered \physFramesLo{} to
@@ -390,7 +390,7 @@ Run & bps & light & code & ChBER & DecBER & dr & ok \\
 \end{tabular}
 \end{table*}
 
-\textbf{What the spread layouts showed.} Below the frame level the layout test found one clear difference.
+Below the frame level the layout test found one clear difference.
 Every header CRC failure in the session, \hdrFailSh{} in all, was in a frame with a spread header.
 That is \hdrFailSh{} of \hdrFailShN{} frames against \hdrFailOt{} of \hdrFailOtN{} for the other
 layouts (Fisher $p=\hdrFisher$), so spreading the header cost frames. The simulation predicted the
@@ -409,7 +409,7 @@ no pattern dependence, so it could not show this. Spreading is meant to help
 against bursts in time, which this session did not test, and it seems to hurt when errors depend on
 the transmitted pattern.
 
-\textbf{Reading the layout test.} All six layouts decode on the link, including the receiver's
+All six layouts decode on the link, including the receiver's
 fallback to the spread header. The session was mild with no heavy burst, so the test does not show
 that any layout improves the results under heavy bursts, and that claim rests on the simulation in
 Fig.~\ref{fig:ext}b alone. For the spread header the test points the other way. The glare strength
@@ -417,7 +417,7 @@ changed a lot between sessions on the same setup, and a fairer test needs glare 
 earlier runs.
 
 \section{Conclusions and Limitations}
-\textbf{Trade-offs.} On a clean channel, coding only costs rate. When the noise rises, the best choice depends on the kind of noise. When the flips are isolated and the rate is high, heavy repetition or two-dimensional parity,
+On a clean channel, coding only costs rate. When the noise rises, the best choice depends on the kind of noise. When the flips are isolated and the rate is high, heavy repetition or two-dimensional parity,
 which rejects what it cannot correct, does better than (7,4) Hamming, which miscorrects. Glare produces bursts that follow long runs of one
 colour, and there the position of the redundancy matters more than the amount. Interleaving and
 spreading copies give large gains in the simulation without adding bits, but the mild layout test did not confirm them, and spreading the header cost frames. Both error mechanisms also point beyond
@@ -425,7 +425,7 @@ error correction. A run-length-limited, DC-balanced line code such as 8b/10b~\ci
 Manchester coding, limits how long a colour is held, and an adaptive threshold would follow the
 drift.
 
-\textbf{Wider context.} If we treat each slice as a binary symmetric channel at its pooled BER, the
+If we treat each slice as a binary symmetric channel at its pooled BER, the
 Shannon capacity~\cite{shannon} is 0.94 at 3\,bps in normal light, 0.77 at 8\,bps and 0.45 in
 glare, and glare has memory, so its true capacity is higher~\cite{gilbert}. At 8\,bps the Hamming
 rate of 0.57 is well below capacity and Hamming still fails, so our codes are the weak part and the
@@ -434,7 +434,7 @@ the compression side. In the wider degree, CRC framing is part of the Ethernet
 link layer, the Gilbert-Elliott model is a Markov chain, and filtering the brightness trace would
 use DSP.
 
-\textbf{Limitations and threats to validity.} (i) Three trials per cell give wide intervals, and no
+(i) Three trials per cell give wide intervals, and no
 frame-level difference is significant. The bit-level conclusions rest on 5{,}000 to 7{,}000 bits per
 slice, which are clustered inside frames, and our trial bootstrap and permutation tests take that
 into account. (ii) The conditions differ between sessions (lighting, day, room, glare strength), so
