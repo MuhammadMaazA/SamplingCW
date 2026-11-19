@@ -1,0 +1,83 @@
+This folder is a copy of what we upload to Moodle for COMP0228 Coursework 1, CW1 Group 06.
+
+The five files are the group report PDF, the code zip, the slides, the data zip and the marker README.
+The code zip was made from the committed code with git archive, so the same code is in src, tests and report in this repo.
+The data zip holds the recorded sessions that are also in experiments/results.
+
+Contents of gridlink-code.zip
+  .gitignore
+  README.md
+  experiments/extra-analysis/full1-A-thr81.5-results.csv
+  experiments/extra-analysis/full1-A-thr93-results.csv
+  experiments/extra-analysis/full1-laboutside-comparison-20261027-170708-296161Z-results.csv
+  experiments/extra-analysis/full1-plan-as-sent-by-A.json
+  experiments/extra-analysis/full1-thr93-results.csv
+  experiments/plans/comparison.json
+  experiments/plans/glare-layouts-README.md
+  experiments/plans/glare-layouts.json
+  experiments/plans/quiet2bps.json
+  experiments/plans/smoke.json
+  pyproject.toml
+  report/burst_experiment.py
+  report/data.py
+  report/design_sim.py
+  report/figures/extension.pdf
+  report/figures/highnoise-bars.pdf
+  report/figures/layouts.pdf
+  report/figures/noise-regimes.pdf
+  report/figures/physical-test.pdf
+  report/figures/system.pdf
+  report/gen_allruns.py
+  report/generated/allruns-rows-a.tex
+  report/generated/allruns-rows-b.tex
+  report/generated/allruns-rows-c.tex
+  report/generated/contrasts.tex
+  report/generated/physical.tex
+  report/generated/stats.json
+  report/generated/table-clean.tex
+  report/generated/table-fast.tex
+  report/generated/table-physical.tex
+  report/generated/table-slices.tex
+  report/make_figures.py
+  report/report.tex
+  src/gridlink/__init__.py
+  src/gridlink/__main__.py
+  src/gridlink/cli.py
+  src/gridlink/coding/__init__.py
+  src/gridlink/coding/errors.py
+  src/gridlink/coding/hamming.py
+  src/gridlink/coding/interleaving.py
+  src/gridlink/coding/parity2d.py
+  src/gridlink/coding/pipeline.py
+  src/gridlink/coding/repetition.py
+  src/gridlink/coding/spreading.py
+  src/gridlink/experiments/__init__.py
+  src/gridlink/experiments/analysis.py
+  src/gridlink/experiments/capture.py
+  src/gridlink/experiments/channel_model.py
+  src/gridlink/experiments/metrics.py
+  src/gridlink/experiments/noise.py
+  src/gridlink/experiments/plan.py
+  src/gridlink/experiments/recording.py
+  src/gridlink/experiments/report.py
+  src/gridlink/experiments/session.py
+  src/gridlink/experiments/setup.py
+  src/gridlink/experiments/simulation.py
+  src/gridlink/experiments/stats.py
+  src/gridlink/optical/__init__.py
+  src/gridlink/optical/calibration.py
+  src/gridlink/optical/detection.py
+  src/gridlink/optical/patterns.py
+  src/gridlink/optical/synchronization.py
+  src/gridlink/protocol.py
+  src/gridlink/receiver.py
+  src/gridlink/transmitter.py
+  tests/test_codes.py
+  tests/test_layouts.py
+  tests/test_plan_regen.py
+  tests/test_protocol.py
+  tests/test_stats.py
+
+Top level of gridlink-data.zip
+  results/
+  DATA-README.txt
