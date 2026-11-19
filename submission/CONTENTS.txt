@@ -40,38 +40,38 @@ Contents of group06-code.zip
   report/generated/table-slices.tex
   report/make_figures.py
   report/report.tex
-  src/gridlink/__init__.py
-  src/gridlink/__main__.py
-  src/gridlink/cli.py
-  src/gridlink/coding/__init__.py
-  src/gridlink/coding/errors.py
-  src/gridlink/coding/hamming.py
-  src/gridlink/coding/interleaving.py
-  src/gridlink/coding/parity2d.py
-  src/gridlink/coding/pipeline.py
-  src/gridlink/coding/repetition.py
-  src/gridlink/coding/spreading.py
-  src/gridlink/experiments/__init__.py
-  src/gridlink/experiments/analysis.py
-  src/gridlink/experiments/capture.py
-  src/gridlink/experiments/channel_model.py
-  src/gridlink/experiments/metrics.py
-  src/gridlink/experiments/noise.py
-  src/gridlink/experiments/plan.py
-  src/gridlink/experiments/recording.py
-  src/gridlink/experiments/report.py
-  src/gridlink/experiments/session.py
-  src/gridlink/experiments/setup.py
-  src/gridlink/experiments/simulation.py
-  src/gridlink/experiments/stats.py
-  src/gridlink/optical/__init__.py
-  src/gridlink/optical/calibration.py
-  src/gridlink/optical/detection.py
-  src/gridlink/optical/patterns.py
-  src/gridlink/optical/synchronization.py
-  src/gridlink/protocol.py
-  src/gridlink/receiver.py
-  src/gridlink/transmitter.py
+  src/screencam/__init__.py
+  src/screencam/__main__.py
+  src/screencam/cli.py
+  src/screencam/coding/__init__.py
+  src/screencam/coding/errors.py
+  src/screencam/coding/hamming.py
+  src/screencam/coding/interleaving.py
+  src/screencam/coding/parity2d.py
+  src/screencam/coding/pipeline.py
+  src/screencam/coding/repetition.py
+  src/screencam/coding/spreading.py
+  src/screencam/experiments/__init__.py
+  src/screencam/experiments/analysis.py
+  src/screencam/experiments/capture.py
+  src/screencam/experiments/channel_model.py
+  src/screencam/experiments/metrics.py
+  src/screencam/experiments/noise.py
+  src/screencam/experiments/plan.py
+  src/screencam/experiments/recording.py
+  src/screencam/experiments/report.py
+  src/screencam/experiments/session.py
+  src/screencam/experiments/setup.py
+  src/screencam/experiments/simulation.py
+  src/screencam/experiments/stats.py
+  src/screencam/optical/__init__.py
+  src/screencam/optical/calibration.py
+  src/screencam/optical/detection.py
+  src/screencam/optical/patterns.py
+  src/screencam/optical/synchronization.py
+  src/screencam/protocol.py
+  src/screencam/receiver.py
+  src/screencam/transmitter.py
   tests/test_codes.py
   tests/test_layouts.py
   tests/test_plan_regen.py

@@ -8,7 +8,7 @@ group06-report.pdf
 The group report, 6 pages in IEEE two column format.
 
 group06-code.zip
-The code. src/gridlink holds the transmitter (transmitter.py), the receiver (receiver.py and
+The code. src/screencam holds the transmitter (transmitter.py), the receiver (receiver.py and
 the optical folder), the frame format (protocol.py), the error correcting codes (the coding
 folder) and the experiment code (the experiments folder). The tests are in tests. The scripts
 that rebuild the report figures and tables are in report. The README inside the zip explains
