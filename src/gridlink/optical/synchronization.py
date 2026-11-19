@@ -66,11 +66,7 @@ def _candidate_grid(first: float, last: float, step: float) -> list[float]:
 
 
 def _centre_of_best_run(scored: list[tuple[float, tuple[int, int]]]) -> float:
-    """Return the middle of the first contiguous run of best-scoring candidates.
-
-    Several neighbouring candidate starts usually decode a clean pattern identically.
-    Taking the middle of that run places symbol centres away from transition edges.
-    """
+    """Middle of the first run of best-scoring candidates, which keeps the sample points away from the edges."""
     best = max(score for _, score in scored)
     run: list[float] = []
     for candidate, score in scored:
@@ -87,12 +83,10 @@ def find_preamble_start(
     preamble: list[int],
     minimum_match_fraction: float = 0.8,
 ) -> float | None:
-    """Estimate the start of a frame by matching preamble bits at symbol centres.
+    """Estimate where a frame starts by matching the preamble at symbol centres.
 
-    Candidate starts are spaced at a fraction of a symbol over the captured interval.
-    This avoids assuming that the first camera frame coincides with the first displayed
-    symbol. A small timing tolerance permits ordinary frame jitter while rejecting gaps
-    larger than a symbol.
+    Candidate starts are a fraction of a symbol apart, because the first camera frame does not
+    line up with the first symbol. A small tolerance allows for jitter but not for gaps bigger than a symbol.
     """
     if not samples:
         raise ValueError("samples must be non-empty")
@@ -121,10 +115,10 @@ def find_first_pattern(
     not_after: float,
     minimum_match_fraction: float = 0.8,
 ) -> float | None:
-    """Return the start of the earliest occurrence of ``pattern`` in a time window.
+    """Start of the earliest place the pattern matches in a time window.
 
-    The earliest qualifying candidate is refined over the following pattern length,
-    because a periodic preamble also partially matches when shifted by whole symbols.
+    The preamble repeats, so it also half matches when shifted by whole symbols. The earliest
+    candidate is refined over the next pattern length to avoid that.
     """
     _validate(symbol_duration, pattern, minimum_match_fraction)
     if not samples or not_after < not_before:
@@ -151,10 +145,9 @@ def sample_symbols(
     symbol_duration: float,
     maximum_symbols: int | None = None,
 ) -> list[int]:
-    """Sample symbol centres after an acquired frame start.
+    """Sample the symbol centres after the frame start.
 
-    Sampling stops at the first centre with no nearby camera observation. Missing
-    observations are therefore not silently converted into bit flips.
+    It stops at the first centre with no camera frame nearby, so missing data does not turn into bit flips.
     """
     if symbol_duration <= 0:
         raise ValueError("symbol duration must be positive")

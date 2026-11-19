@@ -20,11 +20,9 @@ def estimate_threshold(
     white_samples: list[float],
     minimum_contrast: float = 20.0,
 ) -> CalibrationResult:
-    """Estimate a midpoint threshold and report whether levels are separable.
+    """Threshold halfway between the black and white levels, and whether they are far enough apart.
 
-    The midpoint is only considered valid when the measured black level is lower
-    than the white level and their mean separation exceeds the requested margin.
-    This prevents a poor physical setup from being reported as calibrated.
+    It is only valid if black is below white by at least the margin, so a bad setup is not called calibrated.
     """
     if not black_samples or not white_samples:
         raise ValueError("both black and white samples are required")

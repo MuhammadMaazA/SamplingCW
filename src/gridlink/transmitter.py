@@ -29,10 +29,9 @@ def _hold_until(cv2, deadline: float) -> None:
 
 
 def _show_bits(cv2, window: str, bits: list[int], symbol_duration: float, start: float) -> None:
-    """Display each bit until an absolute deadline measured from ``start``.
+    """Show each bit until its deadline, measured from start and not from when the last bit appeared.
 
-    Deadlines are not measured from when a symbol actually appeared, so display and
-    event-loop latency cannot accumulate into a timing drift across a long frame.
+    That way small delays do not add up over a long frame.
     """
     for index, bit in enumerate(bits):
         cv2.imshow(window, symbol_image(bit))
@@ -55,10 +54,7 @@ def transmit(frame: Frame, symbol_duration: float = 0.25, window: str = "GridLin
 def transmit_plan(
     plan: ExperimentPlan, lead_in: float = 5.0, window: str = "GridLink experiment"
 ) -> bool:
-    """Display every planned trial on one absolute clock, separated by black gaps.
-
-    Returns ``False`` if the operator stopped the session early.
-    """
+    """Show every trial on one clock with black gaps between them. Returns False if stopped early."""
     if lead_in < plan.gap:
         raise ValueError("lead-in must be at least as long as the inter-frame gap")
     cv2 = _open_window(window)

@@ -1,8 +1,4 @@
-"""Shared trial schedules for physical experiments.
-
-The transmitter and the offline analysis load the same plan, so every trial's payload,
-coding mode, and nominal start time are known exactly on both sides of the channel.
-"""
+"""Trial plans for the experiments. The transmitter and the analysis use the same plan."""
 
 from __future__ import annotations
 
@@ -109,10 +105,9 @@ def transmitter_command(
     configs: list[CodingConfig] | None = None,
     lead_in: float = 5.0,
 ) -> str:
-    """Return an A-side command that rebuilds this plan from seed (no JSON copy).
+    """Command for laptop 1 that rebuilds this plan from the seed, so no JSON file is copied.
 
-    The shuffle depends on config order, so pass the configs in the order given to
-    ``make_plan``. Without them, first-seen order only reproduces single-method plans.
+    The shuffle depends on the order of the configs, so pass them in the same order as make_plan.
     """
     bit_rate = 1 / plan.symbol_duration
     payload_bytes = len(plan.trials[0].payload)
@@ -142,11 +137,7 @@ def make_plan(
     gap: float,
     seed: int,
 ) -> ExperimentPlan:
-    """Create a randomised, fully specified schedule of trials.
-
-    Trial order is shuffled so slow drifts in lighting or alignment during a session
-    are spread across coding modes instead of being confounded with one of them.
-    """
+    """Make a shuffled schedule of trials, so drift in the lighting does not line up with one code."""
     if not configs or repeats <= 0 or not 0 <= payload_bytes <= 65535:
         raise ValueError("at least one configuration, one repeat and a valid payload are needed")
     if not isfinite(symbol_duration) or symbol_duration <= 0:
@@ -195,10 +186,9 @@ def _trial_document(trial: Trial, spread_headers: bool) -> dict:
 
 
 def save_plan(plan: ExperimentPlan, path: str | Path) -> None:
-    """Save a plan, using version 1 unless a trial needs a spread header.
+    """Save a plan as version 1, or version 2 if a trial uses a spread header.
 
-    Older code ignores unknown fields, so it would misread a spread-header trial as
-    adjacent. Version 2 makes it refuse those plans instead.
+    Old code would read a spread header as a normal one, so version 2 makes it refuse the plan.
     """
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)

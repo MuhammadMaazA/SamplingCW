@@ -1,12 +1,10 @@
-"""Two-state Gilbert-Elliott burst model, fitted to measured error sequences.
+"""Two-state Gilbert-Elliott burst model, fitted to the measured error sequences.
 
-The channel is either Good (rare flips) or Bad (frequent flips) and switches state
-between bits as a Markov chain. Parameters are fitted by Baum-Welch (EM) on the
-per-trial error indicator sequences, so bursts are learned from the data, not assumed.
+The channel is either Good (rare flips) or Bad (frequent flips) and moves between the
+two as a Markov chain. The parameters are fitted with Baum-Welch on each trial's errors.
 
-Optionally each bit carries a context class (for example "early" or "late" in a run of
-identical symbols), and each state then has one error probability per class. This lets
-the model separate *when* the channel is bad from *which symbols* a bad spell damages.
+Each bit can also have a context class, for example early or late in a run of identical
+symbols, and then each state has one error probability per class.
 """
 
 from __future__ import annotations

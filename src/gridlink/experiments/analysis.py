@@ -1,16 +1,13 @@
-"""Offline decoding of raw captures against a known experiment plan.
+"""Decode a raw capture offline against the experiment plan.
 
-Every planned trial produces a record, including trials that were never synchronised
-or whose CRC failed, so failures cannot silently disappear from the results.
+Every planned trial gets a record, even if it never synchronised or its CRC failed.
+Each trial is scored two ways.
 
-Two decoding views are recorded for each trial:
+frame_valid is what a real receiver would do. Both CRCs must pass and the frame must
+match the plan.
 
-* ``frame_valid`` is the realistic receiver outcome from ``parse_frame``: the header
-  and payload CRCs must both pass. The header is read in the trial's planned layout
-  (adjacent or spread), and the decoded frame must match the plan in every field.
-* ``decoded_bit_errors`` is genie-aided: the known plan supplies the header, and only
-  the coded section is decoded and compared with the transmitted payload plus CRC.
-  This isolates how well each code corrects channel errors from header failures.
+decoded_bit_errors takes the header from the plan and only decodes the coded part, so
+it shows how well the code fixes channel errors without header failures getting in the way.
 """
 
 from __future__ import annotations
@@ -44,7 +41,7 @@ class SessionConditions:
 
 
 def auto_threshold(intensities: list[float]) -> float:
-    """Midpoint of the 5th and 95th intensity percentiles, robust to a few outliers."""
+    """Midpoint of the 5th and 95th percentile of intensity, so a few outliers do not matter."""
     low, high = np.percentile(intensities, [5, 95])
     return float((low + high) / 2)
 
@@ -155,11 +152,11 @@ def analyse_capture(
     threshold: float | None = None,
     conditions: SessionConditions | None = None,
 ) -> list[ExperimentRecord]:
-    """Locate and score every planned trial in a raw capture.
+    """Find and score every planned trial in a raw capture.
 
-    The first detected frame is identified by its header, which anchors the plan's
-    schedule. Each later trial is searched for within half a gap of its predicted
-    start, and every successful detection re-anchors the schedule to absorb drift.
+    The first frame found is matched to a trial by its header, and that fixes the schedule.
+    Each later trial is searched for within half a gap of where it should start, and every
+    frame found resets the schedule so drift does not build up.
     """
     if threshold is None:
         threshold = auto_threshold(capture.intensities)

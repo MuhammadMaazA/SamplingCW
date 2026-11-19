@@ -114,10 +114,9 @@ def capture(
     camera_index: int = 0,
     roi: tuple[int, int, int, int] | None = None,
 ) -> int:
-    """Record raw timestamped ROI intensities for offline decoding.
+    """Record timestamped brightness values from the chosen box for decoding later.
 
-    Select and preview the region, then press Space to start the recording clock.
-    Samples and a small event log are saved immediately. Returns the sample count.
+    Pick the box, check the preview, then press Space to start. Returns the number of samples.
     """
     if duration <= 0:
         raise ValueError("capture duration must be positive")

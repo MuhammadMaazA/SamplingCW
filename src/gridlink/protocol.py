@@ -63,10 +63,10 @@ def crc16(data: bytes) -> int:
 
 
 def find_sync(bits: list[int], maximum_mismatches: int = MAX_SYNC_MISMATCHES) -> int:
-    """Return the earliest best-matching sync word position, or -1 if none is close enough.
+    """Position of the best matching sync word, or -1 if none is close enough.
 
-    Tolerating a few flipped bits stops one corrupted sync bit from losing a whole frame.
-    The magic bytes after the alternating preamble make whole-symbol shifts score badly.
+    A few wrong bits are allowed so one bad sync bit does not lose the frame. The bytes after the
+    alternating preamble make shifts by whole symbols match badly.
     """
     pattern = bytes_to_bits(SYNC_WORD)
     width = len(pattern)
@@ -119,9 +119,8 @@ def build_frame(frame: Frame) -> list[int]:
 def parse_frame(bits: list[int], spread_header: bool | None = None) -> Frame:
     """Decode one frame after the first sync word.
 
-    The header layout is not known before the header is read, so by default the
-    adjacent layout is tried first and the spread layout only if that fails. A caller
-    that already knows the layout, such as the offline analysis, can pass it instead.
+    We cannot know the header layout before reading it, so the normal layout is tried first and
+    the spread one if that fails. The analysis already knows the layout, so it passes it in.
     """
     start = find_sync(bits)
     if start < 0:

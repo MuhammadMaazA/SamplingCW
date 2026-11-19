@@ -106,7 +106,7 @@ gridlink setup
 
 It asks for the run name, venue/room, camera index, coding methods, repeats, speed, payload size, threshold and physical conditions. Choose methods by number (for example `2` for repetition-3, or `2,5,6` for repetition-3, Hamming and grid parity). Numbers 8 to 11 are the spread and deep-interleaving layouts. The choice sets the actual transmission plan. Date/time is recorded automatically, with local and UTC timestamps.
 
-Setup saves the plan on B only and prints A's `transmit-plan` command. A does not need the JSON file: that command rebuilds the same schedule from the seed and settings. Press Enter on B to open the camera, select the region, then press Space to record. Start the printed command on A only when B says RECORDING. Q in the setup prompt saves the plan and exits without opening a camera.
+Setup saves the plan on B only and prints the `transmit-plan` command for A. A does not need the JSON file, because that command rebuilds the same schedule from the seed and settings. Press Enter on B to open the camera, select the region, then press Space to record. Start the printed command on A only when B says RECORDING. Q in the setup prompt saves the plan and exits without opening a camera.
 
 Session folders include the name, venue, method (or `comparison` for mixed methods) and timestamp, such as `run1-UCL-East-repetition-3-20261026-153000-123456Z/`. The original name, venue and actual methods are saved in `session.json`, and each result row records its coding mode and venue. Reports keep different venues separate. Older CSVs without a venue still load with that field blank.
 
@@ -189,7 +189,7 @@ The report uses the IEEEtran class (two columns, A4) and the Gill Sans MT font i
 - `optical/`: brightness measurements and timing recovery.
 - `experiments/`: trial plans, saved results, simulations, analysis and plots; `stats.py` and `channel_model.py` hold the statistics and burst model used by the report.
 
-Timing recovery uses a sorted list and binary search to find the closest camera sample efficiently. Keep this when explaining performance: scanning the whole recording for every symbol made long captures too slow.
+Timing recovery uses a sorted list and a binary search to find the camera frame closest to each symbol. Scanning the whole recording for every symbol was too slow on long captures.
 
 ## Presentation
 

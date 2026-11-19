@@ -87,7 +87,7 @@ def put(fig, name, what):
     manifest[name] = {"inches": [round(w, 2), round(h, 2)], "pixels": list(Image.open(OUT / name).size), "shows": what}
 
 
-# ---------------------------------------------------------------- loading
+# loading
 def load_summary():
     with open(RES / "report-final" / "summary.csv", newline="") as fh:
         return {r["group"]: r for r in csv.DictReader(fh)}
@@ -148,7 +148,7 @@ def pooled(groups):
     return k, n, [float(summary[g]["channel_ber"]) for g in groups]
 
 
-# ---------------------------------------------------------------- setup numbers
+# setup numbers
 def symbol_levels(key):
     ts, v = load_capture(key)
     ones, zeros = [], []
@@ -195,7 +195,7 @@ def setup_numbers():
     stats["setup"] = rows
 
 
-# ---------------------------------------------------------------- failure breakdown
+# failure breakdown
 def failures():
     envs = [("Facing screen, 3 bps", [f"G{i:02d}" for i in range(1, 8)]),
             ("Facing screen, 8 bps", [f"G{i:02d}" for i in range(8, 15)]),
@@ -225,7 +225,7 @@ def spread(ys, gap):
     return out
 
 
-# ---------------------------------------------------------------- 1. raw brightness traces
+# 1. raw brightness traces
 def fig_traces():
     cases = [("reflect4", "full1b-000", "(a)", f"{NORMAL}, 4 bps, repetition-5"),
              ("glare_b", "quiet1-001", "(b)", f"{GLARE_LIGHT}, 4 bps, repetition-3")]
@@ -281,7 +281,7 @@ def fig_traces():
     stats["crops"] = {k: Image.open(RES / SESS[k] / "capture.png").size for k in ["reflect4", "glare_b", "glare_c"]}
 
 
-# ---------------------------------------------------------------- 2. Wilson intervals
+# 2. Wilson intervals
 def label(r):
     c = r["coding"]
     return {"none": "none", "hamming": "Hamming", "hamming-interleaved": "Ham-interl.", "parity2d": "2-D parity"}.get(
@@ -350,7 +350,7 @@ def fig_wilson():
     stats["fisher_rep7_vs_hamming_8bps_one_sided"] = round(fisher_one_sided(3, 0, 3), 3)
 
 
-# ---------------------------------------------------------------- 3. rate against reliability
+# 3. rate against reliability
 RATE = {"none": 1.0, "2-D parity": 16 / 25, "Hamming": 4 / 7, "Ham-interl.": 4 / 7, "rep-3": 1 / 3, "rep-5": 1 / 5, "rep-7": 1 / 7}
 # label offsets in points (dx, dy, alignment) per panel and method, chosen so labels never collide
 OFFS = {
@@ -393,7 +393,7 @@ def fig_tradeoff():
     stats["tradeoff"] = out
 
 
-# ---------------------------------------------------------------- 4. two kinds of noise
+# 4. two kinds of noise
 ISOLATED = ("final-comparison", {"final-007", "final-012", "final-016"})
 BURSTS = ("quiet1b-lab", {"quiet1-001", "quiet1-002"})
 
@@ -456,7 +456,7 @@ def fig_noise_regimes():
                               "longest_burst": int(rb.max())}
 
 
-# ---------------------------------------------------------------- 5. bit pattern dependence and random flip test
+# 5. bit pattern dependence and random flip test
 def depth_curve(keys, maxd=12):
     n = collections.Counter(); e = collections.Counter()
     for k in keys:
@@ -586,7 +586,7 @@ def fig_run_lengths():
     stats["model"] = res
 
 
-# ---------------------------------------------------------------- 6. repetition, theory against reality
+# 6. repetition, theory against reality
 def maj(p, n):
     return sum(math.comb(n, k) * p ** k * (1 - p) ** (n - k) for k in range(n // 2 + 1, n + 1))
 
@@ -638,7 +638,7 @@ def fig_repetition():
     stats["repetition"] = pts
 
 
-# ---------------------------------------------------------------- 7. every recording on a date axis
+# 7. every recording on a date axis
 def results_counts(path):
     rows = list(csv.DictReader(open(path, newline="")))
     return len(rows), sum(1 for r in rows if r["frame_start"]), sum(1 for r in rows if r["frame_valid"] == "True")
@@ -746,7 +746,7 @@ def fig_sessions_timeline():
     put(fig, "fig-sessions-timeline.png", "Every recording as one dot per session in lanes by condition, marker area is the number of planned trials, colour is outcome")
 
 
-# ---------------------------------------------------------------- 8. the four one-variable changes
+# 8. the four one-variable changes
 def grp(a, b):
     return [f"G{i:02d}" for i in range(a, b + 1)]
 
@@ -800,7 +800,7 @@ def fig_changes():
         stats["changes"][key] = entry
 
 
-# ---------------------------------------------------------------- 9. brightness levels of sent black and white symbols
+# 9. brightness levels of sent black and white symbols
 def fig_levels():
     cases = [("reflect4", f"{NORMAL}, 4 bps", "G15 to G21"), ("glare_c", f"{GLARE_LIGHT}, 4 bps", "G24")]
     W, H = 9.0, 3.3
@@ -845,7 +845,7 @@ def fig_levels():
     put(fig, "fig-levels.png", "Brightness at symbol centres for sent black and sent white, normal light against dim with glare, with the threshold and the overlap")
 
 
-# ---------------------------------------------------------------- 10. camera frames against symbol boundaries
+# 10. camera frames against symbol boundaries
 def fig_sampling():
     cases = [("facing8", 8), ("reflect4", 4), ("glare2", 2)]
     n_sym = 6
@@ -889,7 +889,7 @@ def fig_sampling():
     put(fig, "fig-sampling.png", "Real camera frame timestamps against symbol boundaries at 8, 4 and 2 bps with the sampled frame highlighted")
 
 
-# ---------------------------------------------------------------- 11. every analysed trial, error positions by setup
+# 11. every analysed trial, error positions by setup
 def fig_error_raster():
     setups = [(f"{NORMAL}, 4 bps", ["reflect4", "reflect4b", "facing4"], INK), (f"{GLARE_LIGHT}, 2 bps", ["glare2"], ACCENT),
               (f"{NORMAL}, 3 bps", ["facing3"], INK), (f"{NORMAL}, 8 bps", ["facing8"], INK),
@@ -930,7 +930,7 @@ def fig_error_raster():
     put(fig, "fig-error-raster.png", "Error positions in every trial of every analysed group, one row per trial, grouped by light and speed and ordered by channel BER")
 
 
-# ---------------------------------------------------------------- 12. the fitted burst model against a real glare frame
+# 12. the fitted burst model against a real glare frame
 def fig_ge_fit():
     glare = [t for t in by_slice(load_trials())["4 bps glare"] if t.observed]
     seqs = [t.error_sequence for t in glare]
@@ -967,7 +967,7 @@ def fig_ge_fit():
                        "memoryless_flip": round(flip, 4), "real_frame": real.record.run_id, "real_errors": len(real.error_positions)}
 
 
-# ---------------------------------------------------------------- 13. physical test of the new layouts
+# 13. physical test of the new layouts
 LAYOUTS = [  # coding, repetitions, spread header, label, short label, as built layout it is compared with
     ("repetition", "3", "False", "rep-3 adjacent", "rep-3", None),
     ("repetition-spread", "3", "False", "rep-3 spread", "rep-3 spread", "rep-3 adjacent"),

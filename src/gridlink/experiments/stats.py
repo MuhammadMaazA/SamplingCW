@@ -44,8 +44,7 @@ def bootstrap_ratio_interval(
 ) -> tuple[float, float]:
     """Percentile interval for sum(numerators) / sum(denominators), resampling whole trials.
 
-    Resampling trials rather than bits keeps the within-frame correlation of bursty errors,
-    which a per-bit binomial interval would wrongly treat as independent evidence.
+    We resample trials, not bits, because errors in a burst are not independent.
     """
     num = np.asarray(numerators, dtype=float)
     den = np.asarray(denominators, dtype=float)
@@ -86,9 +85,9 @@ def burstiness_permutation_test(
     permutations: int = 5000,
     seed: int = 0,
 ) -> tuple[float, float, float]:
-    """Test errors against a memoryless channel with the same per-trial error counts.
+    """Permutation test of the errors against a memoryless channel with the same error count per trial.
 
-    Under the null, each trial's errors fall uniformly at random over its observed bits.
+    Under the null, each trial's errors land at random positions.
     Returns (observed burst share, mean share under the null, one-sided p-value).
     """
     observed = burst_share(trials, minimum_run)
