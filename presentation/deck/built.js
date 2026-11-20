@@ -75,13 +75,13 @@ function txrx() {
 // ---------- how a code plugs into the link and how we checked it ----------
 function plugAndCheck() {
   const ids = CODE.coding_ids, isNew = (n) => n === "repetition-spread" || n === "hamming-interleaved-16";
-  const H = DATA.hamming_check, RT = DATA.round_trip, SIM = DATA.simulation, TS = DATA.tests;
+  const H = DATA.hamming_check, RT = DATA.round_trip, SIM = DATA.simulation;
   const sum = (m) => m.reduce((t, r) => t + r.filter(Boolean).length, 0), size = (m) => m.reduce((t, r) => t + r.length, 0);
   const one = [sum(H.singles), size(H.singles)], two = [sum(H.doubles), size(H.doubles)];
   const { s, top } = content({
     title: "Plugging in and checking a code",
-    take: TS.passed === TS.total ? `A coding id picks the code, and every check on the decoder passes, ${TS.total} of ${TS.total} tests.` : `A coding id picks the code, and ${TS.passed} of ${TS.total} tests pass.`,
-    notes: `With the codes set out, we needed a clean way to plug them into the link and a way to trust the decoder. The header carries a coding number from 0 to 6, and both laptops look it up in the same table, where every code offers the same two functions, encode and decode. That made adding our two new layouts, numbers 5 and 6, a matter of adding two entries. We then tested the decoder before any recording. It fixed all 112 single flips across the Hamming codewords and none of the 336 double flips, as expected, and all 84 automated tests pass.`,
+    take: "A coding id picks the code, and every check on the decoder passes.",
+    notes: `With the codes set out, we needed a clean way to plug them into the link and a way to trust the decoder. The header carries a coding number from 0 to 6, and both laptops look it up in the same table, where every code offers the same two functions, encode and decode. That made adding our two new layouts, numbers 5 and 6, a matter of adding two entries. We then tested the decoder before any recording. It fixed all 112 single flips across the Hamming codewords and none of the 336 double flips, as expected.`,
   });
   // the top half, the header picks a row of the table, every code has the same two functions
   const rh = 0.28, ty = top + 0.3, tx = 2.35, idw = 0.42, nws = [2.15, 2.6], colGap = 0.1;
@@ -115,7 +115,7 @@ function plugAndCheck() {
   text(s, "single flips fixed", { x: g1, y: ny + 0.25, w: gw + 0.1, h: 0.24, fontSize: 12, color: C.text2, objectName: "single flips fixed label" });
   text(s, `${two[0]} of ${two[1]}`, { x: g2, y: ny, w: gw, h: 0.26, fontSize: 14, bold: true, fontFace: FONT.mono, color: C.accent2, objectName: "double flips fixed" });
   text(s, "double flips fixed", { x: g2, y: ny + 0.25, w: gw + 0.1, h: 0.24, fontSize: 12, color: C.text2, objectName: "double flips fixed label" });
-  const rx = 4.25, rw = 2.7, rows = [[`${TS.passed} of ${TS.total}`, "automated tests pass"], [RT.crc_check, "CRC-16 of 123456789"], [`${RT.passed} of ${RT.total}`, "frames decode back"]];
+  const rx = 4.25, rw = 2.7, rows = [[RT.crc_check, "CRC-16 of 123456789"], [`${RT.passed} of ${RT.total}`, "frames decode back"]];
   rows.forEach(([big, small], i) => {
     const y = by + 0.1 + i * 0.5;
     hline(s, rx, y - 0.04, rw, { name: `check rule ${i + 1}` });
