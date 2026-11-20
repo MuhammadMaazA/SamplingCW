@@ -84,9 +84,8 @@ checks both CRCs. A CRC detects damage but cannot repair it, so we report the nu
 bit error rate.
 
 \section{Error-Correcting Codes}
-All the codes share one encoder and decoder interface, and an automated suite of 84 tests covers
-them, including an exhaustive check that Hamming corrects every single error in every codeword and
-miscorrects every double error. Each code trades rate for reliability. Shannon's theorem says that reliable communication is
+All the codes share one encoder and decoder interface. We checked every Hamming codeword and
+found that the decoder corrects every single error and miscorrects every double error. Each code trades rate for reliability. Shannon's theorem says that reliable communication is
 possible at any rate below the channel capacity~\cite{shannon}, and our simple codes sit far below
 that limit.
 
