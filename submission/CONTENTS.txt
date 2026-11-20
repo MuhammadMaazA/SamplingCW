@@ -1,7 +1,7 @@
 This folder is a copy of what we upload to Moodle for COMP0228 Coursework 1, CW1 Group 06.
 
 The five files are the group report PDF, the code zip, the slides, the data zip and the marker README.
-The code zip was made from the committed code with git archive. It leaves out the tests folder and the markdown files.
+The code zip was made from the committed code with git archive. It has src, pyproject.toml and the experiment plans, and leaves out the tests, the report scripts and the markdown files.
 The data zip holds the recorded sessions that are also in experiments/results.
 
 Contents of group06-code.zip
@@ -16,28 +16,6 @@ Contents of group06-code.zip
   experiments/plans/quiet2bps.json
   experiments/plans/smoke.json
   pyproject.toml
-  report/burst_experiment.py
-  report/data.py
-  report/design_sim.py
-  report/figures/extension.pdf
-  report/figures/highnoise-bars.pdf
-  report/figures/layouts.pdf
-  report/figures/noise-regimes.pdf
-  report/figures/physical-test.pdf
-  report/figures/system.pdf
-  report/gen_allruns.py
-  report/generated/allruns-rows-a.tex
-  report/generated/allruns-rows-b.tex
-  report/generated/allruns-rows-c.tex
-  report/generated/contrasts.tex
-  report/generated/physical.tex
-  report/generated/stats.json
-  report/generated/table-clean.tex
-  report/generated/table-fast.tex
-  report/generated/table-physical.tex
-  report/generated/table-slices.tex
-  report/make_figures.py
-  report/report.tex
   src/screencam/__init__.py
   src/screencam/__main__.py
   src/screencam/cli.py

@@ -10,8 +10,7 @@ The group report, 6 pages in IEEE two column format.
 group06-code.zip
 The code. src/screencam holds the transmitter (transmitter.py), the receiver (receiver.py and
 the optical folder), the frame format (protocol.py), the error correcting codes (the coding
-folder) and the experiment code (the experiments folder). The scripts
-that rebuild the report figures and tables are in report.
+folder) and the experiment code (the experiments folder).
 
 group06-slides.pptx
 The 36 slides of the presentation. Slide 15 plays a replay
@@ -31,5 +30,5 @@ Unzip group06-code.zip, then in that folder run
 python -m pip install -e ".[analysis]"
 screencam --help
 The screencam command has transmit, receive, calibrate, plan, transmit-plan, record, analyse and
-report. To rebuild the report, unpack group06-data.zip inside the experiments folder, then run
-python report/make_figures.py and python report/gen_allruns.py and build report/report.tex with LaTeX.
+report. To decode a recording again, unpack group06-data.zip inside the experiments folder and
+run screencam analyse with the plan.json and capture.csv of that session.
