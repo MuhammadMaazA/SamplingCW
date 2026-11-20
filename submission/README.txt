@@ -17,8 +17,8 @@ The 36 slides of the presentation. Slide 15 plays a replay
 of one recorded run. It is a replay drawn from the recorded data and it is not a live run.
 
 group06-data.zip
-The recorded sessions behind every number in the report, with a DATA-README.txt that says what
-each folder is and how the groups G01 to G29 map to them.
+The recorded sessions behind every number in the report. Each session folder holds plan.json,
+capture.csv, results.csv, summary.csv, session.json and the logs.
 
 The setup
 Every run used one chain. Laptop 1 flashes a black and white patch in front of an iPad. The

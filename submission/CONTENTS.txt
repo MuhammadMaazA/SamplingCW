@@ -2,7 +2,7 @@ This folder is a copy of what we upload to Moodle for COMP0228 Coursework 1, CW1
 
 The five files are the group report PDF, the code zip, the slides, the data zip and the marker README.
 The code zip was made from the committed code with git archive. It has src, pyproject.toml and the experiment plans, and leaves out the tests, the report scripts and the markdown files.
-The data zip holds the recorded sessions that are also in experiments/results.
+The data zip holds the recorded sessions that are also in experiments/results, without the text files.
 
 Contents of group06-code.zip
   .gitignore
@@ -51,4 +51,21 @@ Contents of group06-code.zip
 
 Top level of group06-data.zip
   results/
-  DATA-README.txt
+  results/final-comparison-20261031-150350-900428Z
+  results/full1-laboutside-comparison-20261027-170708-296161Z
+  results/full1b-lab-comparison-20261027-174408-573804Z
+  results/glare-layouts-room-comparison-20261106-021501-951575Z
+  results/glare-layouts-room-comparison-20261106-021826-534413Z
+  results/glare-layouts-room-comparison-20261106-021921-294106Z
+  results/monitor-room-comparison-20261030-180312-849922Z
+  results/monitor-room-comparison-20261030-180441-714350Z
+  results/plans
+  results/quick-lab-repetition-3-20261027-173212-078354Z
+  results/quiet1-lab-repetition-3-20261026-163304-310902Z
+  results/quiet1b-lab-repetition-3-20261026-164839-135418Z
+  results/quiet1c-lab-repetition-3-20261026-170042-409100Z
+  results/quiet1d-lab-repetition-3-20261026-171013-285528Z
+  results/quiet1e-lab-repetition-3-20261026-171657-143340Z
+  results/quiet2bps-lab-repetition-3-20261026-172410-806159Z
+  results/report-final
+  results/test-lab-repetition-3-20261027-163916-214973Z
